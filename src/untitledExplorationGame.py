@@ -3,8 +3,9 @@ import pygame
 from config import Config
 from entity import Entity
 from graphik import Graphik
-from environment import Environment
 from player import Player
+from room import Room
+
 
 # @author Daniel McCoy Stephenson
 # @since August 8th, 2022
@@ -17,7 +18,7 @@ class UntitledExplorationGame:
         pygame.display.set_caption("Untitled Exploration Game")
         self.initializeGameDisplay()
         self.graphik = Graphik(self.gameDisplay)
-        self.environment = Environment("Environment #1", self.config.gridSize)
+        self.environment = Room("Environment #1", self.config.gridSize)
         self.initializeLocationWidthAndHeight()
         self.player = Player()
     
