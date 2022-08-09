@@ -19,8 +19,8 @@ class UntitledExplorationGame:
         self.initializeGameDisplay()
         self.graphik = Graphik(self.gameDisplay)
         self.redRoom = Room("Red Room", self.config.gridSize, (200, 0, 0))
-        self.greenRoom = Room("Green Room", self.config.gridSize, (0, 200, 0))
-        self.blueRoom = Room("Blue Room", self.config.gridSize, (0, 0, 200))
+        self.greenRoom = Room("Green Room", self.config.gridSize*2, (0, 200, 0))
+        self.blueRoom = Room("Blue Room", self.config.gridSize*3, (0, 0, 200))
         self.currentRoom = self.redRoom
         self.initializeLocationWidthAndHeight()
         self.player = Player()
@@ -58,20 +58,24 @@ class UntitledExplorationGame:
         elif direction == 3:
             return grid.getRight(location)
     
+    def changeRooms(self):
+        self.currentRoom.removeEntity(self.player)
+        if self.currentRoom == self.redRoom:
+            self.currentRoom = self.greenRoom
+        elif self.currentRoom == self.greenRoom:
+            self.currentRoom = self.blueRoom
+        elif self.currentRoom == self.blueRoom:
+            self.currentRoom = self.redRoom
+        self.currentRoom.addEntity(self.player)
+        self.initializeLocationWidthAndHeight()
+    
     def movePlayer(self, direction):
         location = self.getLocationOfPlayer()
         newLocation = self.getLocationDirection(direction, self.currentRoom.getGrid(), location)
 
         if newLocation == -1:
             # we're at a border
-            self.currentRoom.removeEntity(self.player)
-            if self.currentRoom == self.redRoom:
-                self.currentRoom = self.blueRoom
-            elif self.currentRoom == self.blueRoom:
-                self.currentRoom = self.greenRoom
-            elif self.currentRoom == self.greenRoom:
-                self.currentRoom = self.redRoom
-            self.currentRoom.addEntity(self.player)
+            self.changeRooms()
             return
 
         location.removeEntity(self.player)
