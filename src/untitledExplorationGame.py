@@ -3,6 +3,7 @@ import time
 import pygame
 from config import Config
 from entity import Entity
+from food import Food
 from graphik import Graphik
 from player import Player
 from room import Room
@@ -25,6 +26,7 @@ class UntitledExplorationGame:
         self.player = Player()
         self.rooms = []
         self.rooms.append(self.redRoom)
+        self.score = 0
     
     def initializeGameDisplay(self):
         if self.config.fullscreen:
@@ -38,6 +40,7 @@ class UntitledExplorationGame:
         self.locationHeight = y/self.currentRoom.getGrid().getColumns()
         
     def quitApplication(self):
+        print("Score: ", self.score)
         pygame.quit()
         quit()
     
@@ -79,7 +82,12 @@ class UntitledExplorationGame:
         
     def generateNewRoom(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
-        newRoom = Room("New Room", self.config.gridSize, (random.randrange(50, 200), random.randrange(50, 200), random.randrange(50, 200)), x, y)
+        newRoom = Room(("Room", str(x), str(y)), self.config.gridSize, (random.randrange(50, 200), random.randrange(50, 200), random.randrange(50, 200)), x, y)
+
+        # generate food
+        for i in range(1, self.config.gridSize):
+            newRoom.addEntity(Food())
+
         self.rooms.append(newRoom)
         print("A new room was generated with the coordinates ", x, y)
     
@@ -101,6 +109,7 @@ class UntitledExplorationGame:
         
         self.currentRoom.addEntity(self.player)
         self.initializeLocationWidthAndHeight()
+        pygame.display.set_caption(("Untitled Exploration Game - Room (" + str(x) + "," + str(y) + ")"))
     
     def movePlayer(self, direction):
         location = self.getLocationOfPlayer()
@@ -110,7 +119,14 @@ class UntitledExplorationGame:
             # we're at a border
             self.changeRooms()
             return
+        
+        # search for food
+        for entity in newLocation.getEntities():
+            if type(entity) is Food:
+                newLocation.removeEntity(entity)
+                self.score += 1
 
+        # move player
         location.removeEntity(self.player)
         newLocation.addEntity(self.player)
     
