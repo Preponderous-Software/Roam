@@ -1,5 +1,5 @@
 # Untitled Exploration Game
-This project is intended to allow the user to control an entity that can travel between environments.
+This application allows the user to control an entity that can travel between environments. 
 
 ## Support
 You can find the support discord server [here](https://discord.gg/49J4RHQxhy).
