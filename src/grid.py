@@ -85,7 +85,7 @@ class Grid(object):
     
     # Removes an entity from this grid.
     def removeEntity(self, entity: Entity):
-        for location in self.grid.getLocations():
+        for location in self.getLocations():
             if location.isEntityPresent(entity):
                 location.removeEntity(entity)
                 return

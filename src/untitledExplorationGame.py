@@ -18,7 +18,10 @@ class UntitledExplorationGame:
         pygame.display.set_caption("Untitled Exploration Game")
         self.initializeGameDisplay()
         self.graphik = Graphik(self.gameDisplay)
-        self.environment = Room("Environment #1", self.config.gridSize)
+        self.redRoom = Room("Red Room", self.config.gridSize, (200, 0, 0))
+        self.greenRoom = Room("Green Room", self.config.gridSize, (0, 200, 0))
+        self.blueRoom = Room("Blue Room", self.config.gridSize, (0, 0, 200))
+        self.currentRoom = self.redRoom
         self.initializeLocationWidthAndHeight()
         self.player = Player()
     
@@ -30,8 +33,8 @@ class UntitledExplorationGame:
 
     def initializeLocationWidthAndHeight(self):
         x, y = self.gameDisplay.get_size()
-        self.locationWidth = x/self.environment.getGrid().getRows()
-        self.locationHeight = y/self.environment.getGrid().getColumns()
+        self.locationWidth = x/self.currentRoom.getGrid().getRows()
+        self.locationHeight = y/self.currentRoom.getGrid().getColumns()
         
     def quitApplication(self):
         pygame.quit()
@@ -39,7 +42,7 @@ class UntitledExplorationGame:
     
     def getLocation(self, entity: Entity):
         locationID = entity.getLocationID()
-        grid = self.environment.getGrid()
+        grid = self.currentRoom.getGrid()
         return grid.getLocation(locationID)
 
     def getLocationOfPlayer(self):
@@ -57,10 +60,18 @@ class UntitledExplorationGame:
     
     def movePlayer(self, direction):
         location = self.getLocationOfPlayer()
-        newLocation = self.getLocationDirection(direction, self.environment.getGrid(), location)
+        newLocation = self.getLocationDirection(direction, self.currentRoom.getGrid(), location)
 
         if newLocation == -1:
             # we're at a border
+            self.currentRoom.removeEntity(self.player)
+            if self.currentRoom == self.redRoom:
+                self.currentRoom = self.blueRoom
+            elif self.currentRoom == self.blueRoom:
+                self.currentRoom = self.greenRoom
+            elif self.currentRoom == self.greenRoom:
+                self.currentRoom = self.redRoom
+            self.currentRoom.addEntity(self.player)
             return
 
         location.removeEntity(self.player)
@@ -89,9 +100,9 @@ class UntitledExplorationGame:
         elif key == pygame.K_d or key == pygame.K_RIGHT:
             self.movePlayer(3)
     
-    # Draws the environment in its entirety.
-    def drawEnvironment(self):
-        for location in self.environment.getGrid().getLocations():
+    # Draws the given environment in its entirety.
+    def drawEnvironment(self, environment):
+        for location in environment.getGrid().getLocations():
             self.drawLocation(location, location.getX() * self.locationWidth, location.getY() * self.locationHeight, self.locationWidth, self.locationHeight)
 
     # Draws a location at a specified position.
@@ -104,14 +115,14 @@ class UntitledExplorationGame:
         if location == -1:
             color = self.config.white
         else:
-            color = self.config.white
+            color = self.currentRoom.getBackgroundColor()
             if location.getNumEntities() > 0:
                 topEntity = location.getEntities()[-1]
                 return topEntity.getColor()
         return color
                 
     def run(self):
-        self.environment.addEntity(self.player)
+        self.currentRoom.addEntity(self.player)
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -121,8 +132,8 @@ class UntitledExplorationGame:
                 elif event.type == pygame.WINDOWRESIZED:
                     self.initializeLocationWidthAndHeight()
 
-            self.gameDisplay.fill(self.config.white)
-            self.drawEnvironment()
+            self.gameDisplay.fill(self.currentRoom.getBackgroundColor())
+            self.drawEnvironment(self.currentRoom)
             pygame.display.update()
 
             if self.config.limitTickSpeed:
