@@ -1,3 +1,4 @@
+import random
 import time
 import pygame
 from config import Config
@@ -18,12 +19,12 @@ class UntitledExplorationGame:
         pygame.display.set_caption("Untitled Exploration Game")
         self.initializeGameDisplay()
         self.graphik = Graphik(self.gameDisplay)
-        self.redRoom = Room("Red Room", self.config.gridSize, (200, 0, 0))
-        self.greenRoom = Room("Green Room", self.config.gridSize*2, (0, 200, 0))
-        self.blueRoom = Room("Blue Room", self.config.gridSize*3, (0, 0, 200))
+        self.redRoom = Room("Red Room", self.config.gridSize, (200, 0, 0), 0, 0)
         self.currentRoom = self.redRoom
         self.initializeLocationWidthAndHeight()
         self.player = Player()
+        self.rooms = []
+        self.rooms.append(self.redRoom)
     
     def initializeGameDisplay(self):
         if self.config.fullscreen:
@@ -58,14 +59,46 @@ class UntitledExplorationGame:
         elif direction == 3:
             return grid.getRight(location)
     
+    def getCoordinatesForNewRoomBasedOnPlayerLocation(self):
+        location = self.getLocationOfPlayer()
+        x = self.currentRoom.getX()
+        y = self.currentRoom.getY()
+        if location.getX() == self.config.gridSize - 1:
+            # we are on the right side of this room
+            x += 1
+        elif location.getX() == 0:
+            # we are on the left side of this room
+            x -= 1
+        elif location.getY() == self.config.gridSize - 1:
+            # we are at the bottom of this room
+            y += 1
+        elif location.getY() == 0:
+            # we are at the top of this room
+            y -= 1
+        return x, y
+        
+    def generateNewRoom(self):
+        x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
+        newRoom = Room("New Room", self.config.gridSize, (random.randrange(50, 200), random.randrange(50, 200), random.randrange(50, 200)), x, y)
+        self.rooms.append(newRoom)
+        print("A new room was generated with the coordinates ", x, y)
+    
+    def getRoom(self, x, y):
+        for room in self.rooms:
+            if room.getX() == x and room.getY() == y:
+                return room
+        return -1
+    
     def changeRooms(self):
         self.currentRoom.removeEntity(self.player)
-        if self.currentRoom == self.redRoom:
-            self.currentRoom = self.greenRoom
-        elif self.currentRoom == self.greenRoom:
-            self.currentRoom = self.blueRoom
-        elif self.currentRoom == self.blueRoom:
-            self.currentRoom = self.redRoom
+        x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
+        room = self.getRoom(x, y)
+        if room == -1:
+            self.generateNewRoom()
+            self.currentRoom = self.rooms[-1]
+        else:
+            self.currentRoom = room
+        
         self.currentRoom.addEntity(self.player)
         self.initializeLocationWidthAndHeight()
     
