@@ -11,16 +11,16 @@ from room import Room
 
 # @author Daniel McCoy Stephenson
 # @since August 8th, 2022
-class UntitledExplorationGame:
+class Roam:
     def __init__(self):
         self.config = Config()
         self.running = True
         self.tick = 0
         pygame.init()
-        pygame.display.set_caption("Untitled Exploration Game")
+        pygame.display.set_caption("Roam")
         self.initializeGameDisplay()
         self.graphik = Graphik(self.gameDisplay)
-        self.redRoom = Room("Red Room", self.config.gridSize, (200, 0, 0), 0, 0)
+        self.redRoom = Room("Spawn", self.config.gridSize, (200, 0, 0), 0, 0)
         self.currentRoom = self.redRoom
         self.initializeLocationWidthAndHeight()
         self.player = Player()
@@ -82,14 +82,15 @@ class UntitledExplorationGame:
         
     def generateNewRoom(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
-        newRoom = Room(("Room", str(x), str(y)), self.config.gridSize, (random.randrange(50, 200), random.randrange(50, 200), random.randrange(50, 200)), x, y)
+        newRoom = Room(("Room (" + str(x) + ", " + str(y) + ")"), self.config.gridSize, (random.randrange(50, 200), random.randrange(50, 200), random.randrange(50, 200)), x, y)
 
         # generate food
         for i in range(1, self.config.gridSize):
             newRoom.addEntity(Food())
 
         self.rooms.append(newRoom)
-        print("A new room was generated with the coordinates ", x, y)
+        if self.config.debug:
+            print("A new room was generated with the coordinates ", x, y)
     
     def getRoom(self, x, y):
         for room in self.rooms:
@@ -109,7 +110,7 @@ class UntitledExplorationGame:
         
         self.currentRoom.addEntity(self.player)
         self.initializeLocationWidthAndHeight()
-        pygame.display.set_caption(("Untitled Exploration Game - Room (" + str(x) + "," + str(y) + ")"))
+        pygame.display.set_caption(("Roam - " + str(self.currentRoom.getName())))
     
     def movePlayer(self, direction):
         location = self.getLocationOfPlayer()
@@ -195,5 +196,5 @@ class UntitledExplorationGame:
         
         self.quitApplication()
 
-untitledExplorationGame = UntitledExplorationGame()
-untitledExplorationGame.run()
+roam = Roam()
+roam.run()

@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Untitled Exploration Game",
+            "name": "Roam",
             "type": "python",
             "request": "launch",
-            "program": "src/untitledExplorationGame.py",
+            "program": "src/roam.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }

@@ -1,4 +1,4 @@
-# Untitled Exploration Game
+# Roam
 This application allows the user to control an entity that can travel between environments. 
 
 ## Support
