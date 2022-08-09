@@ -58,6 +58,10 @@ class UntitledExplorationGame:
         location = self.getLocationOfPlayer()
         newLocation = self.getLocationDirection(direction, self.environment.getGrid(), location)
 
+        if newLocation == -1:
+            # we're at a border
+            return
+
         location.removeEntity(self.player)
         newLocation.addEntity(self.player)
     
