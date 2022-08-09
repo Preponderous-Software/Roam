@@ -13,6 +13,6 @@ class Config:
         self.fullscreen = False
         self.black = (0,0,0)
         self.white = (255,255,255)
-        self.tickSpeed = 1
+        self.tickSpeed = 0.1
         self.limitTickSpeed = True
-        self.gridSize = 5
+        self.gridSize = random.randrange(5, 8)
