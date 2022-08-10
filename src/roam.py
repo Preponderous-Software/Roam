@@ -126,10 +126,14 @@ class Roam:
             if type(entity) is Food:
                 newLocation.removeEntity(entity)
                 self.score += 1
+                self.player.addEnergy(entity.getEnergy())
 
         # move player
         location.removeEntity(self.player)
         newLocation.addEntity(self.player)
+    
+        # decrease energy
+        self.player.removeEnergy(1)
     
     def handleKeyDownEvent(self, key):
         if key == pygame.K_q:
@@ -174,6 +178,16 @@ class Roam:
                 topEntity = location.getEntities()[-1]
                 return topEntity.getColor()
         return color
+    
+    def checkForPlayerDeath(self):
+        # check for player death
+        if self.player.getEnergy() <= 0:
+            time.sleep(1)
+            self.quitApplication()
+        
+    def displayEnergy(self):
+        x, y = self.gameDisplay.get_size()
+        self.graphik.drawText(str(self.player.getEnergy()), x/2, y/2, 50, self.config.black)
                 
     def run(self):
         self.currentRoom.addEntity(self.player)
@@ -188,7 +202,10 @@ class Roam:
 
             self.gameDisplay.fill(self.currentRoom.getBackgroundColor())
             self.drawEnvironment(self.currentRoom)
+            self.displayEnergy()
             pygame.display.update()
+
+            self.checkForPlayerDeath()
 
             if self.config.limitTickSpeed:
                 time.sleep(self.config.tickSpeed)

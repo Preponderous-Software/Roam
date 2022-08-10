@@ -7,6 +7,16 @@ class Player(Entity):
     def __init__(self):
         Entity.__init__(self, "Player")
         self.color = (0, 0, 0)
+        self.energy = 100
     
     def getColor(self):
         return self.color
+    
+    def getEnergy(self):
+        return self.energy
+    
+    def addEnergy(self, energy):
+        self.energy += energy
+    
+    def removeEnergy(self, energy):
+        self.energy -= energy
