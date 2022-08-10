@@ -1,5 +1,5 @@
 # Roam
-This application allows the user to control an entity that capable of traveling between environments. 
+This application allows the user to control an entity that is capable of traveling between environments. 
 
 ## Support
 You can find the support discord server [here](https://discord.gg/49J4RHQxhy).
