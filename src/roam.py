@@ -99,6 +99,8 @@ class Roam:
         return -1
     
     def changeRooms(self):
+        playerLocation = self.getLocationOfPlayer()
+        
         self.currentRoom.removeEntity(self.player)
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
         room = self.getRoom(x, y)
@@ -107,8 +109,24 @@ class Roam:
             self.currentRoom = self.rooms[-1]
         else:
             self.currentRoom = room
+
+        targetX = playerLocation.getX()
+        targetY = playerLocation.getY()
+
+        min = 0
+        max = self.config.gridSize - 1
+        if playerLocation.getY() == min:
+            targetY = max
+        elif playerLocation.getY() == max:
+            targetY = min
         
-        self.currentRoom.addEntity(self.player)
+        if playerLocation.getX() == min:
+            targetX = max
+        elif playerLocation.getX() == max:
+            targetX = min
+
+        targetLocation = self.currentRoom.getGrid().getLocationByCoordinates(targetX, targetY)
+        self.currentRoom.addEntityToLocation(self.player, targetLocation)
         self.initializeLocationWidthAndHeight()
         pygame.display.set_caption(("Roam - " + str(self.currentRoom.getName())))
     
