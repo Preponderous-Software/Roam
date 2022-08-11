@@ -1,6 +1,7 @@
 import random
 import time
 import pygame
+from apple import Apple
 from config import Config
 from entity import Entity
 from food import Food
@@ -86,7 +87,7 @@ class Roam:
 
         # generate food
         for i in range(1, self.config.gridSize):
-            newRoom.addEntity(Food())
+            newRoom.addEntity(Apple())
 
         self.rooms.append(newRoom)
         if self.config.debug:
@@ -131,6 +132,9 @@ class Roam:
         pygame.display.set_caption(("Roam - " + str(self.currentRoom.getName())))
     
     def movePlayer(self, direction):
+        if direction == -1:
+            return
+
         location = self.getLocationOfPlayer()
         newLocation = self.getLocationDirection(direction, self.currentRoom.getGrid(), location)
 
@@ -141,7 +145,7 @@ class Roam:
         
         # search for food
         for entity in newLocation.getEntities():
-            if type(entity) is Food:
+            if isinstance(entity, Food):
                 newLocation.removeEntity(entity)
                 self.score += 1
                 self.player.addEnergy(entity.getEnergy())
@@ -168,13 +172,23 @@ class Roam:
             else:
                 self.config.limitTickSpeed = True
         elif key == pygame.K_w or key == pygame.K_UP:
-            self.movePlayer(0)
+            self.player.setDirection(0)
         elif key == pygame.K_a or key == pygame.K_LEFT:
-            self.movePlayer(1)
+            self.player.setDirection(1)
         elif key == pygame.K_s or key == pygame.K_DOWN:
-            self.movePlayer(2)
+            self.player.setDirection(2)
         elif key == pygame.K_d or key == pygame.K_RIGHT:
-            self.movePlayer(3)
+            self.player.setDirection(3)
+
+    def handleKeyUpEvent(self, key):
+        if key == pygame.K_w or key == pygame.K_UP and self.player.getDirection() == 0:
+            self.player.setDirection(-1)
+        elif key == pygame.K_a or key == pygame.K_LEFT and self.player.getDirection() == 1:
+            self.player.setDirection(-1)
+        elif key == pygame.K_s or key == pygame.K_DOWN and self.player.getDirection() == 2:
+            self.player.setDirection(-1)
+        elif key == pygame.K_d or key == pygame.K_RIGHT and self.player.getDirection() == 3:
+            self.player.setDirection(-1)
     
     # Draws the given environment in its entirety.
     def drawEnvironment(self, environment):
@@ -215,9 +229,12 @@ class Roam:
                     self.quitApplication()
                 elif event.type == pygame.KEYDOWN:
                     self.handleKeyDownEvent(event.key)
+                elif event.type == pygame.KEYUP:
+                    self.handleKeyUpEvent(event.key)
                 elif event.type == pygame.WINDOWRESIZED:
                     self.initializeLocationWidthAndHeight()
 
+            self.movePlayer(self.player.direction)
             self.gameDisplay.fill(self.currentRoom.getBackgroundColor())
             self.drawEnvironment(self.currentRoom)
             self.displayEnergy()
