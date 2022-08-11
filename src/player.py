@@ -8,6 +8,7 @@ class Player(Entity):
         Entity.__init__(self, "Player")
         self.color = (0, 0, 0)
         self.energy = 100
+        self.direction = -1 # -1 when not moving
     
     def getColor(self):
         return self.color
@@ -20,3 +21,9 @@ class Player(Entity):
     
     def removeEnergy(self, energy):
         self.energy -= energy
+    
+    def getDirection(self):
+        return self.direction
+    
+    def setDirection(self, direction):
+        self.direction = direction
