@@ -1,5 +1,12 @@
 # Roam
-This application allows the user to control an entity that is capable of traveling between environments. 
+This application allows the user to control an entity that is capable of traveling between environments.
+
+## Mechanics
+### Energy
+Energy decreases when the player moves and replenishes when the player eats food.
+
+### Map Generation
+The map is generated as the player explores.
 
 ## Support
 You can find the support discord server [here](https://discord.gg/49J4RHQxhy).

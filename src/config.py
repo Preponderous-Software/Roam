@@ -15,4 +15,5 @@ class Config:
         self.white = (255,255,255)
         self.tickSpeed = 0.1
         self.limitTickSpeed = True
-        self.gridSize = random.randrange(8, 16)
+        self.gridSize = 16
+        self.playerMovementEnergyCost = 0.5
