@@ -1,11 +1,15 @@
+from math import ceil, floor
 import random
 import time
 import pygame
 from apple import Apple
+from appleTree import AppleTree
 from config import Config
 from entity import Entity
+from environment import Environment
 from food import Food
 from graphik import Graphik
+from leaves import Leaves
 from player import Player
 from room import Room
 
@@ -20,14 +24,16 @@ class Roam:
         pygame.init()
         pygame.display.set_caption("Roam")
         self.initializeGameDisplay()
+        pygame.display.set_icon(pygame.image.load('src/icon.PNG'))
         self.graphik = Graphik(self.gameDisplay)
-        self.redRoom = Room("Spawn", self.config.gridSize, (200, 0, 0), 0, 0)
-        self.currentRoom = self.redRoom
+        spawnRoomColor = ((0, random.randrange(130, 170), 0))
+        self.currentRoom = Room("Spawn", self.config.gridSize, spawnRoomColor, 0, 0)
         self.initializeLocationWidthAndHeight()
         self.player = Player()
         self.rooms = []
-        self.rooms.append(self.redRoom)
+        self.rooms.append(self.currentRoom)
         self.score = 0
+        self.numApplesEaten = 0
     
     def initializeGameDisplay(self):
         if self.config.fullscreen:
@@ -39,9 +45,17 @@ class Roam:
         x, y = self.gameDisplay.get_size()
         self.locationWidth = x/self.currentRoom.getGrid().getRows()
         self.locationHeight = y/self.currentRoom.getGrid().getColumns()
-        
-    def quitApplication(self):
+
+    def printStats(self):
+        print("=== Stats ===")
+        print("Rooms Explored: ", len(self.rooms))
+        print("Apples eaten: ", self.numApplesEaten)
+        print("")
         print("Score: ", self.score)
+        print("----------")    
+    
+    def quitApplication(self):
+        self.printStats()
         pygame.quit()
         quit()
     
@@ -80,14 +94,38 @@ class Roam:
             # we are at the top of this room
             y -= 1
         return x, y
+    
+    def spawnAppleTree(self, room: Environment):
+        # spawn tree
+        appleTree = AppleTree()
+        room.addEntity(appleTree)
+
+        location = self.getLocation(appleTree)
+
+        locationsToSpawnApples = []
+        locationsToSpawnApples.append(self.currentRoom.grid.getUp(location))
+        locationsToSpawnApples.append(self.currentRoom.grid.getLeft(location))
+        locationsToSpawnApples.append(self.currentRoom.grid.getDown(location))
+        locationsToSpawnApples.append(self.currentRoom.grid.getRight(location))
+        
+        # spawn leaves and apples around the tree
+        for appleSpawnLocation in locationsToSpawnApples:
+            if appleSpawnLocation == -1:
+                continue
+            room.addEntityToLocation(Leaves(), appleSpawnLocation)
+            if random.randrange(0, 2) == 0:
+                room.addEntityToLocation(Apple(), appleSpawnLocation)
         
     def generateNewRoom(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
-        newRoom = Room(("Room (" + str(x) + ", " + str(y) + ")"), self.config.gridSize, (random.randrange(50, 200), random.randrange(50, 200), random.randrange(50, 200)), x, y)
+        newRoomColor = ((0, random.randrange(120, 180), 0))
+        newRoom = Room(("Room (" + str(x) + ", " + str(y) + ")"), self.config.gridSize, newRoomColor, x, y)
+        
+        self.currentRoom = newRoom
 
         # generate food
-        for i in range(1, self.config.gridSize):
-            newRoom.addEntity(Apple())
+        for i in range(0, random.randrange(0, ceil(self.config.gridSize/2))):
+            self.spawnAppleTree(newRoom)
 
         self.rooms.append(newRoom)
         if self.config.debug:
@@ -107,7 +145,6 @@ class Roam:
         room = self.getRoom(x, y)
         if room == -1:
             self.generateNewRoom()
-            self.currentRoom = self.rooms[-1]
         else:
             self.currentRoom = room
 
@@ -147,15 +184,19 @@ class Roam:
         for entity in newLocation.getEntities():
             if isinstance(entity, Food):
                 newLocation.removeEntity(entity)
-                self.score += 1
+                scoreIncrease = 1 * len(self.rooms)
+                self.score += scoreIncrease
                 self.player.addEnergy(entity.getEnergy())
+                
+                if isinstance(entity, Apple):
+                    self.numApplesEaten += 1
 
         # move player
         location.removeEntity(self.player)
         newLocation.addEntity(self.player)
     
         # decrease energy
-        self.player.removeEnergy(1)
+        self.player.removeEnergy(self.config.playerMovementEnergyCost)
     
     def handleKeyDownEvent(self, key):
         if key == pygame.K_q:
@@ -216,11 +257,24 @@ class Roam:
         if self.player.getEnergy() <= 0:
             time.sleep(1)
             self.quitApplication()
-        
-    def displayEnergy(self):
+    
+    def displayInfo(self):
         x, y = self.gameDisplay.get_size()
-        self.graphik.drawText(str(self.player.getEnergy()), x/2, y/2, 50, self.config.black)
-                
+        startingX = x/8
+        startingY = y/8
+        size = 30
+        self.displayEnergy(startingX, startingY, size)
+        startingX *= size/10
+        self.displayScore(startingX, startingY, size)
+        
+    def displayEnergy(self, startingX, startingY, size):
+        self.graphik.drawText("Energy:", startingX, startingY - size/2, size, self.config.black)
+        self.graphik.drawText(str(floor((self.player.getEnergy()))), startingX, startingY + size/2, size, self.config.black)
+    
+    def displayScore(self, startingX, startingY, size):
+        self.graphik.drawText("Score:", startingX, startingY - size/2, size, self.config.black)
+        self.graphik.drawText(str(self.score), startingX, startingY + size/2, size, self.config.black)
+
     def run(self):
         self.currentRoom.addEntity(self.player)
         while self.running:
@@ -237,7 +291,7 @@ class Roam:
             self.movePlayer(self.player.direction)
             self.gameDisplay.fill(self.currentRoom.getBackgroundColor())
             self.drawEnvironment(self.currentRoom)
-            self.displayEnergy()
+            self.displayInfo()
             pygame.display.update()
 
             self.checkForPlayerDeath()
