@@ -173,6 +173,12 @@ class Roam:
         self.initializeLocationWidthAndHeight()
         pygame.display.set_caption(("Roam - " + str(self.currentRoom.getName())))
     
+    def locationContainsEntity(self, location, entityType):
+        for entity in location.getEntities():
+            if isinstance(entity, entityType):
+                return True
+        return False
+    
     def movePlayer(self, direction):
         if direction == -1:
             return
@@ -183,6 +189,10 @@ class Roam:
         if newLocation == -1:
             # we're at a border
             self.changeRooms()
+            return
+
+        if self.locationContainsEntity(newLocation, AppleTree):
+            # apple trees are solid
             return
         
         # search for food
