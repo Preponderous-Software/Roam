@@ -1,5 +1,5 @@
 # Roam
-This application allows the user to control an entity that is capable of traveling between environments.
+This game allows you to explore a procedurally-generated 2D world and interact with your surroundings.
 
 ## Mechanics
 ### Energy
