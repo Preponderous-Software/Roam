@@ -9,6 +9,7 @@ from entity import Entity
 from environment import Environment
 from food import Food
 from graphik import Graphik
+from grass import Grass
 from leaves import Leaves
 from player import Player
 from room import Room
@@ -28,12 +29,14 @@ class Roam:
         self.graphik = Graphik(self.gameDisplay)
         spawnRoomColor = ((0, random.randrange(130, 170), 0))
         self.currentRoom = Room("Spawn", self.config.gridSize, spawnRoomColor, 0, 0)
+        self.spawnGrass(self.currentRoom)
         self.initializeLocationWidthAndHeight()
         self.player = Player()
         self.rooms = []
         self.rooms.append(self.currentRoom)
         self.score = 0
         self.numApplesEaten = 0
+        
     
     def initializeGameDisplay(self):
         if self.config.fullscreen:
@@ -115,6 +118,10 @@ class Roam:
             room.addEntityToLocation(Leaves(), appleSpawnLocation)
             if random.randrange(0, 2) == 0:
                 room.addEntityToLocation(Apple(), appleSpawnLocation)
+    
+    def spawnGrass(self, room: Room):
+        for location in room.getGrid().getLocations():
+            room.addEntityToLocation(Grass(), location)
         
     def generateNewRoom(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
@@ -122,6 +129,9 @@ class Roam:
         newRoom = Room(("Room (" + str(x) + ", " + str(y) + ")"), self.config.gridSize, newRoomColor, x, y)
         
         self.currentRoom = newRoom
+
+        # generate grass
+        self.spawnGrass(self.currentRoom)
 
         # generate food
         for i in range(0, random.randrange(0, ceil(self.config.gridSize/2))):
