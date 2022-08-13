@@ -110,7 +110,7 @@ class Roam:
         
         # spawn leaves and apples around the tree
         for appleSpawnLocation in locationsToSpawnApples:
-            if appleSpawnLocation == -1:
+            if appleSpawnLocation == -1 or self.locationContainsEntity(appleSpawnLocation, AppleTree):
                 continue
             room.addEntityToLocation(Leaves(), appleSpawnLocation)
             if random.randrange(0, 2) == 0:
