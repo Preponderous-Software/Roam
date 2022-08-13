@@ -138,10 +138,15 @@ class Roam:
         return -1
     
     def changeRooms(self):
-        playerLocation = self.getLocationOfPlayer()
-        
-        self.currentRoom.removeEntity(self.player)
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
+
+        if abs(x) > self.config.worldBorder or abs(y) > self.config.worldBorder:
+            # reached world border
+            return
+
+        playerLocation = self.getLocationOfPlayer()
+        self.currentRoom.removeEntity(self.player)
+        
         room = self.getRoom(x, y)
         if room == -1:
             self.generateNewRoom()
