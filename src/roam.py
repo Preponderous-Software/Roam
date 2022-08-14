@@ -235,11 +235,11 @@ class Roam:
         playerLocation = self.getLocationOfPlayer()
 
         toCheck = []
+        toCheck.append(playerLocation)
         toCheck.append(self.currentRoom.getGrid().getUp(playerLocation))
         toCheck.append(self.currentRoom.getGrid().getLeft(playerLocation))
         toCheck.append(self.currentRoom.getGrid().getDown(playerLocation))
         toCheck.append(self.currentRoom.getGrid().getRight(playerLocation))
-        toCheck.append(playerLocation)
     
         toRemove = -1
         for location in toCheck:

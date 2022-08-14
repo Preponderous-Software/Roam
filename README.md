@@ -5,17 +5,6 @@ This game allows you to explore a procedurally-generated 2D world and interact w
 ### Energy
 Energy decreases when the player moves and replenishes when the player eats food.
 
-## Controls
-Key | Action
------------- | -------------
-w | move up
-a | move left
-s | move down
-d | move right
-f11 | fullscreen
-l | toggle tick speed limit
-q | quit
-
 ### Map Generation
 The map is generated as the player explores.
 
