@@ -27,9 +27,7 @@ class Roam:
         self.initializeGameDisplay()
         pygame.display.set_icon(pygame.image.load('src/icon.PNG'))
         self.graphik = Graphik(self.gameDisplay)
-        spawnRoomColor = ((0, random.randrange(130, 170), 0))
-        self.currentRoom = Room("Spawn", self.config.gridSize, spawnRoomColor, 0, 0)
-        self.spawnGrass(self.currentRoom)
+        self.generateSpawnRoom()
         self.initializeLocationWidthAndHeight()
         self.player = Player()
         self.rooms = []
@@ -123,6 +121,11 @@ class Roam:
     def spawnGrass(self, room: Room):
         for location in room.getGrid().getLocations():
             room.addEntityToLocation(Grass(), location)
+    
+    def generateSpawnRoom(self):
+        spawnRoomColor = ((random.randrange(200, 210), random.randrange(130, 140), random.randrange(60, 70)))
+        self.currentRoom = Room("Spawn", self.config.gridSize, spawnRoomColor, 0, 0)
+        self.spawnGrass(self.currentRoom)
         
     def generateNewRoom(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
@@ -277,7 +280,7 @@ class Roam:
         elif key == pygame.K_d or key == pygame.K_RIGHT:
             self.player.setDirection(3)
         elif key == pygame.K_e:
-            self.executeInteractAction()
+            self.player.setInteracting(True)
 
     def handleKeyUpEvent(self, key):
         if key == pygame.K_w or key == pygame.K_UP and self.player.getDirection() == 0:
@@ -288,6 +291,8 @@ class Roam:
             self.player.setDirection(-1)
         elif key == pygame.K_d or key == pygame.K_RIGHT and self.player.getDirection() == 3:
             self.player.setDirection(-1)
+        elif key == pygame.K_e:
+            self.player.setInteracting(False)
     
     # Draws the given environment in its entirety.
     def drawEnvironment(self, environment):
@@ -347,6 +352,8 @@ class Roam:
                     self.initializeLocationWidthAndHeight()
 
             self.movePlayer(self.player.direction)
+            if self.player.isInteracting():
+                self.executeInteractAction()
             self.gameDisplay.fill(self.currentRoom.getBackgroundColor())
             self.drawEnvironment(self.currentRoom)
             self.displayInfo()

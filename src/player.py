@@ -11,7 +11,9 @@ class Player(Entity):
         self.energy = 100
         self.maxEnergy = 100
         self.direction = -1 # -1 when not moving
+        self.lastDirection = -1
         self.inventory = Inventory()
+        self.interacting = False
     
     def getColor(self):
         return self.color
@@ -31,7 +33,17 @@ class Player(Entity):
         return self.direction
     
     def setDirection(self, direction):
+        self.lastDirection = self.direction
         self.direction = direction
+    
+    def getLastDirection(self):
+        return self.lastDirection
     
     def getInventory(self):
         return self.inventory
+    
+    def isInteracting(self):
+        return self.interacting
+
+    def setInteracting(self, bool):
+        self.interacting = bool
