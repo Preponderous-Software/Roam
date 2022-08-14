@@ -157,7 +157,7 @@ class Roam:
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
 
         if abs(x) > self.config.worldBorder or abs(y) > self.config.worldBorder:
-            # reached world border
+            self.status.set("reached world border", self.tick)
             return
 
         playerLocation = self.getLocationOfPlayer()
