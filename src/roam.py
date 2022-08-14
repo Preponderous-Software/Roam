@@ -248,7 +248,8 @@ class Roam:
         for location in toCheck:
             if location == -1:
                 continue
-            for entity in location.getEntities():
+            reversedEntityList = list(reversed(location.getEntities()))
+            for entity in reversedEntityList:
                 if self.canBePickedUp(entity):
                     toRemove = entity
                     break
