@@ -13,6 +13,7 @@ from grass import Grass
 from leaves import Leaves
 from player import Player
 from room import Room
+from status import Status
 
 
 # @author Daniel McCoy Stephenson
@@ -34,7 +35,8 @@ class Roam:
         self.rooms.append(self.currentRoom)
         self.score = 0
         self.numApplesEaten = 0
-        
+        self.status = Status(self.graphik)
+        self.status.set("entered the world", self.tick)
     
     def initializeGameDisplay(self):
         if self.config.fullscreen:
@@ -164,6 +166,7 @@ class Roam:
         room = self.getRoom(x, y)
         if room == -1:
             self.generateNewRoom()
+            self.status.set("new area discovered", self.tick)
         else:
             self.currentRoom = room
 
@@ -219,6 +222,7 @@ class Roam:
                 
                 if isinstance(entity, Apple):
                     self.numApplesEaten += 1
+                    self.status.set("ate '" + entity.getName() + "'", self.tick)
 
         # move player
         location.removeEntity(self.player)
@@ -255,12 +259,17 @@ class Roam:
                     break
             if toRemove != -1:
                 break
+        
+        if toRemove == -1:
+            return
+            
         self.currentRoom.removeEntity(toRemove)
         self.player.getInventory().place(toRemove)
+        self.status.set("picked up '" + entity.getName() + "'", self.tick)
     
     def executePlaceAction(self):
         if len(self.player.getInventory().getContents()) == 0:
-            # no items
+            self.status.set("no items", self.tick)
             return
 
         toPlace = self.player.getInventory().getContents().pop()
@@ -270,6 +279,7 @@ class Roam:
 
         playerLocation = self.getLocationOfPlayer()
         self.currentRoom.addEntityToLocation(toPlace, playerLocation)
+        self.status.set("placed '" + toPlace.getName() + "'", self.tick)
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_q:
@@ -374,6 +384,8 @@ class Roam:
             self.gameDisplay.fill(self.currentRoom.getBackgroundColor())
             self.drawEnvironment(self.currentRoom)
             self.displayInfo()
+            self.status.checkForExpiration(self.tick)
+            self.status.draw()
             pygame.display.update()
 
             self.checkForPlayerDeath()
