@@ -354,6 +354,7 @@ class Roam:
             self.movePlayer(self.player.direction)
             if self.player.isInteracting():
                 self.executeInteractAction()
+            self.player.removeEnergy(0.05)
             self.gameDisplay.fill(self.currentRoom.getBackgroundColor())
             self.drawEnvironment(self.currentRoom)
             self.displayInfo()
