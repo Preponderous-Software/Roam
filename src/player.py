@@ -14,6 +14,7 @@ class Player(Entity):
         self.lastDirection = -1
         self.inventory = Inventory()
         self.interacting = False
+        self.placing = False
     
     def getColor(self):
         return self.color
@@ -47,3 +48,9 @@ class Player(Entity):
 
     def setInteracting(self, bool):
         self.interacting = bool
+    
+    def isPlacing(self):
+        return self.placing
+    
+    def setPlacing(self, bool):
+        self.placing = bool
