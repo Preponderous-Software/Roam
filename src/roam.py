@@ -257,6 +257,19 @@ class Roam:
                 break
         self.currentRoom.removeEntity(toRemove)
         self.player.getInventory().place(toRemove)
+    
+    def executePlaceAction(self):
+        if len(self.player.getInventory().getContents()) == 0:
+            # no items
+            return
+
+        toPlace = self.player.getInventory().getContents().pop()
+
+        if toPlace == -1:
+            return
+
+        playerLocation = self.getLocationOfPlayer()
+        self.currentRoom.addEntityToLocation(toPlace, playerLocation)
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_q:
@@ -282,6 +295,8 @@ class Roam:
             self.player.setDirection(3)
         elif key == pygame.K_e:
             self.player.setInteracting(True)
+        elif key == pygame.K_p:
+            self.executePlaceAction()
 
     def handleKeyUpEvent(self, key):
         if key == pygame.K_w or key == pygame.K_UP and self.player.getDirection() == 0:

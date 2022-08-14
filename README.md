@@ -16,6 +16,7 @@ a | move left
 s | move down
 d | move right
 e | interact
+p | place item from inventory
 f11 | fullscreen
 l | toggle tick speed limit
 q | quit
