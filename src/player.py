@@ -1,4 +1,5 @@
 from entity import Entity
+from inventory import Inventory
 
 
 # @author Daniel McCoy Stephenson
@@ -10,6 +11,7 @@ class Player(Entity):
         self.energy = 100
         self.maxEnergy = 100
         self.direction = -1 # -1 when not moving
+        self.inventory = Inventory()
     
     def getColor(self):
         return self.color
@@ -30,3 +32,6 @@ class Player(Entity):
     
     def setDirection(self, direction):
         self.direction = direction
+    
+    def getInventory(self):
+        return self.inventory

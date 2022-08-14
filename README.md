@@ -19,6 +19,18 @@ q | quit
 ### Map Generation
 The map is generated as the player explores.
 
+## Controls
+Key | Action
+------------ | -------------
+w | move up
+a | move left
+s | move down
+d | move right
+e | interact
+f11 | fullscreen
+l | toggle tick speed limit
+q | quit
+
 ## Support
 You can find the support discord server [here](https://discord.gg/49J4RHQxhy).
 
