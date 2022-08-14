@@ -122,7 +122,8 @@ class Roam:
     
     def spawnGrass(self, room: Room):
         for location in room.getGrid().getLocations():
-            room.addEntityToLocation(Grass(), location)
+            if random.randrange(1, 101) > 5: # 95% chance
+                room.addEntityToLocation(Grass(), location)
     
     def generateSpawnRoom(self):
         spawnRoomColor = ((random.randrange(200, 210), random.randrange(130, 140), random.randrange(60, 70)))
