@@ -279,7 +279,11 @@ class Roam:
             return
 
         playerLocation = self.getLocationOfPlayer()
-        self.currentRoom.addEntityToLocation(toPlace, playerLocation)
+        targetLocation = self.currentRoom.getGrid().getUp(playerLocation)
+        if targetLocation == -1:
+            self.status.set("no location above player", self.tick)
+            return
+        self.currentRoom.addEntityToLocation(toPlace, targetLocation)
         self.status.set("placed '" + toPlace.getName() + "'", self.tick)
 
     def handleKeyDownEvent(self, key):
@@ -307,7 +311,7 @@ class Roam:
         elif key == pygame.K_e:
             self.player.setInteracting(True)
         elif key == pygame.K_p:
-            self.executePlaceAction()
+            self.player.setPlacing(True)
 
     def handleKeyUpEvent(self, key):
         if key == pygame.K_w or key == pygame.K_UP and self.player.getDirection() == 0:
@@ -320,6 +324,8 @@ class Roam:
             self.player.setDirection(-1)
         elif key == pygame.K_e:
             self.player.setInteracting(False)
+        elif key == pygame.K_p:
+            self.player.setPlacing(False)
     
     # Draws the given environment in its entirety.
     def drawEnvironment(self, environment):
@@ -381,6 +387,8 @@ class Roam:
             self.movePlayer(self.player.direction)
             if self.player.isInteracting():
                 self.executeInteractAction()
+            elif self.player.isPlacing():
+                self.executePlaceAction()
             self.player.removeEnergy(0.05)
             self.gameDisplay.fill(self.currentRoom.getBackgroundColor())
             self.drawEnvironment(self.currentRoom)

@@ -15,5 +15,5 @@ class Config:
         self.tickSpeed = 0.1
         self.limitTickSpeed = True
         self.gridSize = 16
-        self.playerMovementEnergyCost = 0.5
+        self.playerMovementEnergyCost = 0.3
         self.worldBorder = 10
