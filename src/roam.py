@@ -53,6 +53,7 @@ class Roam:
         print("=== Stats ===")
         print("Rooms Explored: ", len(self.rooms))
         print("Apples eaten: ", self.numApplesEaten)
+        print("Items in inventory: ", len(self.player.getInventory().getContents()))
         print("")
         print("Score: ", self.score)
         print("----------")    
@@ -125,7 +126,7 @@ class Roam:
         
     def generateNewRoom(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
-        newRoomColor = ((0, random.randrange(120, 180), 0))
+        newRoomColor = ((random.randrange(200, 210), random.randrange(130, 140), random.randrange(60, 70)))
         newRoom = Room(("Room (" + str(x) + ", " + str(y) + ")"), self.config.gridSize, newRoomColor, x, y)
         
         self.currentRoom = newRoom
@@ -223,6 +224,36 @@ class Roam:
         # decrease energy
         self.player.removeEnergy(self.config.playerMovementEnergyCost)
     
+    def canBePickedUp(self, entity):
+        itemTypes = [AppleTree, Leaves, Grass, Apple]
+        for itemType in itemTypes:
+            if isinstance(entity, itemType):
+                return True
+        return False
+    
+    def executeInteractAction(self):
+        playerLocation = self.getLocationOfPlayer()
+
+        toCheck = []
+        toCheck.append(self.currentRoom.getGrid().getUp(playerLocation))
+        toCheck.append(self.currentRoom.getGrid().getLeft(playerLocation))
+        toCheck.append(self.currentRoom.getGrid().getDown(playerLocation))
+        toCheck.append(self.currentRoom.getGrid().getRight(playerLocation))
+        toCheck.append(playerLocation)
+    
+        toRemove = -1
+        for location in toCheck:
+            if location == -1:
+                continue
+            for entity in location.getEntities():
+                if self.canBePickedUp(entity):
+                    toRemove = entity
+                    break
+            if toRemove != -1:
+                break
+        self.currentRoom.removeEntity(toRemove)
+        self.player.getInventory().place(toRemove)
+
     def handleKeyDownEvent(self, key):
         if key == pygame.K_q:
             self.quitApplication()
@@ -245,6 +276,8 @@ class Roam:
             self.player.setDirection(2)
         elif key == pygame.K_d or key == pygame.K_RIGHT:
             self.player.setDirection(3)
+        elif key == pygame.K_e:
+            self.executeInteractAction()
 
     def handleKeyUpEvent(self, key):
         if key == pygame.K_w or key == pygame.K_UP and self.player.getDirection() == 0:

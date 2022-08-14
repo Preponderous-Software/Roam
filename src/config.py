@@ -1,14 +1,13 @@
 # @author Daniel McCoy Stephenson
 # @since August 6th, 2022
-import random
 
 
 # @author Daniel McCoy Stephenson
 # @since August 6th, 2022
 class Config:
     def __init__(self):
-        self.displayWidth = 500
-        self.displayHeight = 500
+        self.displayWidth = 600
+        self.displayHeight = 600
         self.debug = False
         self.fullscreen = False
         self.black = (0,0,0)
