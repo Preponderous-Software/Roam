@@ -10,3 +10,6 @@ class Inventory:
     
     def remove(self, item):
         self.contents.remove(item)
+    
+    def clear(self):
+        self.contents = []

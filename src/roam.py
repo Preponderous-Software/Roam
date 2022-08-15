@@ -51,7 +51,7 @@ class Roam:
 
     def printStats(self):
         print("=== Stats ===")
-        print("Rooms Explored: ", len(self.rooms))
+        print("Rooms Explored: " + str(len(self.rooms)) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
         print("Apples eaten: ", self.numApplesEaten)
         print("Items in inventory: ", len(self.player.getInventory().getContents()))
         print("")
@@ -129,6 +129,7 @@ class Roam:
         spawnRoomColor = ((random.randrange(200, 210), random.randrange(130, 140), random.randrange(60, 70)))
         self.currentRoom = Room("Spawn", self.config.gridSize, spawnRoomColor, 0, 0)
         self.spawnGrass(self.currentRoom)
+        self.spawnRoom = self.currentRoom
         
     def generateNewRoom(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
@@ -273,16 +274,20 @@ class Roam:
             self.status.set("no items", self.tick)
             return
 
-        toPlace = self.player.getInventory().getContents().pop()
-
-        if toPlace == -1:
-            return
-
         playerLocation = self.getLocationOfPlayer()
         targetLocation = self.currentRoom.getGrid().getUp(playerLocation)
         if targetLocation == -1:
             self.status.set("no location above player", self.tick)
             return
+        if self.locationContainsEntity(targetLocation, AppleTree):
+            self.status.set("blocked by apple tree", self.tick)
+            return
+
+        toPlace = self.player.getInventory().getContents().pop()
+
+        if toPlace == -1:
+            return
+            
         self.currentRoom.addEntityToLocation(toPlace, targetLocation)
         self.status.set("placed '" + toPlace.getName() + "'", self.tick)
 
@@ -348,11 +353,13 @@ class Roam:
                 return topEntity.getColor()
         return color
     
-    def checkForPlayerDeath(self):
-        # check for player death
-        if self.player.getEnergy() <= 0:
-            time.sleep(1)
-            self.quitApplication()
+    def respawnPlayer(self):
+        self.currentRoom.removeEntity(self.player)
+        self.spawnRoom.addEntity(self.player)
+        self.currentRoom = self.spawnRoom
+        self.player.energy = self.player.maxEnergy
+        self.player.getInventory().clear()
+        self.status.set("respawned", self.tick)
     
     def displayInfo(self):
         x, y = self.gameDisplay.get_size()
@@ -370,6 +377,17 @@ class Roam:
     def displayScore(self, startingX, startingY, size):
         self.graphik.drawText("Score:", startingX, startingY - size/2, size, self.config.black)
         self.graphik.drawText(str(self.score), startingX, startingY + size/2, size, self.config.black)
+    
+    def displayInventoryTopItem(self):
+        x, y = self.gameDisplay.get_size()
+        xpos = x - x/8
+        ypos = y/10
+        size = 15
+        inventory = self.player.getInventory()
+        if len(inventory.getContents()) == 0:
+            return
+        topItem = inventory.getContents()[-1]
+        self.graphik.drawText("Next item: " + topItem.getName(), xpos, ypos, size, self.config.black)
 
     def run(self):
         self.currentRoom.addEntity(self.player)
@@ -385,23 +403,32 @@ class Roam:
                     self.initializeLocationWidthAndHeight()
 
             self.movePlayer(self.player.direction)
+
             if self.player.isInteracting():
                 self.executeInteractAction()
             elif self.player.isPlacing():
                 self.executePlaceAction()
+
             self.player.removeEnergy(0.05)
+            if self.player.isDead():
+                self.status.set("you died", self.tick)
+                self.score = ceil(self.score * 0.9)
+
             self.gameDisplay.fill(self.currentRoom.getBackgroundColor())
             self.drawEnvironment(self.currentRoom)
             self.displayInfo()
+            self.displayInventoryTopItem()
             self.status.checkForExpiration(self.tick)
             self.status.draw()
             pygame.display.update()
 
-            self.checkForPlayerDeath()
-
             if self.config.limitTickSpeed:
                 time.sleep(self.config.tickSpeed)
                 self.tick += 1
+            
+            if self.player.isDead():
+                time.sleep(2)
+                self.respawnPlayer()
         
         self.quitApplication()
 
