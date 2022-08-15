@@ -54,3 +54,6 @@ class Player(Entity):
     
     def setPlacing(self, bool):
         self.placing = bool
+    
+    def isDead(self):
+        return self.energy <= 0
