@@ -1,16 +1,14 @@
 from math import ceil, floor
-import random
 import time
 import pygame
 from apple import Apple
 from appleTree import AppleTree
 from config import Config
-from entity import Entity
-from environment import Environment
 from food import Food
 from graphik import Graphik
 from grass import Grass
 from leaves import Leaves
+from map import Map
 from player import Player
 from room import Room
 from status import Status
@@ -23,20 +21,20 @@ class Roam:
         self.config = Config()
         self.running = True
         self.tick = 0
+        self.map = Map(self.config.gridSize)
         pygame.init()
         pygame.display.set_caption("Roam")
         self.initializeGameDisplay()
         pygame.display.set_icon(pygame.image.load('src/icon.PNG'))
         self.graphik = Graphik(self.gameDisplay)
-        self.generateSpawnRoom()
+        self.currentRoom = self.map.getSpawnRoom()
         self.initializeLocationWidthAndHeight()
         self.player = Player()
-        self.rooms = []
-        self.rooms.append(self.currentRoom)
         self.score = 0
         self.numApplesEaten = 0
         self.status = Status(self.graphik)
         self.status.set("entered the world", self.tick)
+        self.numDeaths = 0
     
     def initializeGameDisplay(self):
         if self.config.fullscreen:
@@ -51,25 +49,21 @@ class Roam:
 
     def printStats(self):
         print("=== Stats ===")
-        print("Rooms Explored: " + str(len(self.rooms)) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
-        print("Apples eaten: ", self.numApplesEaten)
-        print("Items in inventory: ", len(self.player.getInventory().getContents()))
+        print("Rooms Explored: " + str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
+        print("Apples eaten: " + str(self.numApplesEaten))
+        print("Items in inventory: " + str(len(self.player.getInventory().getContents())))
+        print("Number of deaths: " + str(self.numDeaths))
         print("")
-        print("Score: ", self.score)
+        print("Score: " + str(self.score))
         print("----------")    
     
     def quitApplication(self):
         self.printStats()
         pygame.quit()
         quit()
-    
-    def getLocation(self, entity: Entity):
-        locationID = entity.getLocationID()
-        grid = self.currentRoom.getGrid()
-        return grid.getLocation(locationID)
 
     def getLocationOfPlayer(self):
-        return self.getLocation(self.player)
+        return self.map.getLocation(self.player, self.currentRoom)
 
     def getLocationDirection(self, direction, grid, location):
         if direction == 0:
@@ -99,62 +93,6 @@ class Roam:
             y -= 1
         return x, y
     
-    def spawnAppleTree(self, room: Environment):
-        # spawn tree
-        appleTree = AppleTree()
-        room.addEntity(appleTree)
-
-        location = self.getLocation(appleTree)
-
-        locationsToSpawnApples = []
-        locationsToSpawnApples.append(self.currentRoom.grid.getUp(location))
-        locationsToSpawnApples.append(self.currentRoom.grid.getLeft(location))
-        locationsToSpawnApples.append(self.currentRoom.grid.getDown(location))
-        locationsToSpawnApples.append(self.currentRoom.grid.getRight(location))
-        
-        # spawn leaves and apples around the tree
-        for appleSpawnLocation in locationsToSpawnApples:
-            if appleSpawnLocation == -1 or self.locationContainsEntity(appleSpawnLocation, AppleTree):
-                continue
-            room.addEntityToLocation(Leaves(), appleSpawnLocation)
-            if random.randrange(0, 2) == 0:
-                room.addEntityToLocation(Apple(), appleSpawnLocation)
-    
-    def spawnGrass(self, room: Room):
-        for location in room.getGrid().getLocations():
-            if random.randrange(1, 101) > 5: # 95% chance
-                room.addEntityToLocation(Grass(), location)
-    
-    def generateSpawnRoom(self):
-        spawnRoomColor = ((random.randrange(200, 210), random.randrange(130, 140), random.randrange(60, 70)))
-        self.currentRoom = Room("Spawn", self.config.gridSize, spawnRoomColor, 0, 0)
-        self.spawnGrass(self.currentRoom)
-        self.spawnRoom = self.currentRoom
-        
-    def generateNewRoom(self):
-        x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
-        newRoomColor = ((random.randrange(200, 210), random.randrange(130, 140), random.randrange(60, 70)))
-        newRoom = Room(("Room (" + str(x) + ", " + str(y) + ")"), self.config.gridSize, newRoomColor, x, y)
-        
-        self.currentRoom = newRoom
-
-        # generate grass
-        self.spawnGrass(self.currentRoom)
-
-        # generate food
-        for i in range(0, random.randrange(0, ceil(self.config.gridSize/2))):
-            self.spawnAppleTree(newRoom)
-
-        self.rooms.append(newRoom)
-        if self.config.debug:
-            print("A new room was generated with the coordinates ", x, y)
-    
-    def getRoom(self, x, y):
-        for room in self.rooms:
-            if room.getX() == x and room.getY() == y:
-                return room
-        return -1
-    
     def changeRooms(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
 
@@ -165,9 +103,10 @@ class Roam:
         playerLocation = self.getLocationOfPlayer()
         self.currentRoom.removeEntity(self.player)
         
-        room = self.getRoom(x, y)
+        room = self.map.getRoom(x, y)
         if room == -1:
-            self.generateNewRoom()
+            x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
+            self.currentRoom = self.map.generateNewRoom(x, y)
             self.status.set("new area discovered", self.tick)
         else:
             self.currentRoom = room
@@ -192,12 +131,6 @@ class Roam:
         self.initializeLocationWidthAndHeight()
         pygame.display.set_caption(("Roam - " + str(self.currentRoom.getName())))
     
-    def locationContainsEntity(self, location, entityType):
-        for entity in location.getEntities():
-            if isinstance(entity, entityType):
-                return True
-        return False
-    
     def movePlayer(self, direction):
         if direction == -1:
             return
@@ -210,7 +143,7 @@ class Roam:
             self.changeRooms()
             return
 
-        if self.locationContainsEntity(newLocation, AppleTree):
+        if self.map.locationContainsEntity(newLocation, AppleTree):
             # apple trees are solid
             return
         
@@ -218,7 +151,7 @@ class Roam:
         for entity in newLocation.getEntities():
             if isinstance(entity, Food):
                 newLocation.removeEntity(entity)
-                scoreIncrease = 1 * len(self.rooms)
+                scoreIncrease = 1 * len(self.map.getRooms())
                 self.score += scoreIncrease
                 self.player.addEnergy(entity.getEnergy())
                 
@@ -279,7 +212,7 @@ class Roam:
         if targetLocation == -1:
             self.status.set("no location above player", self.tick)
             return
-        if self.locationContainsEntity(targetLocation, AppleTree):
+        if self.map.locationContainsEntity(targetLocation, AppleTree):
             self.status.set("blocked by apple tree", self.tick)
             return
 
@@ -291,8 +224,14 @@ class Roam:
         self.currentRoom.addEntityToLocation(toPlace, targetLocation)
         self.status.set("placed '" + toPlace.getName() + "'", self.tick)
 
+    # @source https://stackoverflow.com/questions/63342477/how-to-take-screenshot-of-entire-display-pygame
+    def captureScreen(self, name, pos, size): # (pygame Surface, String, tuple, tuple)
+        image = pygame.Surface(size)  # Create image surface
+        image.blit(self.gameDisplay, (0,0), (pos, size))  # Blit portion of the display to the image
+        pygame.image.save(image, name)  # Save the image to the disk**
+
     def handleKeyDownEvent(self, key):
-        if key == pygame.K_q:
+        if key == pygame.K_ESCAPE:
             self.quitApplication()
         elif key == pygame.K_F11:
             if self.config.fullscreen:
@@ -315,8 +254,11 @@ class Roam:
             self.player.setDirection(3)
         elif key == pygame.K_e:
             self.player.setInteracting(True)
-        elif key == pygame.K_p:
+        elif key == pygame.K_q:
             self.player.setPlacing(True)
+        elif key == pygame.K_PRINTSCREEN:
+            x, y = self.gameDisplay.get_size()
+            self.captureScreen("test.png", (0,0), (x,y))
 
     def handleKeyUpEvent(self, key):
         if key == pygame.K_w or key == pygame.K_UP and self.player.getDirection() == 0:
@@ -329,12 +271,12 @@ class Roam:
             self.player.setDirection(-1)
         elif key == pygame.K_e:
             self.player.setInteracting(False)
-        elif key == pygame.K_p:
+        elif key == pygame.K_q:
             self.player.setPlacing(False)
     
     # Draws the given environment in its entirety.
-    def drawEnvironment(self, environment):
-        for location in environment.getGrid().getLocations():
+    def drawEnvironment(self, room: Room):
+        for location in room.getGrid().getLocations():
             self.drawLocation(location, location.getX() * self.locationWidth, location.getY() * self.locationHeight, self.locationWidth, self.locationHeight)
 
     # Draws a location at a specified position.
@@ -355,8 +297,8 @@ class Roam:
     
     def respawnPlayer(self):
         self.currentRoom.removeEntity(self.player)
-        self.spawnRoom.addEntity(self.player)
-        self.currentRoom = self.spawnRoom
+        self.map.getSpawnRoom().addEntity(self.player)
+        self.currentRoom = self.map.getSpawnRoom()
         self.player.energy = self.player.maxEnergy
         self.player.getInventory().clear()
         self.status.set("respawned", self.tick)
@@ -367,16 +309,10 @@ class Roam:
         startingY = y/8
         size = 30
         self.displayEnergy(startingX, startingY, size)
-        startingX *= size/10
-        self.displayScore(startingX, startingY, size)
         
     def displayEnergy(self, startingX, startingY, size):
         self.graphik.drawText("Energy:", startingX, startingY - size/2, size, self.config.black)
         self.graphik.drawText(str(floor((self.player.getEnergy()))), startingX, startingY + size/2, size, self.config.black)
-    
-    def displayScore(self, startingX, startingY, size):
-        self.graphik.drawText("Score:", startingX, startingY - size/2, size, self.config.black)
-        self.graphik.drawText(str(self.score), startingX, startingY + size/2, size, self.config.black)
     
     def displayInventoryTopItem(self):
         x, y = self.gameDisplay.get_size()
@@ -413,6 +349,7 @@ class Roam:
             if self.player.isDead():
                 self.status.set("you died", self.tick)
                 self.score = ceil(self.score * 0.9)
+                self.numDeaths += 1
 
             self.gameDisplay.fill(self.currentRoom.getBackgroundColor())
             self.drawEnvironment(self.currentRoom)
@@ -427,7 +364,7 @@ class Roam:
                 self.tick += 1
             
             if self.player.isDead():
-                time.sleep(2)
+                time.sleep(3)
                 self.respawnPlayer()
         
         self.quitApplication()
