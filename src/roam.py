@@ -1,3 +1,5 @@
+from datetime import date
+import datetime
 from math import ceil, floor
 import time
 import pygame
@@ -258,7 +260,8 @@ class Roam:
             self.player.setPlacing(True)
         elif key == pygame.K_PRINTSCREEN:
             x, y = self.gameDisplay.get_size()
-            self.captureScreen("test.png", (0,0), (x,y))
+            self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
+            self.status.set("screenshot saved", self.tick)
 
     def handleKeyUpEvent(self, key):
         if key == pygame.K_w or key == pygame.K_UP and self.player.getDirection() == 0:

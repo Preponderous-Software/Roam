@@ -18,6 +18,7 @@ d | move right
 e | interact
 q | place item from inventory
 f11 | fullscreen
+print screen | take screenshot
 l | toggle tick speed limit
 esc | quit
 
