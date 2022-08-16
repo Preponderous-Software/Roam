@@ -16,10 +16,10 @@ a | move left
 s | move down
 d | move right
 e | interact
-p | place item from inventory
+q | place item from inventory
 f11 | fullscreen
 l | toggle tick speed limit
-q | quit
+esc | quit
 
 ## Support
 You can find the support discord server [here](https://discord.gg/49J4RHQxhy).
