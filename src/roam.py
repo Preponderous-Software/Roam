@@ -4,7 +4,9 @@ from math import ceil, floor
 import time
 import pygame
 from apple import Apple
-from appleTree import AppleTree
+from grid import Grid
+from location import Location
+from wood import Wood
 from config import Config
 from food import Food
 from graphik import Graphik
@@ -67,7 +69,7 @@ class Roam:
     def getLocationOfPlayer(self):
         return self.map.getLocation(self.player, self.currentRoom)
 
-    def getLocationDirection(self, direction, grid, location):
+    def getLocationDirection(self, direction: int, grid: Grid, location: Location):
         if direction == 0:
             return grid.getUp(location)
         elif direction == 1:
@@ -133,7 +135,7 @@ class Roam:
         self.initializeLocationWidthAndHeight()
         pygame.display.set_caption(("Roam - " + str(self.currentRoom.getName())))
     
-    def movePlayer(self, direction):
+    def movePlayer(self, direction: int):
         if direction == -1:
             return
 
@@ -145,7 +147,7 @@ class Roam:
             self.changeRooms()
             return
 
-        if self.map.locationContainsEntity(newLocation, AppleTree):
+        if self.map.locationContainsEntity(newLocation, Wood):
             # apple trees are solid
             return
         
@@ -169,7 +171,7 @@ class Roam:
         self.player.removeEnergy(self.config.playerMovementEnergyCost)
     
     def canBePickedUp(self, entity):
-        itemTypes = [AppleTree, Leaves, Grass, Apple]
+        itemTypes = [Wood, Leaves, Grass, Apple]
         for itemType in itemTypes:
             if isinstance(entity, itemType):
                 return True
@@ -214,7 +216,7 @@ class Roam:
         if targetLocation == -1:
             self.status.set("no location above player", self.tick)
             return
-        if self.map.locationContainsEntity(targetLocation, AppleTree):
+        if self.map.locationContainsEntity(targetLocation, Wood):
             self.status.set("blocked by apple tree", self.tick)
             return
 

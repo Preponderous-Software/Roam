@@ -1,7 +1,7 @@
 from math import ceil
 import random
 from apple import Apple
-from appleTree import AppleTree
+from wood import Wood
 from entity import Entity
 from grass import Grass
 from leaves import Leaves
@@ -49,7 +49,7 @@ class Map:
 
         # generate food
         for i in range(0, random.randrange(0, ceil(self.gridSize/2))):
-            self.spawnAppleTree(newRoom)
+            self.spawnWood(newRoom)
 
         self.rooms.append(newRoom)
         return newRoom
@@ -59,12 +59,12 @@ class Map:
             if random.randrange(1, 101) > 5: # 95% chance
                 room.addEntityToLocation(Grass(), location)
 
-    def spawnAppleTree(self, room: Room):
+    def spawnWood(self, room: Room):
         # spawn tree
-        appleTree = AppleTree()
-        room.addEntity(appleTree)
+        wood = Wood()
+        room.addEntity(wood)
 
-        location = self.getLocation(appleTree, room)
+        location = self.getLocation(wood, room)
 
         locationsToSpawnApples = []
         locationsToSpawnApples.append(room.grid.getUp(location))
@@ -74,7 +74,7 @@ class Map:
         
         # spawn leaves and apples around the tree
         for appleSpawnLocation in locationsToSpawnApples:
-            if appleSpawnLocation == -1 or self.locationContainsEntity(appleSpawnLocation, AppleTree):
+            if appleSpawnLocation == -1 or self.locationContainsEntity(appleSpawnLocation, Wood):
                 continue
             room.addEntityToLocation(Leaves(), appleSpawnLocation)
             if random.randrange(0, 2) == 0:
