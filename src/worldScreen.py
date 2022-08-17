@@ -150,6 +150,7 @@ class WorldScreen:
     
         # decrease energy
         self.player.removeEnergy(self.config.playerMovementEnergyCost)
+        self.player.setTickLastMoved(self.tick)
     
     def canBePickedUp(self, entity):
         itemTypes = [Wood, Leaves, Grass, Apple]
@@ -234,6 +235,8 @@ class WorldScreen:
             x, y = self.graphik.getGameDisplay().get_size()
             self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
             self.status.set("screenshot saved", self.tick)
+        elif key == pygame.K_LSHIFT:
+            self.player.setSpeed(self.player.getSpeed()*self.config.runSpeedFactor)
 
     def handleKeyUpEvent(self, key):
         if (key == pygame.K_w or key == pygame.K_UP) and self.player.getDirection() == 0:
@@ -248,6 +251,8 @@ class WorldScreen:
             self.player.setInteracting(False)
         elif key == pygame.K_q:
             self.player.setPlacing(False)
+        elif key == pygame.K_LSHIFT:
+            self.player.setSpeed(self.player.getSpeed()/self.config.runSpeedFactor)
 
     # @source https://stackoverflow.com/questions/63342477/how-to-take-screenshot-of-entire-display-pygame
     def captureScreen(self, name, pos, size): # (pygame Surface, String, tuple, tuple)
@@ -305,7 +310,8 @@ class WorldScreen:
                 elif event.type == pygame.VIDEORESIZE:
                     self.initializeLocationWidthAndHeight()
 
-            self.movePlayer(self.player.direction)
+            if self.player.getTickLastMoved() + 30/self.player.getSpeed() < self.tick:
+                self.movePlayer(self.player.direction)
 
             if self.player.isInteracting():
                 self.executeInteractAction()

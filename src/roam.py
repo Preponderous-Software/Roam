@@ -21,6 +21,7 @@ class Roam:
         self.status = Status(self.graphik)
         self.status.set("entered the world", self.tick)
         self.worldScreen = WorldScreen(self.graphik, self.config, self.status, self.tick)
+        self.currentScreen = WorldScreen
     
     def initializeGameDisplay(self):
         if self.config.fullscreen:
@@ -33,7 +34,9 @@ class Roam:
         quit()
     
     def run(self):
-        self.worldScreen.run()
+        if self.currentScreen == WorldScreen:
+            self.worldScreen.run()
+        self.quitApplication()
 
 roam = Roam()
 roam.run()
