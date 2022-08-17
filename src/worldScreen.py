@@ -1,5 +1,5 @@
 import datetime
-from math import ceil, floor
+from math import ceil
 import time
 import pygame
 from apple import Apple
@@ -28,6 +28,7 @@ class WorldScreen:
         self.currentRoom = self.map.getSpawnRoom()
         self.initializeLocationWidthAndHeight()
         self.player = Player()
+        self.currentRoom.addEntity(self.player)
         self.score = 0
         self.numApplesEaten = 0
         self.numDeaths = 0
@@ -214,8 +215,7 @@ class WorldScreen:
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
-            self.printStats()
-            return -1
+            return "options"
         elif key == pygame.K_l:
             if self.config.limitTickSpeed:
                 self.config.limitTickSpeed = False
@@ -269,7 +269,7 @@ class WorldScreen:
         self.player.energy = self.player.maxEnergy
         self.player.getInventory().clear()
         self.status.set("respawned", self.tick)
-        pygame.display.set_caption(("Roam - " + str(self.currentRoom.getName())))
+        pygame.display.set_caption(("Roam " + str(self.currentRoom.getName())))
     
     def displayInventoryTopItem(self):
         x, y = self.graphik.getGameDisplay().get_size()
@@ -283,17 +283,15 @@ class WorldScreen:
         self.graphik.drawText("Next item: " + topItem.getName(), xpos, ypos, size, self.config.black)
 
     def run(self):
-        self.currentRoom.addEntity(self.player)
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.printStats()
-                    return
+                    return "exit"
                 elif event.type == pygame.KEYDOWN:
                     result = self.handleKeyDownEvent(event.key)
-                    if result == -1:
-                        self.printStats()
-                        return
+                    if result == "options":
+                        return "options"
                 elif event.type == pygame.KEYUP:
                     self.handleKeyUpEvent(event.key)
                 elif event.type == pygame.WINDOWRESIZED:
