@@ -4,6 +4,7 @@ import time
 import pygame
 from apple import Apple
 from config import Config
+from energyBar import EnergyBar
 from food import Food
 from graphik import Graphik
 from grass import Grass
@@ -31,6 +32,7 @@ class WorldScreen:
         self.numApplesEaten = 0
         self.numDeaths = 0
         self.running = True
+        self.energyBar = EnergyBar(self.graphik, self.player)
 
     def initializeLocationWidthAndHeight(self):
         x, y = self.graphik.getGameDisplay().get_size()
@@ -269,17 +271,6 @@ class WorldScreen:
         self.status.set("respawned", self.tick)
         pygame.display.set_caption(("Roam - " + str(self.currentRoom.getName())))
     
-    def displayInfo(self):
-        x, y = self.graphik.getGameDisplay().get_size()
-        startingX = x/8
-        startingY = y/8
-        size = 30
-        self.displayEnergy(startingX, startingY, size)
-        
-    def displayEnergy(self, startingX, startingY, size):
-        self.graphik.drawText("Energy:", startingX, startingY - size/2, size, self.config.black)
-        self.graphik.drawText(str(floor((self.player.getEnergy()))), startingX, startingY + size/2, size, self.config.black)
-    
     def displayInventoryTopItem(self):
         x, y = self.graphik.getGameDisplay().get_size()
         xpos = x - x/8
@@ -331,9 +322,9 @@ class WorldScreen:
             self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
             self.currentRoom.draw(self.locationWidth, self.locationHeight)
             self.status.draw()
+            self.energyBar.draw()
 
             # display
-            self.displayInfo()
             self.displayInventoryTopItem()
 
             # update

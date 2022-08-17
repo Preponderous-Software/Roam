@@ -23,6 +23,9 @@ class Player(Entity):
     
     def getEnergy(self):
         return self.energy
+
+    def getMaxEnergy(self):
+        return self.maxEnergy
     
     def addEnergy(self, energy):
         self.energy += energy
