@@ -1,6 +1,7 @@
 from math import ceil
 import random
 from apple import Apple
+from graphik import Graphik
 from wood import Wood
 from entity import Entity
 from grass import Grass
@@ -11,10 +12,11 @@ from room import Room
 # @author Daniel McCoy Stephenson
 # @since August 15th, 2022
 class Map:
-    def __init__(self, gridSize):
+    def __init__(self, gridSize, graphik: Graphik):
         self.rooms = []
         self.gridSize = gridSize
-        self.spawnRoom = self.generateSpawnRoom()
+        self.graphik = graphik
+        self.spawnRoom = self.generateNewRoom(0, 0)
     
     def getRooms(self):
         return self.rooms
@@ -33,23 +35,17 @@ class Map:
         grid = room.getGrid()
         return grid.getLocation(locationID)
 
-    def generateSpawnRoom(self):
-        spawnRoomColor = ((random.randrange(200, 210), random.randrange(130, 140), random.randrange(60, 70)))
-        spawnRoom = Room("Spawn", self.gridSize, spawnRoomColor, 0, 0)
-        self.spawnGrass(spawnRoom)
-        self.rooms.append(spawnRoom)
-        return spawnRoom
-
     def generateNewRoom(self, x, y):
         newRoomColor = ((random.randrange(200, 210), random.randrange(130, 140), random.randrange(60, 70)))
-        newRoom = Room(("Room (" + str(x) + ", " + str(y) + ")"), self.gridSize, newRoomColor, x, y)
+        newRoom = Room(("(" + str(x) + ", " + str(y) + ")"), self.gridSize, newRoomColor, x, y, self.graphik)
 
         # generate grass
         self.spawnGrass(newRoom)
 
         # generate food
-        for i in range(0, random.randrange(0, ceil(self.gridSize/2))):
-            self.spawnWood(newRoom)
+        maxTrees = ceil(self.gridSize/2)
+        for i in range(0, maxTrees):
+            self.spawnTree(newRoom)
 
         self.rooms.append(newRoom)
         return newRoom
@@ -59,8 +55,7 @@ class Map:
             if random.randrange(1, 101) > 5: # 95% chance
                 room.addEntityToLocation(Grass(), location)
 
-    def spawnWood(self, room: Room):
-        # spawn tree
+    def spawnTree(self, room: Room):
         wood = Wood()
         room.addEntity(wood)
 

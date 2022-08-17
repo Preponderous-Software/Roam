@@ -1,4 +1,3 @@
-from datetime import date
 import datetime
 from math import ceil, floor
 import time
@@ -14,7 +13,6 @@ from grass import Grass
 from leaves import Leaves
 from map import Map
 from player import Player
-from room import Room
 from status import Status
 
 
@@ -25,12 +23,12 @@ class Roam:
         self.config = Config()
         self.running = True
         self.tick = 0
-        self.map = Map(self.config.gridSize)
         pygame.init()
         pygame.display.set_caption("Roam")
         self.initializeGameDisplay()
         pygame.display.set_icon(pygame.image.load('src/icon.PNG'))
         self.graphik = Graphik(self.gameDisplay)
+        self.map = Map(self.config.gridSize, self.graphik)
         self.currentRoom = self.map.getSpawnRoom()
         self.initializeLocationWidthAndHeight()
         self.player = Player()
@@ -133,7 +131,7 @@ class Roam:
         targetLocation = self.currentRoom.getGrid().getLocationByCoordinates(targetX, targetY)
         self.currentRoom.addEntityToLocation(self.player, targetLocation)
         self.initializeLocationWidthAndHeight()
-        pygame.display.set_caption(("Roam - " + str(self.currentRoom.getName())))
+        pygame.display.set_caption(("Roam " + str(self.currentRoom.getName())))
     
     def movePlayer(self, direction: int):
         if direction == -1:
@@ -220,7 +218,7 @@ class Roam:
             self.status.set("blocked by apple tree", self.tick)
             return
 
-        toPlace = self.player.getInventory().getContents().pop()
+        toPlace = self.player.getInventory().getContents().pop() 
 
         if toPlace == -1:
             return
@@ -266,39 +264,18 @@ class Roam:
             self.status.set("screenshot saved", self.tick)
 
     def handleKeyUpEvent(self, key):
-        if key == pygame.K_w or key == pygame.K_UP and self.player.getDirection() == 0:
+        if (key == pygame.K_w or key == pygame.K_UP) and self.player.getDirection() == 0:
             self.player.setDirection(-1)
-        elif key == pygame.K_a or key == pygame.K_LEFT and self.player.getDirection() == 1:
+        elif (key == pygame.K_a or key == pygame.K_LEFT) and self.player.getDirection() == 1:
             self.player.setDirection(-1)
-        elif key == pygame.K_s or key == pygame.K_DOWN and self.player.getDirection() == 2:
+        elif (key == pygame.K_s or key == pygame.K_DOWN) and self.player.getDirection() == 2:
             self.player.setDirection(-1)
-        elif key == pygame.K_d or key == pygame.K_RIGHT and self.player.getDirection() == 3:
+        elif (key == pygame.K_d or key == pygame.K_RIGHT) and self.player.getDirection() == 3:
             self.player.setDirection(-1)
         elif key == pygame.K_e:
             self.player.setInteracting(False)
         elif key == pygame.K_q:
             self.player.setPlacing(False)
-    
-    # Draws the given environment in its entirety.
-    def drawEnvironment(self, room: Room):
-        for location in room.getGrid().getLocations():
-            self.drawLocation(location, location.getX() * self.locationWidth, location.getY() * self.locationHeight, self.locationWidth, self.locationHeight)
-
-    # Draws a location at a specified position.
-    def drawLocation(self, location, xPos, yPos, width, height):
-        color = self.getColorOfLocation(location)
-        self.graphik.drawRectangle(xPos, yPos, width, height, color)
-
-    # Returns the color that a location should be displayed as.
-    def getColorOfLocation(self, location):
-        if location == -1:
-            color = self.config.white
-        else:
-            color = self.currentRoom.getBackgroundColor()
-            if location.getNumEntities() > 0:
-                topEntity = location.getEntities()[-1]
-                return topEntity.getColor()
-        return color
     
     def respawnPlayer(self):
         self.currentRoom.removeEntity(self.player)
@@ -307,6 +284,7 @@ class Roam:
         self.player.energy = self.player.maxEnergy
         self.player.getInventory().clear()
         self.status.set("respawned", self.tick)
+        pygame.display.set_caption(("Roam - " + str(self.currentRoom.getName())))
     
     def displayInfo(self):
         x, y = self.gameDisplay.get_size()
@@ -342,6 +320,8 @@ class Roam:
                     self.handleKeyUpEvent(event.key)
                 elif event.type == pygame.WINDOWRESIZED:
                     self.initializeLocationWidthAndHeight()
+                elif event.type == pygame.VIDEORESIZE:
+                    self.simulation.initializeLocationWidthAndHeight()
 
             self.movePlayer(self.player.direction)
 
@@ -350,18 +330,25 @@ class Roam:
             elif self.player.isPlacing():
                 self.executePlaceAction()
 
+            # remove energy and check for death
             self.player.removeEnergy(0.05)
             if self.player.isDead():
                 self.status.set("you died", self.tick)
                 self.score = ceil(self.score * 0.9)
                 self.numDeaths += 1
+            
+            self.status.checkForExpiration(self.tick)
 
+            # draw
             self.gameDisplay.fill(self.currentRoom.getBackgroundColor())
-            self.drawEnvironment(self.currentRoom)
+            self.currentRoom.draw(self.locationWidth, self.locationHeight)
+            self.status.draw()
+
+            # display
             self.displayInfo()
             self.displayInventoryTopItem()
-            self.status.checkForExpiration(self.tick)
-            self.status.draw()
+
+            # update
             pygame.display.update()
 
             if self.config.limitTickSpeed:

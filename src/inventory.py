@@ -1,7 +1,7 @@
 class Inventory:
     def __init__(self):
         self.contents = []
-    
+        
     def getContents(self):
         return self.contents
     
