@@ -12,7 +12,7 @@ class Config:
         self.fullscreen = False
         self.black = (0,0,0)
         self.white = (255,255,255)
-        self.tickSpeed = 0.1
+        self.tickSpeed = 1/30 # 30 frames per second
         self.limitTickSpeed = True
         self.gridSize = 16
         self.playerMovementEnergyCost = 0.2
