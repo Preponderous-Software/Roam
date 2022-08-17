@@ -1,7 +1,7 @@
-from math import ceil, floor
 import pygame
 from config import Config
 from graphik import Graphik
+from optionsScreen import OptionsScreen
 from status import Status
 from worldScreen import WorldScreen
 
@@ -21,7 +21,8 @@ class Roam:
         self.status = Status(self.graphik)
         self.status.set("entered the world", self.tick)
         self.worldScreen = WorldScreen(self.graphik, self.config, self.status, self.tick)
-        self.currentScreen = WorldScreen
+        self.optionsScreen = OptionsScreen(self.graphik, self.config, self.status)
+        self.currentScreen = self.worldScreen
     
     def initializeGameDisplay(self):
         if self.config.fullscreen:
@@ -34,9 +35,14 @@ class Roam:
         quit()
     
     def run(self):
-        if self.currentScreen == WorldScreen:
-            self.worldScreen.run()
-        self.quitApplication()
+        while True:
+            result = self.currentScreen.run()
+            if result == "world":
+                self.currentScreen = self.worldScreen
+            elif result == "options":
+                self.currentScreen = self.optionsScreen
+            elif result == "exit":
+                self.quitApplication()
 
 roam = Roam()
 roam.run()
