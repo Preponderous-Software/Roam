@@ -15,6 +15,8 @@ class Player(Entity):
         self.inventory = Inventory()
         self.interacting = False
         self.placing = False
+        self.tickLastMoved = -1
+        self.speed = 15
     
     def getColor(self):
         return self.color
@@ -57,3 +59,15 @@ class Player(Entity):
     
     def isDead(self):
         return self.energy < 1
+    
+    def setTickLastMoved(self, tick):
+        self.tickLastMoved = tick
+    
+    def getTickLastMoved(self):
+        return self.tickLastMoved
+    
+    def getSpeed(self):
+        return self.speed
+    
+    def setSpeed(self, newSpeed):
+        self.speed = newSpeed

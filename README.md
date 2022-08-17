@@ -15,9 +15,9 @@ w | move up
 a | move left
 s | move down
 d | move right
+shift | run
 e | interact
 q | place item from inventory
-f11 | fullscreen
 print screen | take screenshot
 l | toggle tick speed limit
 esc | quit
