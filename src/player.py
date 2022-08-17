@@ -56,4 +56,4 @@ class Player(Entity):
         self.placing = bool
     
     def isDead(self):
-        return self.energy <= 0
+        return self.energy < 1
