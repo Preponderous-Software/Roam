@@ -13,7 +13,7 @@ class Player(Entity):
         self.direction = -1 # -1 when not moving
         self.lastDirection = -1
         self.inventory = Inventory()
-        self.interacting = False
+        self.gathering = False
         self.placing = False
         self.tickLastMoved = -1
         self.speed = 15
@@ -48,11 +48,11 @@ class Player(Entity):
     def getInventory(self):
         return self.inventory
     
-    def isInteracting(self):
-        return self.interacting
+    def isGathering(self):
+        return self.gathering
 
-    def setInteracting(self, bool):
-        self.interacting = bool
+    def setGathering(self, bool):
+        self.gathering = bool
     
     def isPlacing(self):
         return self.placing

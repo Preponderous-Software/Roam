@@ -9,6 +9,7 @@ from food import Food
 from graphik import Graphik
 from grass import Grass
 from grid import Grid
+from selectedItemPreview import SelectedItemPreview
 from leaves import Leaves
 from location import Location
 from map import Map
@@ -29,11 +30,13 @@ class WorldScreen:
         self.initializeLocationWidthAndHeight()
         self.player = Player()
         self.currentRoom.addEntity(self.player)
+        self.status.set("entered the world", self.tick)
         self.score = 0
         self.numApplesEaten = 0
         self.numDeaths = 0
         self.running = True
         self.energyBar = EnergyBar(self.graphik, self.player)
+        self.selectedItemPreview = SelectedItemPreview(graphik, self.player.getInventory())
 
     def initializeLocationWidthAndHeight(self):
         x, y = self.graphik.getGameDisplay().get_size()
@@ -162,7 +165,7 @@ class WorldScreen:
                 return True
         return False
     
-    def executeInteractAction(self):
+    def executeGatherAction(self):
         playerLocation = self.getLocationOfPlayer()
 
         toCheck = []
@@ -190,6 +193,7 @@ class WorldScreen:
         self.currentRoom.removeEntity(toRemove)
         self.player.getInventory().place(toRemove)
         self.status.set("picked up '" + entity.getName() + "'", self.tick)
+        self.player.removeEnergy(self.config.playerInteractionEnergyCost)
     
     def executePlaceAction(self):
         if len(self.player.getInventory().getContents()) == 0:
@@ -230,7 +234,7 @@ class WorldScreen:
         elif key == pygame.K_d or key == pygame.K_RIGHT:
             self.player.setDirection(3)
         elif key == pygame.K_e:
-            self.player.setInteracting(True)
+            self.player.setGathering(True)
         elif key == pygame.K_q:
             self.player.setPlacing(True)
         elif key == pygame.K_PRINTSCREEN:
@@ -250,7 +254,7 @@ class WorldScreen:
         elif (key == pygame.K_d or key == pygame.K_RIGHT) and self.player.getDirection() == 3:
             self.player.setDirection(-1)
         elif key == pygame.K_e:
-            self.player.setInteracting(False)
+            self.player.setGathering(False)
         elif key == pygame.K_q:
             self.player.setPlacing(False)
         elif key == pygame.K_LSHIFT:
@@ -270,17 +274,6 @@ class WorldScreen:
         self.player.getInventory().clear()
         self.status.set("respawned", self.tick)
         pygame.display.set_caption(("Roam " + str(self.currentRoom.getName())))
-    
-    def displayInventoryTopItem(self):
-        x, y = self.graphik.getGameDisplay().get_size()
-        xpos = x - x/8
-        ypos = y/10
-        size = 15
-        inventory = self.player.getInventory()
-        if len(inventory.getContents()) == 0:
-            return
-        topItem = inventory.getContents()[-1]
-        self.graphik.drawText("Next item: " + topItem.getName(), xpos, ypos, size, self.config.black)
 
     def run(self):
         while self.running:
@@ -302,13 +295,15 @@ class WorldScreen:
             if self.player.getTickLastMoved() + 30/self.player.getSpeed() < self.tick:
                 self.movePlayer(self.player.direction)
 
-            if self.player.isInteracting():
-                self.executeInteractAction()
+            if self.player.isGathering():
+                self.executeGatherAction()
             elif self.player.isPlacing():
                 self.executePlaceAction()
 
             # remove energy and check for death
-            self.player.removeEnergy(0.05)
+            self.player.removeEnergy(self.config.energyDepletionRate)
+            if self.player.getEnergy() < self.player.getMaxEnergy() * 0.10:
+                self.status.set("low on energy!", self.tick)
             if self.player.isDead():
                 self.status.set("you died", self.tick)
                 self.score = ceil(self.score * 0.9)
@@ -321,9 +316,7 @@ class WorldScreen:
             self.currentRoom.draw(self.locationWidth, self.locationHeight)
             self.status.draw()
             self.energyBar.draw()
-
-            # display
-            self.displayInventoryTopItem()
+            self.selectedItemPreview.draw()
 
             # update
             pygame.display.update()

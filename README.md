@@ -16,8 +16,8 @@ a | move left
 s | move down
 d | move right
 shift | run
-e | interact
-q | place item from inventory
+e | gather
+q | place
 print screen | take screenshot
 l | toggle tick speed limit
 esc | quit

@@ -1,5 +1,6 @@
 # @author Daniel McCoy Stephenson
 # @since August 6th, 2022
+import random
 
 
 # @author Daniel McCoy Stephenson
@@ -15,7 +16,9 @@ class Config:
         self.ticksPerSecond = 30
         self.tickSpeed = 1/self.ticksPerSecond
         self.limitTickSpeed = True
-        self.gridSize = 16
+        self.gridSize = random.randrange(16, 19)
         self.playerMovementEnergyCost = 0.2
+        self.playerInteractionEnergyCost= 0.05
         self.worldBorder = 16
-        self.runSpeedFactor = 2.5
+        self.runSpeedFactor = 2
+        self.energyDepletionRate = 0.01
