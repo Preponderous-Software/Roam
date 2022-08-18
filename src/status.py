@@ -5,10 +5,10 @@ from graphik import Graphik
 # since August 14th, 2022
 class Status:
     def __init__(self, graphik: Graphik):
-        self.text = -1
         self.graphik = graphik
-        self.size = 20
-        self.color = (0, 0, 0)
+        self.text = -1
+        self.textSize = 18
+        self.textColor = (0, 0, 0)
         self.tickLastSet = -1
         self.durationInTicks = 20
     
@@ -20,12 +20,15 @@ class Status:
         self.text = -1
     
     def draw(self):
-        x, y = self.graphik.getGameDisplay().get_size()
-        self.xpos = x/2
-        self.ypos = y - y/12
         if self.text == -1:
             return
-        self.graphik.drawText(self.text, self.xpos, self.ypos, self.size, self.color)
+        x, y = self.graphik.getGameDisplay().get_size()
+        width = len(self.text) * 10
+        height = self.textSize * 2
+        xpos = x/2 - width/2
+        ypos = y - y/12 - height/2
+        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), self.textColor, self.textSize, self.text, None)
+        # self.graphik.drawText(self.text, xpos, ypos, self.size, self.color)
     
     def getTickLastSet(self):
         return self.tickLastSet

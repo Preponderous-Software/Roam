@@ -19,7 +19,6 @@ class Roam:
         self.gameDisplay = self.initializeGameDisplay()
         self.graphik = Graphik(self.gameDisplay)
         self.status = Status(self.graphik)
-        self.status.set("entered the world", self.tick)
         self.worldScreen = WorldScreen(self.graphik, self.config, self.status, self.tick)
         self.optionsScreen = OptionsScreen(self.graphik, self.config, self.status)
         self.currentScreen = self.worldScreen
