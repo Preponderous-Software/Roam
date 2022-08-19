@@ -9,6 +9,7 @@ from food import Food
 from graphik import Graphik
 from grass import Grass
 from grid import Grid
+from rock import Rock
 from selectedItemPreview import SelectedItemPreview
 from leaves import Leaves
 from location import Location
@@ -136,8 +137,7 @@ class WorldScreen:
             self.changeRooms()
             return
 
-        if self.map.locationContainsEntity(newLocation, Wood):
-            # apple trees are solid
+        if self.locationContainsSolidEntity(newLocation):
             return
         
         if self.player.getEnergy() < self.player.getMaxEnergy() * 0.95:
@@ -162,7 +162,7 @@ class WorldScreen:
         self.player.setTickLastMoved(self.tick)
     
     def canBePickedUp(self, entity):
-        itemTypes = [Wood, Leaves, Grass, Apple]
+        itemTypes = [Wood, Leaves, Grass, Apple, Rock]
         for itemType in itemTypes:
             if isinstance(entity, itemType):
                 return True
@@ -203,6 +203,9 @@ class WorldScreen:
         playerLocation = self.getLocationOfPlayer()
         return self.getLocationDirection(direction, self.currentRoom.grid, playerLocation)
     
+    def locationContainsSolidEntity(self, location):
+        return self.map.locationContainsEntity(location, Wood) or self.map.locationContainsEntity(location, Rock)
+    
     def executePlaceAction(self):
         if len(self.player.getInventory().getContents()) == 0:
             self.status.set("no items", self.tick)
@@ -215,8 +218,8 @@ class WorldScreen:
         if targetLocation == -2:
             self.status.set("can't place while moving", self.tick)
             return
-        if self.map.locationContainsEntity(targetLocation, Wood):
-            self.status.set("blocked by wood", self.tick)
+        if self.locationContainsSolidEntity(targetLocation):
+            self.status.set("location blocked", self.tick)
             return
 
         toPlace = self.player.getInventory().getContents().pop() 

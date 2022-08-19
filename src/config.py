@@ -16,7 +16,7 @@ class Config:
         self.ticksPerSecond = 30
         self.tickSpeed = 1/self.ticksPerSecond
         self.limitTickSpeed = True
-        self.gridSize = random.randrange(16, 19)
+        self.gridSize = 16
         self.playerMovementEnergyCost = 0.2
         self.playerInteractionEnergyCost= 0.05
         self.worldBorder = 16
