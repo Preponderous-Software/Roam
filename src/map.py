@@ -2,6 +2,7 @@ from math import ceil
 import random
 from apple import Apple
 from graphik import Graphik
+from rock import Rock
 from wood import Wood
 from entity import Entity
 from grass import Grass
@@ -41,6 +42,9 @@ class Map:
 
         # generate grass
         self.spawnGrass(newRoom)
+        
+        # generate rocks
+        self.spawnRocks(newRoom)
 
         # generate food
         maxTrees = ceil(self.gridSize/2)
@@ -54,6 +58,11 @@ class Map:
         for location in room.getGrid().getLocations():
             if random.randrange(1, 101) > 5: # 95% chance
                 room.addEntityToLocation(Grass(), location)
+    
+    def spawnRocks(self, room: Room):
+        for location in room.getGrid().getLocations():
+            if random.randrange(1, 101) == 1: # 1% chance
+                room.addEntityToLocation(Rock(), location)
 
     def spawnTree(self, room: Room):
         wood = Wood()

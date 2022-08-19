@@ -1,3 +1,4 @@
+import random
 from entity import Entity
 
 
@@ -6,7 +7,7 @@ from entity import Entity
 class Wood(Entity):
     def __init__(self):
         Entity.__init__(self, "Wood")
-        self.color = (139, 69, 19)
+        self.color = (random.randrange(135, 145), random.randrange(65, 75), random.randrange(15, 25))
     
     def getColor(self):
         return self.color
