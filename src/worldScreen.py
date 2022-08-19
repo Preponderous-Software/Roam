@@ -166,27 +166,19 @@ class WorldScreen:
         return False
     
     def executeGatherAction(self):
-        playerLocation = self.getLocationOfPlayer()
-
-        toCheck = []
-        toCheck.append(playerLocation)
-        toCheck.append(self.currentRoom.getGrid().getUp(playerLocation))
-        toCheck.append(self.currentRoom.getGrid().getLeft(playerLocation))
-        toCheck.append(self.currentRoom.getGrid().getDown(playerLocation))
-        toCheck.append(self.currentRoom.getGrid().getRight(playerLocation))
+        location = self.getLocationInFrontOfPlayer()
     
+        if location == -1:
+            self.status.set("no location available", self.tick)
+            return
+
         toRemove = -1
-        for location in toCheck:
-            if location == -1:
-                continue
-            reversedEntityList = list(reversed(location.getEntities()))
-            for entity in reversedEntityList:
-                if self.canBePickedUp(entity):
-                    toRemove = entity
-                    break
-            if toRemove != -1:
+        reversedEntityList = list(reversed(location.getEntities()))
+        for entity in reversedEntityList:
+            if self.canBePickedUp(entity):
+                toRemove = entity
                 break
-        
+
         if toRemove == -1:
             return
             
@@ -195,15 +187,27 @@ class WorldScreen:
         self.status.set("picked up '" + entity.getName() + "'", self.tick)
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
     
+    def getLocationInFrontOfPlayer(self):
+        lastDirectionPlayerWasFacing = self.player.getLastDirection()
+        directionPlayerIsFacing = self.player.getDirection()
+        direction = lastDirectionPlayerWasFacing
+        if direction == -1:
+            # player was standing still
+            direction = directionPlayerIsFacing
+        playerLocation = self.getLocationOfPlayer()
+        return self.getLocationDirection(direction, self.currentRoom.grid, playerLocation)
+    
     def executePlaceAction(self):
         if len(self.player.getInventory().getContents()) == 0:
             self.status.set("no items", self.tick)
             return
 
-        playerLocation = self.getLocationOfPlayer()
-        targetLocation = self.currentRoom.getGrid().getUp(playerLocation)
+        targetLocation = self.getLocationInFrontOfPlayer()
         if targetLocation == -1:
-            self.status.set("no location above player", self.tick)
+            self.status.set("no location available", self.tick)
+            return
+        if targetLocation == -2:
+            self.status.set("can't place while moving", self.tick)
             return
         if self.map.locationContainsEntity(targetLocation, Wood):
             self.status.set("blocked by wood", self.tick)
