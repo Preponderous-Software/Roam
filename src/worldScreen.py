@@ -138,17 +138,18 @@ class WorldScreen:
             # apple trees are solid
             return
         
-        # search for food
-        for entity in newLocation.getEntities():
-            if isinstance(entity, Food):
-                newLocation.removeEntity(entity)
-                scoreIncrease = 1 * len(self.map.getRooms())
-                self.score += scoreIncrease
-                self.player.addEnergy(entity.getEnergy())
-                
-                if isinstance(entity, Apple):
-                    self.numApplesEaten += 1
-                    self.status.set("ate '" + entity.getName() + "'", self.tick)
+        if self.player.getEnergy() < self.player.getMaxEnergy() * 0.95:
+            # search for food to eat
+            for entity in newLocation.getEntities():
+                if isinstance(entity, Food):
+                    newLocation.removeEntity(entity)
+                    scoreIncrease = 1 * len(self.map.getRooms())
+                    self.score += scoreIncrease
+                    self.player.addEnergy(entity.getEnergy())
+                    
+                    if isinstance(entity, Apple):
+                        self.numApplesEaten += 1
+                        self.status.set("ate '" + entity.getName() + "'", self.tick)
 
         # move player
         location.removeEntity(self.player)
