@@ -65,6 +65,8 @@ class WorldScreen:
             return grid.getDown(location)
         elif direction == 3:
             return grid.getRight(location)
+        elif direction == -1:
+            return -1
     
     def getCoordinatesForNewRoomBasedOnPlayerLocation(self):
         location = self.getLocationOfPlayer()
@@ -183,9 +185,12 @@ class WorldScreen:
         if toRemove == -1:
             return
             
+        result = self.player.getInventory().place(toRemove)
+        if result == -1:
+            self.status.set("inventory full", self.tick)
+            return
         self.currentRoom.removeEntity(toRemove)
-        self.player.getInventory().place(toRemove)
-        self.status.set("picked up '" + entity.getName() + "'", self.tick)
+        self.status.set("picked up '" + entity.getName() + "' (" + str(self.player.getInventory().getNumEntitiesByType(type(entity))) + ")", self.tick)
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
     
     def getLocationInFrontOfPlayer(self):
