@@ -1,4 +1,3 @@
-import random
 from entity import Entity
 
 

@@ -1,6 +1,7 @@
 import pygame
 from config import Config
 from graphik import Graphik
+from mainMenuScreen import MainMenuScreen
 from optionsScreen import OptionsScreen
 from status import Status
 from worldScreen import WorldScreen
@@ -21,14 +22,18 @@ class Roam:
         self.status = Status(self.graphik)
         self.worldScreen = WorldScreen(self.graphik, self.config, self.status, self.tick)
         self.optionsScreen = OptionsScreen(self.graphik, self.config, self.status)
-        self.currentScreen = self.worldScreen
-    
+        self.mainMenuScreen = MainMenuScreen(self.graphik, self.config, self.initializeWorldScreen)
+        self.currentScreen = self.mainMenuScreen
+
     def initializeGameDisplay(self):
         if self.config.fullscreen:
             return pygame.display.set_mode((self.config.displayWidth, self.config.displayHeight), pygame.FULLSCREEN)
         else:
             return pygame.display.set_mode((self.config.displayWidth, self.config.displayHeight), pygame.RESIZABLE)
     
+    def initializeWorldScreen(self):
+        self.worldScreen.initialize()
+
     def quitApplication(self):
         pygame.quit()
         quit()
@@ -36,6 +41,8 @@ class Roam:
     def run(self):
         while True:
             result = self.currentScreen.run()
+            if result == "menu":
+                self.currentScreen = self.mainMenuScreen
             if result == "world":
                 self.currentScreen = self.worldScreen
             elif result == "options":

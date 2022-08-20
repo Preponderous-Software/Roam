@@ -42,14 +42,14 @@ class Map:
 
         # generate grass
         self.spawnGrass(newRoom)
-        
-        # generate rocks
-        self.spawnRocks(newRoom)
 
         # generate food
-        maxTrees = ceil(self.gridSize/2)
+        maxTrees = ceil(self.gridSize/3)
         for i in range(0, maxTrees):
             self.spawnTree(newRoom)
+
+        # generate rocks
+        self.spawnRocks(newRoom)
 
         self.rooms.append(newRoom)
         return newRoom
