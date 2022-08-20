@@ -26,6 +26,9 @@ class WorldScreen:
         self.config = config
         self.status = status
         self.tick = tick
+        self.running = True
+    
+    def initialize(self):
         self.map = Map(self.config.gridSize, self.graphik)
         self.currentRoom = self.map.getSpawnRoom()
         self.initializeLocationWidthAndHeight()
@@ -35,9 +38,8 @@ class WorldScreen:
         self.score = 0
         self.numApplesEaten = 0
         self.numDeaths = 0
-        self.running = True
         self.energyBar = EnergyBar(self.graphik, self.player)
-        self.selectedItemPreview = SelectedItemPreview(graphik, self.player.getInventory())
+        self.selectedItemPreview = SelectedItemPreview(self.graphik, self.player.getInventory())
 
     def initializeLocationWidthAndHeight(self):
         x, y = self.graphik.getGameDisplay().get_size()
