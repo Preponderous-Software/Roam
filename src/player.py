@@ -17,6 +17,7 @@ class Player(Entity):
         self.placing = False
         self.tickLastMoved = -1
         self.speed = 15
+        self.crouching = False
     
     def getColor(self):
         return self.color
@@ -74,3 +75,9 @@ class Player(Entity):
     
     def setSpeed(self, newSpeed):
         self.speed = newSpeed
+    
+    def isCrouching(self):
+        return self.crouching
+    
+    def setCrouching(self, bool):
+        self.crouching = bool

@@ -1,3 +1,4 @@
+# @author Daniel McCoy Stephenson
 class Inventory:
     def __init__(self):
         self.contents = []

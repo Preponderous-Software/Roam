@@ -130,6 +130,9 @@ class WorldScreen:
     def movePlayer(self, direction: int):
         if direction == -1:
             return
+        
+        if self.player.isCrouching():
+            return
 
         location = self.getLocationOfPlayer()
         newLocation = self.getLocationDirection(direction, self.currentRoom.getGrid(), location)
@@ -258,6 +261,8 @@ class WorldScreen:
             self.status.set("screenshot saved", self.tick)
         elif key == pygame.K_LSHIFT:
             self.player.setSpeed(self.player.getSpeed()*self.config.runSpeedFactor)
+        elif key == pygame.K_LCTRL:
+            self.player.setCrouching(True)
 
     def handleKeyUpEvent(self, key):
         if (key == pygame.K_w or key == pygame.K_UP) and self.player.getDirection() == 0:
@@ -274,6 +279,8 @@ class WorldScreen:
             self.player.setPlacing(False)
         elif key == pygame.K_LSHIFT:
             self.player.setSpeed(self.player.getSpeed()/self.config.runSpeedFactor)
+        elif key == pygame.K_LCTRL:
+            self.player.setCrouching(False)
 
     # @source https://stackoverflow.com/questions/63342477/how-to-take-screenshot-of-entire-display-pygame
     def captureScreen(self, name, pos, size): # (pygame Surface, String, tuple, tuple)

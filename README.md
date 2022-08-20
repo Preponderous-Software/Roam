@@ -16,6 +16,7 @@ a | move left
 s | move down
 d | move right
 shift | run
+ctrl | crouch
 e | gather
 q | place
 print screen | take screenshot
