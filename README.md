@@ -20,7 +20,6 @@ ctrl | crouch
 e | gather
 q | place
 print screen | take screenshot
-l | toggle tick speed limit
 esc | quit
 
 ## Support
