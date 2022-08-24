@@ -21,25 +21,6 @@ class OptionsScreen:
     def quitApplication(self):
         pygame.quit()
         quit()
-    
-    def toggleTickSpeedLimit(self):
-        if self.config.limitTickSpeed == True:
-            self.config.limitTickSpeed = False
-        else:
-            self.config.limitTickSpeed = True
-
-    def drawLimitTickSpeedButton(self):
-        x, y = self.graphik.getGameDisplay().get_size()
-        width = x/5
-        height = y/10
-        xpos = x/2 - width/2
-        ypos = y/2 - height/2 - width
-        backgroundColor = -1
-        if self.config.limitTickSpeed == True:
-            backgroundColor = (0,200,0)
-        else:
-            backgroundColor = (200, 0, 0)
-        self.graphik.drawButton(xpos, ypos, width, height, backgroundColor, (0,0,0), 30, "limit TS", self.toggleTickSpeedLimit)
 
     def drawMainMenuButton(self):
         x, y = self.graphik.getGameDisplay().get_size()
@@ -70,7 +51,6 @@ class OptionsScreen:
             
             self.graphik.getGameDisplay().fill((0, 0, 0))
             self.drawMainMenuButton()
-            self.drawLimitTickSpeedButton()
             self.drawQuitButton()
             pygame.display.update()
         return "menu"

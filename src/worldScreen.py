@@ -127,10 +127,7 @@ class WorldScreen:
         self.initializeLocationWidthAndHeight()
         pygame.display.set_caption(("Roam " + str(self.currentRoom.getName())))
         
-    def movePlayer(self, direction: int):
-        if direction == -1:
-            return
-        
+    def movePlayer(self, direction: int):        
         if self.player.isCrouching():
             return
 
@@ -197,6 +194,7 @@ class WorldScreen:
         self.currentRoom.removeEntity(toRemove)
         self.status.set("picked up '" + entity.getName() + "' (" + str(self.player.getInventory().getNumEntitiesByType(type(entity))) + ")", self.tick)
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
+        self.player.setTickLastGathered(self.tick)
     
     def getLocationInFrontOfPlayer(self):
         lastDirectionPlayerWasFacing = self.player.getLastDirection()
@@ -234,6 +232,7 @@ class WorldScreen:
             
         self.currentRoom.addEntityToLocation(toPlace, targetLocation)
         self.status.set("placed '" + toPlace.getName() + "'", self.tick)
+        self.player.setTickLastPlaced(self.tick)
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
@@ -296,6 +295,35 @@ class WorldScreen:
         self.player.getInventory().clear()
         self.status.set("respawned", self.tick)
         pygame.display.set_caption(("Roam " + str(self.currentRoom.getName())))
+    
+    def checkCooldown(self, tickToCheck):
+        ticksPerSecond = 30
+        return tickToCheck + ticksPerSecond/self.player.getSpeed() < self.tick
+    
+    def handlePlayerActions(self):
+        if self.player.isMoving() and self.checkCooldown(self.player.getTickLastMoved()):
+            self.movePlayer(self.player.direction)
+
+        if self.player.isGathering() and self.checkCooldown(self.player.getTickLastGathered()):
+            self.executeGatherAction()
+        elif self.player.isPlacing() and self.checkCooldown(self.player.getTickLastPlaced()):
+            self.executePlaceAction()
+    
+    def removeEnergyAndCheckForDeath(self):
+        self.player.removeEnergy(self.config.energyDepletionRate)
+        if self.player.getEnergy() < self.player.getMaxEnergy() * 0.10:
+            self.status.set("low on energy!", self.tick)
+        if self.player.isDead():
+            self.status.set("you died", self.tick)
+            self.score = ceil(self.score * 0.9)
+            self.numDeaths += 1
+
+    def draw(self):
+        self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
+        self.currentRoom.draw(self.locationWidth, self.locationHeight)
+        self.status.draw()
+        self.energyBar.draw()
+        self.selectedItemPreview.draw()
 
     def run(self):
         while self.running:
@@ -314,38 +342,14 @@ class WorldScreen:
                 elif event.type == pygame.VIDEORESIZE:
                     self.initializeLocationWidthAndHeight()
 
-            if self.player.getTickLastMoved() + 30/self.player.getSpeed() < self.tick:
-                self.movePlayer(self.player.direction)
-
-            if self.player.isGathering():
-                self.executeGatherAction()
-            elif self.player.isPlacing():
-                self.executePlaceAction()
-
-            # remove energy and check for death
-            self.player.removeEnergy(self.config.energyDepletionRate)
-            if self.player.getEnergy() < self.player.getMaxEnergy() * 0.10:
-                self.status.set("low on energy!", self.tick)
-            if self.player.isDead():
-                self.status.set("you died", self.tick)
-                self.score = ceil(self.score * 0.9)
-                self.numDeaths += 1
-            
+            self.handlePlayerActions()
+            self.removeEnergyAndCheckForDeath()
             self.status.checkForExpiration(self.tick)
-
-            # draw
-            self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
-            self.currentRoom.draw(self.locationWidth, self.locationHeight)
-            self.status.draw()
-            self.energyBar.draw()
-            self.selectedItemPreview.draw()
-
-            # update
+            self.draw()
             pygame.display.update()
 
-            if self.config.limitTickSpeed:
-                time.sleep(self.config.tickSpeed)
-                self.tick += 1
+            time.sleep(self.config.tickSpeed)
+            self.tick += 1
             
             if self.player.isDead():
                 time.sleep(3)

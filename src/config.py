@@ -15,7 +15,6 @@ class Config:
         self.white = (255,255,255)
         self.ticksPerSecond = 30
         self.tickSpeed = 1/self.ticksPerSecond
-        self.limitTickSpeed = True
         self.smallGridSize = 16
         self.mediumGridSize = 24
         self.largeGridSize = 32
