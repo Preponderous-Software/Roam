@@ -1,5 +1,5 @@
 import random
-from entity import Entity
+from py_env_lib.src.entity import Entity
 
 
 # @author Daniel McCoy Stephenson

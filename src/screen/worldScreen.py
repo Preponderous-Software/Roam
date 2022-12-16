@@ -2,21 +2,21 @@ import datetime
 from math import ceil
 import time
 import pygame
-from apple import Apple
-from config import Config
-from energyBar import EnergyBar
-from food import Food
-from graphik import Graphik
-from grass import Grass
-from grid import Grid
-from rock import Rock
-from selectedItemPreview import SelectedItemPreview
-from leaves import Leaves
-from location import Location
-from map import Map
-from player import Player
-from status import Status
-from wood import Wood
+from entity.apple import Apple
+from config.config import Config
+from ui.energyBar import EnergyBar
+from entity.food import Food
+from graphik.src.graphik import Graphik
+from entity.grass import Grass
+from py_env_lib.src.grid import Grid
+from entity.rock import Rock
+from ui.selectedItemPreview import SelectedItemPreview
+from entity.leaves import Leaves
+from py_env_lib.src.location import Location
+from world.map import Map
+from entity.player import Player
+from ui.status import Status
+from entity.wood import Wood
 
 # @author Daniel McCoy Stephenson
 # @since August 16th, 2022

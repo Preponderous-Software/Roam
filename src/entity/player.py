@@ -1,5 +1,5 @@
-from entity import Entity
-from inventory import Inventory
+from py_env_lib.src.entity import Entity
+from inventory.inventory import Inventory
 
 
 # @author Daniel McCoy Stephenson

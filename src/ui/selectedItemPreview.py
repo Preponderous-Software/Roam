@@ -1,5 +1,5 @@
-from graphik import Graphik
-from inventory import Inventory
+from graphik.src.graphik import Graphik
+from inventory.inventory import Inventory
 
 # @author Daniel McCoy Stephenson
 # @since August 17th, 2022

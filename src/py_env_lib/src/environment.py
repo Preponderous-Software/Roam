@@ -2,8 +2,8 @@
 # MIT License
 import datetime
 import uuid
-from entity import Entity
-from grid import Grid
+from py_env_lib.src.entity import Entity
+from py_env_lib.src.grid import Grid
 
 
 # @author Daniel McCoy Stephenson

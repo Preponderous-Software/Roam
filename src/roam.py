@@ -1,10 +1,10 @@
 import pygame
-from config import Config
-from graphik import Graphik
-from mainMenuScreen import MainMenuScreen
-from optionsScreen import OptionsScreen
-from status import Status
-from worldScreen import WorldScreen
+from config.config import Config
+from graphik.src.graphik import Graphik
+from screen.mainMenuScreen import MainMenuScreen
+from screen.optionsScreen import OptionsScreen
+from ui.status import Status
+from screen.worldScreen import WorldScreen
 
 
 # @author Daniel McCoy Stephenson
@@ -13,7 +13,7 @@ class Roam:
     def __init__(self):
         pygame.init()
         pygame.display.set_caption("Roam")
-        pygame.display.set_icon(pygame.image.load('src/icon.PNG'))
+        pygame.display.set_icon(pygame.image.load('src/media/icon.PNG'))
         self.config = Config()
         self.running = True
         self.tick = 0

@@ -1,5 +1,5 @@
 import random
-from food import Food
+from entity.food import Food
 
 
 # @author Daniel McCoy Stephenson
