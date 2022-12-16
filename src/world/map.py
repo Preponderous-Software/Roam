@@ -1,13 +1,13 @@
 from math import ceil
 import random
-from apple import Apple
-from graphik import Graphik
-from rock import Rock
-from wood import Wood
-from entity import Entity
-from grass import Grass
-from leaves import Leaves
-from room import Room
+from entity.apple import Apple
+from graphik.src.graphik import Graphik
+from entity.rock import Rock
+from entity.wood import Wood
+from py_env_lib.src.entity import Entity
+from entity.grass import Grass
+from entity.leaves import Leaves
+from world.room import Room
 
 
 # @author Daniel McCoy Stephenson

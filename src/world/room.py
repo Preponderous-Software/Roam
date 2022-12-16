@@ -1,5 +1,5 @@
-from environment import Environment
-from graphik import Graphik
+from py_env_lib.src.environment import Environment
+from graphik.src.graphik import Graphik
 
 
 # @author Daniel McCoy Stephenson

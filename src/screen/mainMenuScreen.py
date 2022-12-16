@@ -1,7 +1,7 @@
 import pygame
-from config import Config
+from config.config import Config
 
-from graphik import Graphik
+from graphik.src.graphik import Graphik
 
 class MainMenuScreen:
     def __init__(self, graphik: Graphik, config: Config, initializeWorldScreen):

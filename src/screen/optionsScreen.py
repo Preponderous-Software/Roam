@@ -1,6 +1,6 @@
-from config import Config
-from graphik import Graphik
-from status import Status
+from config.config import Config
+from graphik.src.graphik import Graphik
+from ui.status import Status
 import pygame
 
 

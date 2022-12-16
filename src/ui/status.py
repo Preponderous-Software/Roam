@@ -1,4 +1,4 @@
-from graphik import Graphik
+from graphik.src.graphik import Graphik
 
 
 # @author Daniel McCoy Stephenson
