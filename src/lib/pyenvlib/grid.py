@@ -2,8 +2,8 @@
 # MIT License
 import random
 import uuid
-from py_env_lib.src.entity import Entity
-from py_env_lib.src.location import Location
+from lib.pyenvlib.entity import Entity
+from lib.pyenvlib.location import Location
 
 
 # @author Daniel McCoy Stephenson
@@ -15,7 +15,7 @@ class Grid(object):
         self.id = uuid.uuid4()
         self.columns = columns
         self.rows = rows
-        self.locations = []
+        self.locations = dict()
         self.generateLocations()
 
     # Returns the ID of this grid.
@@ -45,7 +45,8 @@ class Grid(object):
     # Returns the number of entities in this grid.
     def getNumEntities(self):
         count = 0
-        for location in self.locations:
+        for locationId in self.locations:
+            location = self.locations[locationId]
             count += location.getNumEntities()
         return count
     
@@ -67,7 +68,7 @@ class Grid(object):
     
     # Adds a location to this grid. 
     def addLocation(self, location: Location):
-        self.locations.append(location)
+        self.locations[location.getID()] = location
     
     # Removes a location from this grid.
     def removeLocation(self, location: Location):
@@ -81,18 +82,21 @@ class Grid(object):
     # Adds an entity to a specified location in this grid.
     def addEntityToLocation(self, entity: Entity, location):
         entity.setGridID(self.getID)
-        self.getLocation(location.getID()).addEntity(entity)
+        
+        self.locations[location.getID()].addEntity(entity)
     
     # Removes an entity from this grid.
     def removeEntity(self, entity: Entity):
-        for location in self.getLocations():
+        for locationId in self.getLocations():
+            location = self.locations[locationId]
             if location.isEntityPresent(entity):
                 location.removeEntity(entity)
                 return
     
     # Checks if an entity is present in this grid.
     def isEntityPresent(self, entity: Entity):
-        for location in self.grid.getLocations():
+        for locationId in self.grid.getLocations():
+            location = self.locations[locationId]
             if location.isEntityPresent(entity):
                 return True
 
@@ -101,23 +105,22 @@ class Grid(object):
         for x in range(self.getColumns()):
             for y in range(self.getRows()):
                 location = Location(x, y)
-                self.locations.append(location)
+                self.locations[location.getID()] = location
     
     # Returns a location with the specified ID.
     def getLocation(self, id):
-        for location in self.locations:
-            if location.getID() == id:
-                return location
-        return -1
+        return self.locations[id]
     
     # Returns a random location.
     def getRandomLocation(self):
         index = random.randrange(0, len(self.locations))
-        return self.locations[index]
+        id = list(self.locations.keys())[index]
+        return self.locations[id]
     
     # Returns a location at the specified coordinates.
     def getLocationByCoordinates(self, x, y):
-        for location in self.locations:
+        for locationId in self.locations:
+            location = self.locations[locationId]
             if location.getX() == x and location.getY() == y:
                 return location
         return -1

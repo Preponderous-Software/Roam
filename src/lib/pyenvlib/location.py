@@ -1,7 +1,7 @@
 # Copyright (c) 2022 Preponderous Software
 # MIT License
 import uuid
-from py_env_lib.src.entity import Entity
+from lib.pyenvlib.entity import Entity
 
 
 # @author Daniel McCoy Stephenson
@@ -13,7 +13,7 @@ class Location(object):
         self.id = uuid.uuid4()
         self.x = x
         self.y = y
-        self.entities = []
+        self.entities = dict()
     
     # Returns the ID of this location.
     def getID(self):
@@ -27,14 +27,14 @@ class Location(object):
     def getY(self):
         return self.y
 
-    # Returns the number ofe ntities in this location.
+    # Returns the number of entities in this location.
     def getNumEntities(self):
         return len(self.entities)
     
     # Adds an entity to this location.
     def addEntity(self, entity: Entity):
         if not self.isEntityPresent(entity):
-            self.entities.append(entity)
+            self.entities[entity.getID()] = entity
             entity.setLocationID(self.getID())
         else:
             print("Warning: An entity was already present when attempting to add it to a location.")
@@ -42,14 +42,14 @@ class Location(object):
     # Removes an entity from this location.
     def removeEntity(self, entity: Entity):
         if self.isEntityPresent(entity):
-            self.entities.remove(entity)
+            del self.entities[entity.getID()]
         else:
             print("Warning: An entity was not present when attempting to remove it from a location.")
     
     # Checks if an entity is present in this location.
     def isEntityPresent(self, entity: Entity):
-        return entity in self.entities
+        return entity.getID() in self.entities
     
-    # Returns the list of entities in this location.
+    # Returns the dictionary of entities in this location.
     def getEntities(self):
         return self.entities

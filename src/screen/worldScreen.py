@@ -6,13 +6,13 @@ from entity.apple import Apple
 from config.config import Config
 from ui.energyBar import EnergyBar
 from entity.food import Food
-from graphik.src.graphik import Graphik
+from lib.graphik.src.graphik import Graphik
 from entity.grass import Grass
-from py_env_lib.src.grid import Grid
+from lib.pyenvlib.grid import Grid
 from entity.rock import Rock
 from ui.selectedItemPreview import SelectedItemPreview
 from entity.leaves import Leaves
-from py_env_lib.src.location import Location
+from lib.pyenvlib.location import Location
 from world.map import Map
 from entity.player import Player
 from ui.status import Status
@@ -144,7 +144,8 @@ class WorldScreen:
         
         if self.player.getEnergy() < self.player.getMaxEnergy() * 0.95:
             # search for food to eat
-            for entity in newLocation.getEntities():
+            for entityId in list(newLocation.getEntities().keys()):
+                entity = newLocation.getEntities()[entityId]
                 if isinstance(entity, Food):
                     newLocation.removeEntity(entity)
                     scoreIncrease = 1 * len(self.map.getRooms())
@@ -178,8 +179,9 @@ class WorldScreen:
             return
 
         toRemove = -1
-        reversedEntityList = list(reversed(location.getEntities()))
-        for entity in reversedEntityList:
+        reversedEntityIdList = list(reversed(location.getEntities()))
+        for entityId in reversedEntityIdList:
+            entity = location.getEntities()[entityId]
             if self.canBePickedUp(entity):
                 toRemove = entity
                 break
@@ -237,11 +239,6 @@ class WorldScreen:
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
             return "options"
-        elif key == pygame.K_l:
-            if self.config.limitTickSpeed:
-                self.config.limitTickSpeed = False
-            else:
-                self.config.limitTickSpeed = True
         elif key == pygame.K_w or key == pygame.K_UP:
             self.player.setDirection(0)
         elif key == pygame.K_a or key == pygame.K_LEFT:

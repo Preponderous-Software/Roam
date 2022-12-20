@@ -1,6 +1,6 @@
 import pygame
 from config.config import Config
-from graphik.src.graphik import Graphik
+from lib.graphik.src.graphik import Graphik
 from screen.mainMenuScreen import MainMenuScreen
 from screen.optionsScreen import OptionsScreen
 from ui.status import Status

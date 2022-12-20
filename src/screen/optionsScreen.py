@@ -1,5 +1,5 @@
 from config.config import Config
-from graphik.src.graphik import Graphik
+from lib.graphik.src.graphik import Graphik
 from ui.status import Status
 import pygame
 
