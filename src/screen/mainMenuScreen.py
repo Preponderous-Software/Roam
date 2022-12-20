@@ -72,12 +72,22 @@ class MainMenuScreen:
         ypos = y/2 - height/2 + width
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), (0,0,0), 30, "quit", self.quitApplication)
 
+    def handleKeyDownEvent(self, key):
+        if key == pygame.K_1:
+            self.setGridSizeToSmall()
+        elif key == pygame.K_2:
+            self.setGridSizeToMedium()
+        elif key == pygame.K_3:
+            self.setGridSizeToLarge()
+
     def run(self):
         self.running = True
         while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return "exit"
+                elif event.type == pygame.KEYDOWN:
+                    self.handleKeyDownEvent(event.key)
             
             self.graphik.getGameDisplay().fill((0, 0, 0))
             self.drawText()
