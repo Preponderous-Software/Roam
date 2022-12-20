@@ -1,10 +1,10 @@
 from math import ceil
 import random
 from entity.apple import Apple
-from graphik.src.graphik import Graphik
+from lib.graphik.src.graphik import Graphik
 from entity.rock import Rock
 from entity.wood import Wood
-from py_env_lib.src.entity import Entity
+from lib.pyenvlib.entity import Entity
 from entity.grass import Grass
 from entity.leaves import Leaves
 from world.room import Room
@@ -55,12 +55,14 @@ class Map:
         return newRoom
 
     def spawnGrass(self, room: Room):
-        for location in room.getGrid().getLocations():
+        for locationId in room.getGrid().getLocations():
+            location = room.getGrid().getLocation(locationId)
             if random.randrange(1, 101) > 5: # 95% chance
                 room.addEntityToLocation(Grass(), location)
     
     def spawnRocks(self, room: Room):
-        for location in room.getGrid().getLocations():
+        for locationId in room.getGrid().getLocations():
+            location = room.getGrid().getLocation(locationId)
             if random.randrange(1, 101) == 1: # 1% chance
                 room.addEntityToLocation(Rock(), location)
 
@@ -85,7 +87,8 @@ class Map:
                 room.addEntityToLocation(Apple(), appleSpawnLocation)
 
     def locationContainsEntity(self, location, entityType):
-        for entity in location.getEntities():
+        for entityId in location.getEntities():
+            entity = location.getEntities()[entityId]
             if isinstance(entity, entityType):
                 return True
         return False

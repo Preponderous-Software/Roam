@@ -1,5 +1,5 @@
-from py_env_lib.src.environment import Environment
-from graphik.src.graphik import Graphik
+from lib.pyenvlib.environment import Environment
+from lib.graphik.src.graphik import Graphik
 
 
 # @author Daniel McCoy Stephenson
@@ -22,7 +22,8 @@ class Room(Environment):
         return self.y
     
     def draw(self, locationWidth, locationHeight):
-        for location in self.grid.getLocations():
+        for locationId in self.grid.getLocations():
+            location = self.grid.getLocation(locationId)
             self.drawLocation(location, location.getX() * locationWidth, location.getY() * locationHeight, locationWidth, locationHeight)
 
     # Draws a location at a specified position.
@@ -37,6 +38,7 @@ class Room(Environment):
         else:
             color = self.backgroundColor
             if location.getNumEntities() > 0:
-                topEntity = location.getEntities()[-1]
+                topEntityId = list(location.getEntities().keys())[-1]
+                topEntity = location.getEntities()[topEntityId]
                 return topEntity.getColor()
         return color
