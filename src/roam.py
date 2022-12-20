@@ -13,7 +13,7 @@ class Roam:
     def __init__(self):
         pygame.init()
         pygame.display.set_caption("Roam")
-        pygame.display.set_icon(pygame.image.load('src/media/icon.PNG'))
+        # pygame.display.set_icon(pygame.image.load('src/media/icon.PNG'))
         self.config = Config()
         self.running = True
         self.tick = 0
