@@ -19,8 +19,11 @@ class SelectedItemPreview:
         innerColor = (255,255,255)
 
         if len(self.inventory.getContents()) != 0:
-            topItem = self.inventory.getContents()[-1]
-            innerColor = topItem.getColor()
+            selectedItem = self.inventory.getSelectedItem()
+            if selectedItem != None:
+                innerColor = selectedItem.getColor()
+            else:
+                return
         else:
             return
 

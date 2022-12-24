@@ -225,7 +225,7 @@ class WorldScreen:
         return self.map.locationContainsEntity(location, Wood) or self.map.locationContainsEntity(location, Rock)
     
     def executePlaceAction(self):
-        if len(self.player.getInventory().getContents()) == 0:
+        if self.player.getInventory().getNumEntities() == 0:
             self.status.set("no items", self.tick)
             return
 
@@ -249,7 +249,11 @@ class WorldScreen:
 
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
 
-        toPlace = self.player.getInventory().getContents().pop() 
+        toPlace = self.player.getInventory().getSelectedItem()
+        if toPlace == None:
+            self.status.set("no item selected", self.tick)
+            return
+        self.player.getInventory().removeSelectedItem()
 
         if toPlace == -1:
             return
@@ -265,7 +269,7 @@ class WorldScreen:
             return
             
         self.player.cycleInventoryRight()
-        self.status.set("inventory: " + self.player.getInventory().getContents()[0].getName(), self.tick)
+        self.status.set("selected item: " + self.player.getInventory().getSelectedItem().getName(), self.tick)
     
     def cyclePlayerInventoryLeft(self):
         # if inventory empty return
@@ -274,7 +278,7 @@ class WorldScreen:
             return
 
         self.player.cycleInventoryLeft()
-        self.status.set("inventory: " + self.player.getInventory().getContents()[0].getName(), self.tick)
+        self.status.set("selected item: " + self.player.getInventory().getSelectedItem().getName(), self.tick)
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
