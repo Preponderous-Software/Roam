@@ -32,3 +32,9 @@ class SelectedItemPreview:
 
         # draw inner square
         self.graphik.drawRectangle(xpos + borderWidth, ypos + borderWidth, width - borderWidth*2, height - borderWidth*2, innerColor)
+
+        # draw Q to the left of the square
+        self.graphik.drawText("Q", xpos - 20, ypos + height/2, 20, borderColor)
+
+        # draw E to the right of the square
+        self.graphik.drawText("E", xpos + width + 20, ypos + height/2, 20, borderColor)
