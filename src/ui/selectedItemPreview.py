@@ -19,8 +19,11 @@ class SelectedItemPreview:
         innerColor = (255,255,255)
 
         if len(self.inventory.getContents()) != 0:
-            topItem = self.inventory.getContents()[-1]
-            innerColor = topItem.getColor()
+            selectedItem = self.inventory.getSelectedItem()
+            if selectedItem != None:
+                innerColor = selectedItem.getColor()
+            else:
+                return
         else:
             return
 
@@ -29,3 +32,9 @@ class SelectedItemPreview:
 
         # draw inner square
         self.graphik.drawRectangle(xpos + borderWidth, ypos + borderWidth, width - borderWidth*2, height - borderWidth*2, innerColor)
+
+        # draw Q to the left of the square
+        self.graphik.drawText("Q", xpos - 20, ypos + height/2, 20, borderColor)
+
+        # draw E to the right of the square
+        self.graphik.drawText("E", xpos + width + 20, ypos + height/2, 20, borderColor)

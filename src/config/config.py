@@ -19,3 +19,4 @@ class Config:
         self.worldBorder = 16
         self.runSpeedFactor = 2
         self.energyDepletionRate = 0.01
+        self.playerInteractionDistanceLimit = 5

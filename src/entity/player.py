@@ -98,3 +98,9 @@ class Player(Entity):
     
     def isMoving(self):
         return self.direction != -1
+    
+    def cycleInventoryRight(self):
+        self.inventory.cycleRight()
+    
+    def cycleInventoryLeft(self):
+        self.inventory.cycleLeft()
