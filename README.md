@@ -17,8 +17,10 @@ s | move down
 d | move right
 shift | run
 ctrl | crouch
-e | gather
-q | place
+left mouse | gather
+right mouse | place
+e | cycle inventory right
+q | cycle inventory left
 print screen | take screenshot
 esc | quit
 
