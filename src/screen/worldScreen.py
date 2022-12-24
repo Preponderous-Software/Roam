@@ -366,6 +366,10 @@ class WorldScreen:
         self.energyBar.draw()
         self.selectedItemPreview.draw()
 
+        # draw room coordinates in top left corner
+        coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY()) + ")"
+        self.graphik.drawText(coordinatesText, 30, 20, 20, (255,255,255))
+
     def handleMouseDownEvent(self):
         if pygame.mouse.get_pressed()[0]: # left click
             self.player.setGathering(True)
