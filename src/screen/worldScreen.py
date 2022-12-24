@@ -235,6 +235,24 @@ class WorldScreen:
         self.currentRoom.addEntityToLocation(toPlace, targetLocation)
         self.status.set("placed '" + toPlace.getName() + "'", self.tick)
         self.player.setTickLastPlaced(self.tick)
+    
+    def cyclePlayerInventoryRight(self):
+        # if inventory empty return
+        if len(self.player.getInventory().getContents()) == 0:
+            self.status.set("inventory empty", self.tick)
+            return
+            
+        self.player.cycleInventoryRight()
+        self.status.set("inventory: " + self.player.getInventory().getContents()[0].getName(), self.tick)
+    
+    def cyclePlayerInventoryLeft(self):
+        # if inventory empty return
+        if len(self.player.getInventory().getContents()) == 0:
+            self.status.set("inventory empty", self.tick)
+            return
+
+        self.player.cycleInventoryLeft()
+        self.status.set("inventory: " + self.player.getInventory().getContents()[0].getName(), self.tick)
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
@@ -248,9 +266,9 @@ class WorldScreen:
         elif key == pygame.K_d or key == pygame.K_RIGHT:
             self.player.setDirection(3)
         elif key == pygame.K_e:
-            self.player.setGathering(True)
+            self.cyclePlayerInventoryRight()
         elif key == pygame.K_q:
-            self.player.setPlacing(True)
+            self.cyclePlayerInventoryLeft()
         elif key == pygame.K_PRINTSCREEN:
             x, y = self.graphik.getGameDisplay().get_size()
             self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
