@@ -88,7 +88,7 @@ class Map:
 
     def locationContainsEntity(self, location, entityType):
         for entityId in location.getEntities():
-            entity = location.getEntities()[entityId]
+            entity = location.getEntity(entityId)
             if isinstance(entity, entityType):
                 return True
         return False

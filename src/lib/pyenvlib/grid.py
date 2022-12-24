@@ -148,3 +148,12 @@ class Grid(object):
         if location == -1:
             return -1
         return self.getLocationByCoordinates(location.getX() - 1, location.getY())
+
+    # Returns the entity with the specified ID.
+    def getEntity(self, id):
+        for locationId in self.locations:
+            location = self.locations[locationId]
+            entity = location.getEntity(id)
+            if entity != None:
+                return entity
+        return None

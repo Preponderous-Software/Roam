@@ -145,7 +145,7 @@ class WorldScreen:
         if self.player.getEnergy() < self.player.getMaxEnergy() * 0.95:
             # search for food to eat
             for entityId in list(newLocation.getEntities().keys()):
-                entity = newLocation.getEntities()[entityId]
+                entity = newLocation.getEntity(entityId)
                 if isinstance(entity, Food):
                     newLocation.removeEntity(entity)
                     scoreIncrease = 1 * len(self.map.getRooms())
@@ -194,7 +194,7 @@ class WorldScreen:
         toRemove = -1
         reversedEntityIdList = list(reversed(targetLocation.getEntities()))
         for entityId in reversedEntityIdList:
-            entity = targetLocation.getEntities()[entityId]
+            entity = targetLocation.getEntity(entityId)
             if self.canBePickedUp(entity):
                 toRemove = entity
                 break

@@ -63,7 +63,7 @@ class Environment(object):
     def isEntityPresent(self, entity: Entity):
         return self.grid.isEntityPresent(entity)
 
-    # Returns the number ofe ntities in this environment.
+    # Returns the number of entities in this environment.
     def getNumEntities(self):
         return self.getGrid().getNumEntities()
 
@@ -78,3 +78,7 @@ class Environment(object):
         print("ID: ", self.getID())
         print("Grid ID: ", self.getGrid().getID())
         print("\n")
+    
+    # Returns the entity in this environment with the given ID.
+    def getEntity(self, id):
+        return self.grid.getEntity(id)
