@@ -142,7 +142,7 @@ class WorldScreen:
         if self.locationContainsSolidEntity(newLocation):
             return
         
-        if self.player.getEnergy() < self.player.getMaxEnergy() * 0.95:
+        if self.player.getEnergy() < self.player.getTargetEnergy() * 0.95:
             # search for food to eat
             for entityId in list(newLocation.getEntities().keys()):
                 entity = newLocation.getEntity(entityId)
@@ -337,22 +337,22 @@ class WorldScreen:
         self.status.set("respawned", self.tick)
         pygame.display.set_caption(("Roam " + str(self.currentRoom.getName())))
     
-    def checkCooldown(self, tickToCheck):
-        ticksPerSecond = 30
+    def checkPlayerMovementCooldown(self, tickToCheck):
+        ticksPerSecond = self.config.ticksPerSecond
         return tickToCheck + ticksPerSecond/self.player.getSpeed() < self.tick
     
     def handlePlayerActions(self):
-        if self.player.isMoving() and self.checkCooldown(self.player.getTickLastMoved()):
+        if self.player.isMoving() and self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
             self.movePlayer(self.player.direction)
 
-        if self.player.isGathering() and self.checkCooldown(self.player.getTickLastGathered()):
+        if self.player.isGathering() and self.checkPlayerMovementCooldown(self.player.getTickLastGathered()):
             self.executeGatherAction()
-        elif self.player.isPlacing() and self.checkCooldown(self.player.getTickLastPlaced()):
+        elif self.player.isPlacing() and self.checkPlayerMovementCooldown(self.player.getTickLastPlaced()):
             self.executePlaceAction()
     
     def removeEnergyAndCheckForDeath(self):
         self.player.removeEnergy(self.config.energyDepletionRate)
-        if self.player.getEnergy() < self.player.getMaxEnergy() * 0.10:
+        if self.player.getEnergy() < self.player.getTargetEnergy() * 0.10:
             self.status.set("low on energy!", self.tick)
         if self.player.isDead():
             self.status.set("you died", self.tick)
@@ -402,6 +402,9 @@ class WorldScreen:
                     self.handleMouseDownEvent()
                 elif event.type == pygame.MOUSEBUTTONUP:
                     self.handleMouseUpEvent()
+            
+            # move living entities
+            self.currentRoom.moveLivingEntities()
 
             self.handlePlayerActions()
             self.removeEnergyAndCheckForDeath()

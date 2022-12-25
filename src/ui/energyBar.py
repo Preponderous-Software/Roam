@@ -12,7 +12,7 @@ class EnergyBar:
         x, y = self.graphik.getGameDisplay().get_size()
         xpos = 0
         ypos = y - y/64
-        width = x * (self.player.getEnergy()/self.player.getMaxEnergy())
+        width = x * (self.player.getEnergy()/self.player.getTargetEnergy())
         height = y/64
         color = (255, 215, 73)
         self.graphik.drawRectangle(xpos, ypos, width, height, color)
