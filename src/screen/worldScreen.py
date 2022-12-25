@@ -4,6 +4,8 @@ import time
 import pygame
 from entity.apple import Apple
 from config.config import Config
+from entity.chicken import Chicken
+from entity.livingEntity import LivingEntity
 from ui.energyBar import EnergyBar
 from entity.food import Food
 from lib.graphik.src.graphik import Graphik
@@ -165,7 +167,7 @@ class WorldScreen:
         self.player.setTickLastMoved(self.tick)
     
     def canBePickedUp(self, entity):
-        itemTypes = [Wood, Leaves, Grass, Apple, Rock]
+        itemTypes = [Wood, Leaves, Grass, Apple, Rock, Chicken]
         for itemType in itemTypes:
             if isinstance(entity, itemType):
                 return True
@@ -207,6 +209,8 @@ class WorldScreen:
             self.status.set("inventory full", self.tick)
             return
         self.currentRoom.removeEntity(toRemove)
+        if isinstance(toRemove, LivingEntity):
+            self.currentRoom.removeLivingEntity(toRemove)
         self.status.set("picked up '" + entity.getName() + "' (" + str(self.player.getInventory().getNumEntitiesByType(type(entity))) + ")", self.tick)
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
         self.player.setTickLastGathered(self.tick)
@@ -263,6 +267,8 @@ class WorldScreen:
             return
             
         self.currentRoom.addEntityToLocation(toPlace, targetLocation)
+        if isinstance(toPlace, LivingEntity):
+            self.currentRoom.addLivingEntity(toPlace)
         self.status.set("placed '" + toPlace.getName() + "'", self.tick)
         self.player.setTickLastPlaced(self.tick)
     

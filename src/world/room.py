@@ -49,7 +49,7 @@ class Room(Environment):
         self.livingEntities[entity.getID()] = entity
     
     def removeLivingEntity(self, entity):
-        del self.livingEntities[entity.getId()]
+        del self.livingEntities[entity.getID()]
     
     def getRandomAdjacentLocation(self, location):
         num = random.randrange(0, 4)
