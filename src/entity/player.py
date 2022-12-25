@@ -1,13 +1,13 @@
+from entity.drawableEntity import DrawableEntity
 from lib.pyenvlib.entity import Entity
 from inventory.inventory import Inventory
 
 
 # @author Daniel McCoy Stephenson
 # @since August 8th, 2022
-class Player(Entity):
+class Player(DrawableEntity):
     def __init__(self):
-        Entity.__init__(self, "Player")
-        self.color = (0, 0, 0)
+        DrawableEntity.__init__(self, "Player", (0, 0, 0))
         self.energy = 100
         self.maxEnergy = 100
         self.direction = -1 # -1 when not moving
@@ -20,9 +20,6 @@ class Player(Entity):
         self.crouching = False
         self.tickLastGathered = -1
         self.tickLastPlaced = -1
-    
-    def getColor(self):
-        return self.color
     
     def getEnergy(self):
         return self.energy
