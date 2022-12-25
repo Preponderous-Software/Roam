@@ -1,4 +1,5 @@
 import random
+from entity.player import Player
 from lib.pyenvlib.environment import Environment
 from lib.graphik.src.graphik import Graphik
 
@@ -84,6 +85,12 @@ class Room(Environment):
             location.removeEntity(entity)
             newLocation.addEntity(entity)
             entity.setLocationID(newLocation.getID())
+
+            # if player is in location, kill the player
+            for entityId in list(newLocation.getEntities().keys()):
+                entity = newLocation.getEntity(entityId)
+                if isinstance(entity, Player):
+                    entity.kill()
 
     def locationContainsSolidEntity(self, location):
         for entityId in list(location.getEntities().keys()):

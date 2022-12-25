@@ -18,6 +18,7 @@ class Player(LivingEntity):
         self.crouching = False
         self.tickLastGathered = -1
         self.tickLastPlaced = -1
+        self.solid = False
     
     def getDirection(self):
         return self.direction
@@ -85,3 +86,9 @@ class Player(LivingEntity):
     
     def cycleInventoryLeft(self):
         self.inventory.cycleLeft()
+    
+    def isSolid(self):
+        return self.solid
+
+    def kill(self):
+        self.energy = 0

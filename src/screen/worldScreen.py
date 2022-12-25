@@ -4,6 +4,7 @@ import time
 import pygame
 from entity.apple import Apple
 from config.config import Config
+from entity.bear import Bear
 from entity.chicken import Chicken
 from entity.livingEntity import LivingEntity
 from ui.energyBar import EnergyBar
@@ -143,6 +144,13 @@ class WorldScreen:
 
         if self.locationContainsSolidEntity(newLocation):
             return
+        
+        # if bear is in the new location, kill the player
+        for entityId in list(newLocation.getEntities().keys()):
+            entity = newLocation.getEntity(entityId)
+            if isinstance(entity, Bear):
+                self.player.kill()
+                return
         
         if self.player.getEnergy() < self.player.getTargetEnergy() * 0.95:
             # search for food to eat
