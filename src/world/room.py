@@ -1,3 +1,4 @@
+import random
 from lib.pyenvlib.environment import Environment
 from lib.graphik.src.graphik import Graphik
 
@@ -11,6 +12,7 @@ class Room(Environment):
         self.x = x
         self.y = y
         self.graphik = graphik
+        self.livingEntities = dict()
     
     def getBackgroundColor(self):
         return self.backgroundColor
@@ -42,3 +44,40 @@ class Room(Environment):
                 topEntity = location.getEntities()[topEntityId]
                 return topEntity.getColor()
         return color
+    
+    def addLivingEntity(self, entity):
+        self.livingEntities[entity.getID()] = entity
+    
+    def removeLivingEntity(self, entity):
+        del self.livingEntities[entity.getId()]
+    
+    def getRandomAdjacentLocation(self, location):
+        num = random.randrange(0, 4)
+        if num == 0:
+            return self.getGrid().getUp(location)
+        elif num == 1:
+            return self.getGrid().getRight(location)
+        elif num == 2: 
+            return self.getGrid().getDown(location)
+        elif num == 3:
+            return self.getGrid().getLeft(location)
+    
+    def checkEntityMovementCooldown(self, tickToCheck, entity):
+        ticksPerSecond = self.config.ticksPerSecond
+        return tickToCheck + ticksPerSecond/entity.getSpeed() < self.tick
+    
+    def moveLivingEntities(self):
+        for entityId in self.livingEntities:
+            # 1% chance to skip
+            if random.randrange(1, 101) > 1:
+                continue
+
+            entity = self.livingEntities[entityId]
+            locationId = entity.getLocationID()
+            location = self.getGrid().getLocation(locationId)
+            newLocation = self.getRandomAdjacentLocation(location)
+            
+            # move entity
+            location.removeEntity(entity)
+            newLocation.addEntity(entity)
+            entity.setLocationID(newLocation.getID())

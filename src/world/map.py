@@ -1,6 +1,7 @@
 from math import ceil
 import random
 from entity.apple import Apple
+from entity.chicken import Chicken
 from lib.graphik.src.graphik import Graphik
 from entity.rock import Rock
 from entity.wood import Wood
@@ -51,6 +52,9 @@ class Map:
         # generate rocks
         self.spawnRocks(newRoom)
 
+        # generate chickens
+        self.spawnChickens(newRoom)
+
         self.rooms.append(newRoom)
         return newRoom
 
@@ -85,6 +89,13 @@ class Map:
             room.addEntityToLocation(Leaves(), appleSpawnLocation)
             if random.randrange(0, 2) == 0:
                 room.addEntityToLocation(Apple(), appleSpawnLocation)
+    
+    def spawnChickens(self, room: Room):
+        for i in range(0, 5):
+            if random.randrange(1, 101) > 50:
+                newChicken = Chicken()
+                room.addEntity(newChicken)
+                room.addLivingEntity(newChicken)
 
     def locationContainsEntity(self, location, entityType):
         for entityId in location.getEntities():
