@@ -7,3 +7,7 @@ from entity.drawableEntity import DrawableEntity
 class Leaves(DrawableEntity):
     def __init__(self):
         DrawableEntity.__init__(self, "Leaves", (0, random.randrange(50, 75), 0))
+        self.solid = False
+    
+    def isSolid(self):
+        return self.solid

@@ -8,3 +8,7 @@ from entity.livingEntity import LivingEntity
 class Chicken(LivingEntity):
     def __init__(self):
         LivingEntity.__init__(self, "Chicken", (random.randrange(245, 249), random.randrange(245, 249), random.randrange(245, 249)), random.randrange(20, 30), [Grass])
+        self.solid = False
+
+    def isSolid(self):
+        return self.solid
