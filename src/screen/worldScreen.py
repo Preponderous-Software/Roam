@@ -342,7 +342,7 @@ class WorldScreen:
         self.currentRoom.removeEntity(self.player)
         self.map.getSpawnRoom().addEntity(self.player)
         self.currentRoom = self.map.getSpawnRoom()
-        self.player.energy = self.player.maxEnergy
+        self.player.energy = self.player.targetEnergy
         self.player.getInventory().clear()
         self.status.set("respawned", self.tick)
         pygame.display.set_caption(("Roam " + str(self.currentRoom.getName())))
