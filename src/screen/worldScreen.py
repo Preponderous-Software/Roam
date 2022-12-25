@@ -222,7 +222,11 @@ class WorldScreen:
         return self.getLocationDirection(direction, self.currentRoom.grid, playerLocation)
     
     def locationContainsSolidEntity(self, location):
-        return self.map.locationContainsEntity(location, Wood) or self.map.locationContainsEntity(location, Rock)
+        for entityId in list(location.getEntities().keys()):
+            entity = location.getEntity(entityId)
+            if entity.isSolid():
+                return True
+        return False
     
     def executePlaceAction(self):
         if self.player.getInventory().getNumEntities() == 0:

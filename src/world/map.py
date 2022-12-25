@@ -84,7 +84,7 @@ class Map:
         
         # spawn leaves and apples around the tree
         for appleSpawnLocation in locationsToSpawnApples:
-            if appleSpawnLocation == -1 or self.locationContainsEntity(appleSpawnLocation, Wood):
+            if appleSpawnLocation == -1 or self.locationContainsEntityType(appleSpawnLocation, Wood):
                 continue
             room.addEntityToLocation(Leaves(), appleSpawnLocation)
             if random.randrange(0, 2) == 0:
@@ -97,7 +97,7 @@ class Map:
                 room.addEntity(newChicken)
                 room.addLivingEntity(newChicken)
 
-    def locationContainsEntity(self, location, entityType):
+    def locationContainsEntityType(self, location, entityType):
         for entityId in location.getEntities():
             entity = location.getEntity(entityId)
             if isinstance(entity, entityType):

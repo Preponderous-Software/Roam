@@ -77,10 +77,17 @@ class Room(Environment):
             location = self.getGrid().getLocation(locationId)
             newLocation = self.getRandomAdjacentLocation(location)
 
-            if newLocation == -1:
+            if newLocation == -1 or self.locationContainsSolidEntity(newLocation):
                 continue
             
             # move entity
             location.removeEntity(entity)
             newLocation.addEntity(entity)
             entity.setLocationID(newLocation.getID())
+
+    def locationContainsSolidEntity(self, location):
+        for entityId in list(location.getEntities().keys()):
+            entity = location.getEntity(entityId)
+            if entity.isSolid():
+                return True
+        return False
