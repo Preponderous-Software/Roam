@@ -262,6 +262,13 @@ class WorldScreen:
         if abs(targetLocation.getX() - playerLocation.getX()) > distanceLimit or abs(targetLocation.getY() - playerLocation.getY()) > distanceLimit:
             self.status.set("too far away", self.tick)
             return
+        
+        # if living entity is in the location, don't place
+        for entityId in list(targetLocation.getEntities().keys()):
+            entity = targetLocation.getEntity(entityId)
+            if isinstance(entity, LivingEntity):
+                self.status.set("blocked by " + entity.getName(), self.tick)
+                return
 
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
 
