@@ -76,6 +76,9 @@ class Room(Environment):
             locationId = entity.getLocationID()
             location = self.getGrid().getLocation(locationId)
             newLocation = self.getRandomAdjacentLocation(location)
+
+            if newLocation == -1:
+                continue
             
             # move entity
             location.removeEntity(entity)
