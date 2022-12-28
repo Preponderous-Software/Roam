@@ -354,11 +354,19 @@ class WorldScreen:
         pygame.image.save(image, name)  # Save the image to the disk**
     
     def respawnPlayer(self):
+        # drop all items and clear inventory
+        playerLocationId = self.player.getLocationID()
+        playerLocation = self.currentRoom.getGrid().getLocation(playerLocationId)
+        for item in self.player.getInventory().getContents():
+            self.currentRoom.addEntityToLocation(item, playerLocation)
+            if isinstance(item, LivingEntity):
+                self.currentRoom.addLivingEntity(item)
+        self.player.getInventory().clear()
+
         self.currentRoom.removeEntity(self.player)
         self.map.getSpawnRoom().addEntity(self.player)
         self.currentRoom = self.map.getSpawnRoom()
         self.player.energy = self.player.targetEnergy
-        self.player.getInventory().clear()
         self.status.set("respawned", self.tick)
         pygame.display.set_caption(("Roam " + str(self.currentRoom.getName())))
     
