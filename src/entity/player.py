@@ -89,6 +89,3 @@ class Player(LivingEntity):
     
     def isSolid(self):
         return self.solid
-
-    def kill(self):
-        self.energy = 0

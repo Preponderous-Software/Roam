@@ -30,3 +30,6 @@ class LivingEntity(DrawableEntity):
             if type(entity) is entityType:
                 return True
         return False
+    
+    def kill(self):
+        self.energy = 0

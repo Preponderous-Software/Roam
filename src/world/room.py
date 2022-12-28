@@ -1,4 +1,5 @@
 import random
+from entity.livingEntity import LivingEntity
 from entity.player import Player
 from lib.pyenvlib.environment import Environment
 from lib.graphik.src.graphik import Graphik
@@ -86,11 +87,11 @@ class Room(Environment):
             newLocation.addEntity(entity)
             entity.setLocationID(newLocation.getID())
 
-            # if player is in location, kill the player
-            for entityId in list(newLocation.getEntities().keys()):
-                entity = newLocation.getEntity(entityId)
-                if isinstance(entity, Player):
-                    entity.kill()
+            # if target is edible and living, kill it
+            for targetId in list(newLocation.getEntities().keys()):
+                target = newLocation.getEntity(targetId)
+                if entity.canEat(target) and isinstance(target, LivingEntity):
+                    target.kill()
 
     def locationContainsSolidEntity(self, location):
         for entityId in list(location.getEntities().keys()):
