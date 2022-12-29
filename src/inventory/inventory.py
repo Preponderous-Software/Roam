@@ -8,6 +8,9 @@ class Inventory:
     def getContents(self):
         return self.contents
     
+    def getSize(self):
+        return self.size
+    
     def place(self, item):
         if len(self.contents) < self.size:
             self.contents.append(item)
@@ -15,9 +18,9 @@ class Inventory:
         else:
             return -1
     
-    def remove(self, item):
+    def remove(self, item):            
         # if item is selected
-        if self.selectedItemIndex != None:
+        if self.selectedItemIndex != None and self.selectedItemIndex < len(self.contents):
             if self.contents[self.selectedItemIndex] == item:
                 self.selectedItemIndex = None
         self.contents.remove(item)
@@ -62,10 +65,14 @@ class Inventory:
             self.selectedItemIndex = 0
     
     def getSelectedItem(self):
-        if self.selectedItemIndex != None:
-            return self.contents[self.selectedItemIndex]
-        else:
+        if self.selectedItemIndex == None:
             return None
+        else:
+            if self.selectedItemIndex > len(self.contents) - 1:
+                self.selectedItemIndex = None
+                return None
+            
+            return self.contents[self.selectedItemIndex]
     
     def removeSelectedItem(self):
         if self.selectedItemIndex != None:

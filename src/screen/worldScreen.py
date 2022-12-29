@@ -1,5 +1,5 @@
 import datetime
-from math import ceil
+from math import ceil, floor, sqrt
 import time
 import pygame
 from entity.apple import Apple
@@ -30,6 +30,7 @@ class WorldScreen:
         self.status = status
         self.tick = tick
         self.running = True
+        self.showInventory = False
     
     def initialize(self):
         self.map = Map(self.config.gridSize, self.graphik)
@@ -294,7 +295,11 @@ class WorldScreen:
             return
             
         self.player.cycleInventoryRight()
-        self.status.set("selected item: " + self.player.getInventory().getSelectedItem().getName(), self.tick)
+        selectedItem = self.player.getInventory().getSelectedItem()
+        if selectedItem == None:
+            self.status.set("no item selected", self.tick)
+        else:
+            self.status.set("selected item: " + selectedItem.getName(), self.tick)
     
     def cyclePlayerInventoryLeft(self):
         # if inventory empty return
@@ -303,7 +308,11 @@ class WorldScreen:
             return
 
         self.player.cycleInventoryLeft()
-        self.status.set("selected item: " + self.player.getInventory().getSelectedItem().getName(), self.tick)
+        selectedItem = self.player.getInventory().getSelectedItem()
+        if selectedItem == None:
+            self.status.set("no item selected", self.tick)
+        else:
+            self.status.set("selected item: " + selectedItem.getName(), self.tick)
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
@@ -328,6 +337,8 @@ class WorldScreen:
             self.player.setSpeed(self.player.getSpeed()*self.config.runSpeedFactor)
         elif key == pygame.K_LCTRL:
             self.player.setCrouching(True)
+        elif key == pygame.K_i:
+            self.showInventory = not self.showInventory
 
     def handleKeyUpEvent(self, key):
         if (key == pygame.K_w or key == pygame.K_UP) and self.player.getDirection() == 0:
@@ -374,6 +385,14 @@ class WorldScreen:
         ticksPerSecond = self.config.ticksPerSecond
         return tickToCheck + ticksPerSecond/self.player.getSpeed() < self.tick
     
+    def eatFoodInInventory(self):
+        for item in self.player.getInventory().getContents():
+            if isinstance(item, Food):
+                self.player.addEnergy(item.getEnergy())
+                self.player.getInventory().remove(item)
+                self.status.set("ate " + item.getName() + " from inventory", self.tick)
+                return
+    
     def handlePlayerActions(self):
         if self.player.isMoving() and self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
             self.movePlayer(self.player.direction)
@@ -382,6 +401,9 @@ class WorldScreen:
             self.executeGatherAction()
         elif self.player.isPlacing() and self.checkPlayerMovementCooldown(self.player.getTickLastPlaced()):
             self.executePlaceAction()
+        
+        if self.player.needsEnergy() and self.config.autoEatFoodInInventory:
+            self.eatFoodInInventory()
     
     def removeEnergyAndCheckForDeath(self):
         self.player.removeEnergy(self.config.energyDepletionRate)
@@ -391,6 +413,35 @@ class WorldScreen:
             self.status.set("you died", self.tick)
             self.score = ceil(self.score * 0.9)
             self.numDeaths += 1
+    
+    def drawPlayerInventory(self):
+        # draw inventory background that is 50% size of screen and centered
+        backgroundX = self.graphik.getGameDisplay().get_width()/4
+        backgroundY = self.graphik.getGameDisplay().get_height()/4
+        backgroundWidth = self.graphik.getGameDisplay().get_width()/2
+        backgroundHeight = self.graphik.getGameDisplay().get_height()/2
+        self.graphik.drawRectangle(backgroundX, backgroundY, backgroundWidth, backgroundHeight, (0,0,0))
+            
+        # draw contents inside inventory background
+        itemsPerRow = 10
+        row = 0
+        column = 0
+        margin = 5
+        for item in self.player.getInventory().getContents():
+            itemX = backgroundX + column*backgroundWidth/itemsPerRow + margin
+            itemY = backgroundY + row*backgroundHeight/itemsPerRow + margin
+            itemWidth = backgroundWidth/itemsPerRow - 2*margin
+            itemHeight = backgroundHeight/itemsPerRow - 2*margin
+            
+            self.graphik.drawRectangle(itemX, itemY, itemWidth, itemHeight, item.getColor())
+            
+            column += 1
+            if column == itemsPerRow:
+                column = 0
+                row += 1
+        
+        # draw '(press I to close)' text below inventory
+        self.graphik.drawText("(press I to close)", backgroundX, backgroundY + backgroundHeight + 20, 20, (255,255,255))
 
     def draw(self):
         self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
@@ -402,6 +453,9 @@ class WorldScreen:
         # draw room coordinates in top left corner
         coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY()) + ")"
         self.graphik.drawText(coordinatesText, 30, 20, 20, (255,255,255))
+        
+        if self.showInventory:
+            self.drawPlayerInventory()
 
     def handleMouseDownEvent(self):
         if pygame.mouse.get_pressed()[0]: # left click
@@ -443,6 +497,7 @@ class WorldScreen:
             self.removeEnergyAndCheckForDeath()
             self.status.checkForExpiration(self.tick)
             self.draw()
+            
             pygame.display.update()
 
             time.sleep(self.config.tickSpeed)

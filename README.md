@@ -19,6 +19,7 @@ shift | run
 ctrl | crouch
 left mouse | gather
 right mouse | place
+i | open/close inventory
 e | cycle inventory right
 q | cycle inventory left
 print screen | take screenshot
