@@ -28,7 +28,7 @@ class Room(Environment):
     def draw(self, locationWidth, locationHeight):
         for locationId in self.grid.getLocations():
             location = self.grid.getLocation(locationId)
-            self.drawLocation(location, location.getX() * locationWidth, location.getY() * locationHeight, locationWidth, locationHeight)
+            self.drawLocation(location, location.getX() * locationWidth - 1, location.getY() * locationHeight - 1, locationWidth + 2, locationHeight + 2)
 
     # Draws a location at a specified position.
     def drawLocation(self, location, xPos, yPos, width, height):
