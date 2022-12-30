@@ -1,6 +1,8 @@
 from math import ceil
 import random
 from entity.apple import Apple
+from entity.bear import Bear
+from entity.chicken import Chicken
 from lib.graphik.src.graphik import Graphik
 from entity.rock import Rock
 from entity.wood import Wood
@@ -51,6 +53,12 @@ class Map:
         # generate rocks
         self.spawnRocks(newRoom)
 
+        # generate chickens
+        self.spawnChickens(newRoom)
+
+        # generate bears
+        self.spawnBears(newRoom)
+
         self.rooms.append(newRoom)
         return newRoom
 
@@ -80,15 +88,29 @@ class Map:
         
         # spawn leaves and apples around the tree
         for appleSpawnLocation in locationsToSpawnApples:
-            if appleSpawnLocation == -1 or self.locationContainsEntity(appleSpawnLocation, Wood):
+            if appleSpawnLocation == -1 or self.locationContainsEntityType(appleSpawnLocation, Wood):
                 continue
             room.addEntityToLocation(Leaves(), appleSpawnLocation)
             if random.randrange(0, 2) == 0:
                 room.addEntityToLocation(Apple(), appleSpawnLocation)
+    
+    def spawnChickens(self, room: Room):
+        for i in range(0, 5):
+            if random.randrange(1, 101) > 75: # 25% chance
+                newChicken = Chicken()
+                room.addEntity(newChicken)
+                room.addLivingEntity(newChicken)
+    
+    def spawnBears(self, room: Room):
+        for i in range(0, 2):
+            if random.randrange(1, 101) > 90: # 10% chance
+                newBear = Bear()
+                room.addEntity(newBear)
+                room.addLivingEntity(newBear)
 
-    def locationContainsEntity(self, location, entityType):
+    def locationContainsEntityType(self, location, entityType):
         for entityId in location.getEntities():
-            entity = location.getEntities()[entityId]
+            entity = location.getEntity(entityId)
             if isinstance(entity, entityType):
                 return True
         return False

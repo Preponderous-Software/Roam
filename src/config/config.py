@@ -20,3 +20,5 @@ class Config:
         self.runSpeedFactor = 2
         self.energyDepletionRate = 0.01
         self.playerInteractionDistanceLimit = 5
+        self.ticksPerSecond = 30
+        self.autoEatFoodInInventory = True

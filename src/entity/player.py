@@ -1,15 +1,13 @@
-from lib.pyenvlib.entity import Entity
+from entity.apple import Apple
+from entity.livingEntity import LivingEntity
 from inventory.inventory import Inventory
 
 
 # @author Daniel McCoy Stephenson
 # @since August 8th, 2022
-class Player(Entity):
+class Player(LivingEntity):
     def __init__(self):
-        Entity.__init__(self, "Player")
-        self.color = (0, 0, 0)
-        self.energy = 100
-        self.maxEnergy = 100
+        LivingEntity.__init__(self, "Player", "assets/player.png", 100, [Apple])
         self.direction = -1 # -1 when not moving
         self.lastDirection = -1
         self.inventory = Inventory()
@@ -20,23 +18,7 @@ class Player(Entity):
         self.crouching = False
         self.tickLastGathered = -1
         self.tickLastPlaced = -1
-    
-    def getColor(self):
-        return self.color
-    
-    def getEnergy(self):
-        return self.energy
-
-    def getMaxEnergy(self):
-        return self.maxEnergy
-    
-    def addEnergy(self, energy):
-        self.energy += energy
-        if self.energy > self.maxEnergy:
-            self.energy = self.maxEnergy
-    
-    def removeEnergy(self, energy):
-        self.energy -= energy
+        self.solid = False
     
     def getDirection(self):
         return self.direction
@@ -104,3 +86,6 @@ class Player(Entity):
     
     def cycleInventoryLeft(self):
         self.inventory.cycleLeft()
+    
+    def isSolid(self):
+        return self.solid

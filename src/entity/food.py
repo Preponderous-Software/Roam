@@ -1,16 +1,12 @@
-from lib.pyenvlib.entity import Entity
+from entity.drawableEntity import DrawableEntity
 
 
 # @author Daniel McCoy Stephenson
 # @since August 8th, 2022
-class Food(Entity):
+class Food(DrawableEntity):
     def __init__(self, name, color, energy):
-        Entity.__init__(self, name)
-        self.color = color
+        DrawableEntity.__init__(self, name, color)
         self.energy = energy
-    
-    def getColor(self):
-        return self.color
     
     def getEnergy(self):
         return self.energy

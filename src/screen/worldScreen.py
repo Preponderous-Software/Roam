@@ -1,9 +1,12 @@
 import datetime
-from math import ceil
+from math import ceil, floor, sqrt
 import time
 import pygame
 from entity.apple import Apple
 from config.config import Config
+from entity.bear import Bear
+from entity.chicken import Chicken
+from entity.livingEntity import LivingEntity
 from ui.energyBar import EnergyBar
 from entity.food import Food
 from lib.graphik.src.graphik import Graphik
@@ -27,6 +30,7 @@ class WorldScreen:
         self.status = status
         self.tick = tick
         self.running = True
+        self.showInventory = False
     
     def initialize(self):
         self.map = Map(self.config.gridSize, self.graphik)
@@ -142,10 +146,17 @@ class WorldScreen:
         if self.locationContainsSolidEntity(newLocation):
             return
         
-        if self.player.getEnergy() < self.player.getMaxEnergy() * 0.95:
+        # if bear is in the new location, kill the player
+        for entityId in list(newLocation.getEntities().keys()):
+            entity = newLocation.getEntity(entityId)
+            if isinstance(entity, Bear):
+                self.player.kill()
+                return
+        
+        if self.player.getEnergy() < self.player.getTargetEnergy() * 0.95:
             # search for food to eat
             for entityId in list(newLocation.getEntities().keys()):
-                entity = newLocation.getEntities()[entityId]
+                entity = newLocation.getEntity(entityId)
                 if isinstance(entity, Food):
                     newLocation.removeEntity(entity)
                     scoreIncrease = 1 * len(self.map.getRooms())
@@ -165,7 +176,7 @@ class WorldScreen:
         self.player.setTickLastMoved(self.tick)
     
     def canBePickedUp(self, entity):
-        itemTypes = [Wood, Leaves, Grass, Apple, Rock]
+        itemTypes = [Wood, Leaves, Grass, Apple, Rock, Chicken]
         for itemType in itemTypes:
             if isinstance(entity, itemType):
                 return True
@@ -194,7 +205,7 @@ class WorldScreen:
         toRemove = -1
         reversedEntityIdList = list(reversed(targetLocation.getEntities()))
         for entityId in reversedEntityIdList:
-            entity = targetLocation.getEntities()[entityId]
+            entity = targetLocation.getEntity(entityId)
             if self.canBePickedUp(entity):
                 toRemove = entity
                 break
@@ -207,6 +218,8 @@ class WorldScreen:
             self.status.set("inventory full", self.tick)
             return
         self.currentRoom.removeEntity(toRemove)
+        if isinstance(toRemove, LivingEntity):
+            self.currentRoom.removeLivingEntity(toRemove)
         self.status.set("picked up '" + entity.getName() + "' (" + str(self.player.getInventory().getNumEntitiesByType(type(entity))) + ")", self.tick)
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
         self.player.setTickLastGathered(self.tick)
@@ -222,7 +235,11 @@ class WorldScreen:
         return self.getLocationDirection(direction, self.currentRoom.grid, playerLocation)
     
     def locationContainsSolidEntity(self, location):
-        return self.map.locationContainsEntity(location, Wood) or self.map.locationContainsEntity(location, Rock)
+        for entityId in list(location.getEntities().keys()):
+            entity = location.getEntity(entityId)
+            if entity.isSolid():
+                return True
+        return False
     
     def executePlaceAction(self):
         if self.player.getInventory().getNumEntities() == 0:
@@ -246,6 +263,13 @@ class WorldScreen:
         if abs(targetLocation.getX() - playerLocation.getX()) > distanceLimit or abs(targetLocation.getY() - playerLocation.getY()) > distanceLimit:
             self.status.set("too far away", self.tick)
             return
+        
+        # if living entity is in the location, don't place
+        for entityId in list(targetLocation.getEntities().keys()):
+            entity = targetLocation.getEntity(entityId)
+            if isinstance(entity, LivingEntity):
+                self.status.set("blocked by " + entity.getName(), self.tick)
+                return
 
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
 
@@ -259,6 +283,8 @@ class WorldScreen:
             return
             
         self.currentRoom.addEntityToLocation(toPlace, targetLocation)
+        if isinstance(toPlace, LivingEntity):
+            self.currentRoom.addLivingEntity(toPlace)
         self.status.set("placed '" + toPlace.getName() + "'", self.tick)
         self.player.setTickLastPlaced(self.tick)
     
@@ -269,7 +295,11 @@ class WorldScreen:
             return
             
         self.player.cycleInventoryRight()
-        self.status.set("selected item: " + self.player.getInventory().getSelectedItem().getName(), self.tick)
+        selectedItem = self.player.getInventory().getSelectedItem()
+        if selectedItem == None:
+            self.status.set("no item selected", self.tick)
+        else:
+            self.status.set("selected item: " + selectedItem.getName(), self.tick)
     
     def cyclePlayerInventoryLeft(self):
         # if inventory empty return
@@ -278,7 +308,11 @@ class WorldScreen:
             return
 
         self.player.cycleInventoryLeft()
-        self.status.set("selected item: " + self.player.getInventory().getSelectedItem().getName(), self.tick)
+        selectedItem = self.player.getInventory().getSelectedItem()
+        if selectedItem == None:
+            self.status.set("no item selected", self.tick)
+        else:
+            self.status.set("selected item: " + selectedItem.getName(), self.tick)
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
@@ -303,6 +337,8 @@ class WorldScreen:
             self.player.setSpeed(self.player.getSpeed()*self.config.runSpeedFactor)
         elif key == pygame.K_LCTRL:
             self.player.setCrouching(True)
+        elif key == pygame.K_i:
+            self.showInventory = not self.showInventory
 
     def handleKeyUpEvent(self, key):
         if (key == pygame.K_w or key == pygame.K_UP) and self.player.getDirection() == 0:
@@ -329,35 +365,85 @@ class WorldScreen:
         pygame.image.save(image, name)  # Save the image to the disk**
     
     def respawnPlayer(self):
+        # drop all items and clear inventory
+        playerLocationId = self.player.getLocationID()
+        playerLocation = self.currentRoom.getGrid().getLocation(playerLocationId)
+        for item in self.player.getInventory().getContents():
+            self.currentRoom.addEntityToLocation(item, playerLocation)
+            if isinstance(item, LivingEntity):
+                self.currentRoom.addLivingEntity(item)
+        self.player.getInventory().clear()
+
         self.currentRoom.removeEntity(self.player)
         self.map.getSpawnRoom().addEntity(self.player)
         self.currentRoom = self.map.getSpawnRoom()
-        self.player.energy = self.player.maxEnergy
-        self.player.getInventory().clear()
+        self.player.energy = self.player.targetEnergy
         self.status.set("respawned", self.tick)
         pygame.display.set_caption(("Roam " + str(self.currentRoom.getName())))
     
-    def checkCooldown(self, tickToCheck):
-        ticksPerSecond = 30
+    def checkPlayerMovementCooldown(self, tickToCheck):
+        ticksPerSecond = self.config.ticksPerSecond
         return tickToCheck + ticksPerSecond/self.player.getSpeed() < self.tick
     
+    def eatFoodInInventory(self):
+        for item in self.player.getInventory().getContents():
+            if isinstance(item, Food):
+                self.player.addEnergy(item.getEnergy())
+                self.player.getInventory().remove(item)
+                self.status.set("ate " + item.getName() + " from inventory", self.tick)
+                return
+    
     def handlePlayerActions(self):
-        if self.player.isMoving() and self.checkCooldown(self.player.getTickLastMoved()):
+        if self.player.isMoving() and self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
             self.movePlayer(self.player.direction)
 
-        if self.player.isGathering() and self.checkCooldown(self.player.getTickLastGathered()):
+        if self.player.isGathering() and self.checkPlayerMovementCooldown(self.player.getTickLastGathered()):
             self.executeGatherAction()
-        elif self.player.isPlacing() and self.checkCooldown(self.player.getTickLastPlaced()):
+        elif self.player.isPlacing() and self.checkPlayerMovementCooldown(self.player.getTickLastPlaced()):
             self.executePlaceAction()
+        
+        if self.player.needsEnergy() and self.config.autoEatFoodInInventory:
+            self.eatFoodInInventory()
     
     def removeEnergyAndCheckForDeath(self):
         self.player.removeEnergy(self.config.energyDepletionRate)
-        if self.player.getEnergy() < self.player.getMaxEnergy() * 0.10:
+        if self.player.getEnergy() < self.player.getTargetEnergy() * 0.10:
             self.status.set("low on energy!", self.tick)
         if self.player.isDead():
             self.status.set("you died", self.tick)
             self.score = ceil(self.score * 0.9)
             self.numDeaths += 1
+    
+    def drawPlayerInventory(self):
+        # draw inventory background that is 50% size of screen and centered
+        backgroundX = self.graphik.getGameDisplay().get_width()/4
+        backgroundY = self.graphik.getGameDisplay().get_height()/4
+        backgroundWidth = self.graphik.getGameDisplay().get_width()/2
+        backgroundHeight = self.graphik.getGameDisplay().get_height()/2
+        self.graphik.drawRectangle(backgroundX, backgroundY, backgroundWidth, backgroundHeight, (0,0,0))
+            
+        # draw contents inside inventory background
+        itemsPerRow = 10
+        row = 0
+        column = 0
+        margin = 5
+        for item in self.player.getInventory().getContents():
+            itemX = backgroundX + column*backgroundWidth/itemsPerRow + margin
+            itemY = backgroundY + row*backgroundHeight/itemsPerRow + margin
+            itemWidth = backgroundWidth/itemsPerRow - 2*margin
+            itemHeight = backgroundHeight/itemsPerRow - 2*margin
+            
+            image = item.getImage()
+            scaledImage = pygame.transform.scale(image, (itemWidth, itemHeight))
+            self.graphik.gameDisplay.blit(scaledImage, (itemX, itemY))
+            
+            column += 1
+            if column == itemsPerRow:
+                column = 0
+                row += 1
+        
+        # draw '(press I to close)' text below inventory
+        self.graphik.drawText("(press I to close)", backgroundX, backgroundY + backgroundHeight + 20, 20, (255,255,255))
 
     def draw(self):
         self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
@@ -369,6 +455,9 @@ class WorldScreen:
         # draw room coordinates in top left corner
         coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY()) + ")"
         self.graphik.drawText(coordinatesText, 30, 20, 20, (255,255,255))
+        
+        if self.showInventory:
+            self.drawPlayerInventory()
 
     def handleMouseDownEvent(self):
         if pygame.mouse.get_pressed()[0]: # left click
@@ -402,11 +491,15 @@ class WorldScreen:
                     self.handleMouseDownEvent()
                 elif event.type == pygame.MOUSEBUTTONUP:
                     self.handleMouseUpEvent()
+            
+            # move living entities
+            self.currentRoom.moveLivingEntities()
 
             self.handlePlayerActions()
             self.removeEnergyAndCheckForDeath()
             self.status.checkForExpiration(self.tick)
             self.draw()
+            
             pygame.display.update()
 
             time.sleep(self.config.tickSpeed)

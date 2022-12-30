@@ -1,13 +1,13 @@
 import random
-from lib.pyenvlib.entity import Entity
+from entity.drawableEntity import DrawableEntity
 
 
 # @author Daniel McCoy Stephenson
 # @since August 8th, 2022
-class Wood(Entity):
+class Wood(DrawableEntity):
     def __init__(self):
-        Entity.__init__(self, "Wood")
-        self.color = (random.randrange(135, 145), random.randrange(65, 75), random.randrange(15, 25))
+        DrawableEntity.__init__(self, "Wood", "assets/wood.png")
+        self.solid = True
     
-    def getColor(self):
-        return self.color
+    def isSolid(self):
+        return self.solid
