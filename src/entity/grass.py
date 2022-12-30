@@ -1,4 +1,3 @@
-import random
 from entity.drawableEntity import DrawableEntity
 
 
@@ -6,7 +5,7 @@ from entity.drawableEntity import DrawableEntity
 # @since August 8th, 2022
 class Grass(DrawableEntity):
     def __init__(self):
-        DrawableEntity.__init__(self, "Grass", (0, random.randrange(150, 200), 0))
+        DrawableEntity.__init__(self, "Grass", "assets/grass.png")
         self.solid = False
 
     def isSolid(self):
