@@ -8,7 +8,7 @@ from entity.player import Player
 # @since December 24th, 2022
 class Bear(LivingEntity):
     def __init__(self):
-        LivingEntity.__init__(self, "Bear", (random.randrange(100, 110), random.randrange(50, 60), random.randrange(20, 30)), random.randrange(20, 30), [Chicken, Player])
+        LivingEntity.__init__(self, "Bear", "assets/bear.png", random.randrange(20, 30), [Chicken, Player])
         self.solid = False
 
     def isSolid(self):

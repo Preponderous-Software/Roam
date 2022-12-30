@@ -1,4 +1,6 @@
 import random
+
+import pygame
 from entity.livingEntity import LivingEntity
 from entity.player import Player
 from lib.pyenvlib.environment import Environment
@@ -32,20 +34,16 @@ class Room(Environment):
 
     # Draws a location at a specified position.
     def drawLocation(self, location, xPos, yPos, width, height):
-        color = self.getColorOfLocation(location)
-        self.graphik.drawRectangle(xPos, yPos, width, height, color)
-
-    # Returns the color that a location should be displayed as.
-    def getColorOfLocation(self, location):
-        if location == -1:
-            color = (255, 255, 255)
+        if location.getNumEntities() > 0:
+            # draw texture
+            topEntityId = list(location.getEntities().keys())[-1]
+            topEntity = location.getEntities()[topEntityId]
+            image = topEntity.getImage()
+            scaledImage = pygame.transform.scale(image, (width, height))
+            self.graphik.gameDisplay.blit(scaledImage, (xPos, yPos))
         else:
-            color = self.backgroundColor
-            if location.getNumEntities() > 0:
-                topEntityId = list(location.getEntities().keys())[-1]
-                topEntity = location.getEntities()[topEntityId]
-                return topEntity.getColor()
-        return color
+            # draw background color
+            self.graphik.drawRectangle(xPos, yPos, width, height, self.backgroundColor)
     
     def addLivingEntity(self, entity):
         self.livingEntities[entity.getID()] = entity

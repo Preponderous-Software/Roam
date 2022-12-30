@@ -433,7 +433,9 @@ class WorldScreen:
             itemWidth = backgroundWidth/itemsPerRow - 2*margin
             itemHeight = backgroundHeight/itemsPerRow - 2*margin
             
-            self.graphik.drawRectangle(itemX, itemY, itemWidth, itemHeight, item.getColor())
+            image = item.getImage()
+            scaledImage = pygame.transform.scale(image, (itemWidth, itemHeight))
+            self.graphik.gameDisplay.blit(scaledImage, (itemX, itemY))
             
             column += 1
             if column == itemsPerRow:

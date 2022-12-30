@@ -6,7 +6,7 @@ from entity.drawableEntity import DrawableEntity
 # @since August 18th, 2022
 class Rock(DrawableEntity):
     def __init__(self):
-        DrawableEntity.__init__(self, "Rock", (random.randrange(100, 110), random.randrange(100, 110), random.randrange(100, 110)))
+        DrawableEntity.__init__(self, "Rock", "assets/rock.png")
         self.solid = True
     
     def isSolid(self):

@@ -1,13 +1,13 @@
+import pygame
 from lib.pyenvlib.entity import Entity
 
 
 # @author Daniel McCoy Stephenson
 # @since August 5th, 2022
 class DrawableEntity(Entity):
-    def __init__(self, name, color):
+    def __init__(self, name, imagePath):
         Entity.__init__(self, name)
-        self.color = color
-        
-    # Returns the color of the entity.
-    def getColor(self):
-        return self.color
+        self.imagePath = imagePath
+    
+    def getImage(self):
+        return pygame.image.load(self.imagePath)

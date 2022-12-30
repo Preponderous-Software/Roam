@@ -7,7 +7,7 @@ from inventory.inventory import Inventory
 # @since August 8th, 2022
 class Player(LivingEntity):
     def __init__(self):
-        LivingEntity.__init__(self, "Player", (0, 0, 0), 100, [Apple])
+        LivingEntity.__init__(self, "Player", "assets/player.png", 100, [Apple])
         self.direction = -1 # -1 when not moving
         self.lastDirection = -1
         self.inventory = Inventory()

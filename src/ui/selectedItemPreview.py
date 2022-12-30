@@ -1,3 +1,4 @@
+import pygame
 from lib.graphik.src.graphik import Graphik
 from inventory.inventory import Inventory
 
@@ -16,12 +17,12 @@ class SelectedItemPreview:
         ypos = y/10
         borderWidth = 2
         borderColor = (0,0,0)
-        innerColor = (255,255,255)
+        image = None
 
         if len(self.inventory.getContents()) != 0:
             selectedItem = self.inventory.getSelectedItem()
             if selectedItem != None:
-                innerColor = selectedItem.getColor()
+                image = selectedItem.getImage()
             else:
                 return
         else:
@@ -30,8 +31,9 @@ class SelectedItemPreview:
         # draw outer square
         self.graphik.drawRectangle(xpos, ypos, width, height, borderColor)
 
-        # draw inner square
-        self.graphik.drawRectangle(xpos + borderWidth, ypos + borderWidth, width - borderWidth*2, height - borderWidth*2, innerColor)
+        # draw image
+        scaledImage = pygame.transform.scale(image, (width, height))
+        self.graphik.gameDisplay.blit(scaledImage, (xpos, ypos))
 
         # draw Q to the left of the square
         self.graphik.drawText("Q", xpos - 20, ypos + height/2, 20, borderColor)
