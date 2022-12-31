@@ -466,6 +466,9 @@ class WorldScreen:
         
         if self.showInventory:
             self.drawPlayerInventory()
+        
+        # display tick count in top right corner
+        self.graphik.drawText("tick: " + str(self.tick), self.graphik.getGameDisplay().get_width() - 100, 20, 20, (255,255,255))
 
     def handleMouseDownEvent(self):
         if pygame.mouse.get_pressed()[0]: # left click

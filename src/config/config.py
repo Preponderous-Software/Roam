@@ -10,10 +10,7 @@ class Config:
         self.white = (255,255,255)
         self.ticksPerSecond = 30
         self.tickSpeed = 1/self.ticksPerSecond
-        self.smallGridSize = 16
-        self.mediumGridSize = 24
-        self.largeGridSize = 32
-        self.gridSize = self.mediumGridSize
+        self.gridSize = 16
         self.playerMovementEnergyCost = 0.2
         self.playerInteractionEnergyCost= 0.05
         self.worldBorder = 16
