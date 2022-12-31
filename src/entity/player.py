@@ -14,7 +14,7 @@ class Player(LivingEntity):
         self.gathering = False
         self.placing = False
         self.tickLastMoved = -1
-        self.speed = 15
+        self.speed = 30
         self.crouching = False
         self.tickLastGathered = -1
         self.tickLastPlaced = -1
