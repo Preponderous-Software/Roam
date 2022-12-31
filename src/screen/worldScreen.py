@@ -319,16 +319,20 @@ class WorldScreen:
             return "options"
         elif key == pygame.K_w or key == pygame.K_UP:
             self.player.setDirection(0)
-            self.movePlayer(self.player.direction)
+            if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
+                self.movePlayer(self.player.direction)
         elif key == pygame.K_a or key == pygame.K_LEFT:
             self.player.setDirection(1)
-            self.movePlayer(self.player.direction)
+            if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
+                self.movePlayer(self.player.direction)
         elif key == pygame.K_s or key == pygame.K_DOWN:
             self.player.setDirection(2)
-            self.movePlayer(self.player.direction)
+            if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
+                self.movePlayer(self.player.direction)
         elif key == pygame.K_d or key == pygame.K_RIGHT:
             self.player.setDirection(3)
-            self.movePlayer(self.player.direction)
+            if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
+                self.movePlayer(self.player.direction)
         elif key == pygame.K_e:
             self.cyclePlayerInventoryRight()
         elif key == pygame.K_q:
