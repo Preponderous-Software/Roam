@@ -23,7 +23,7 @@ class MainMenuScreen:
         ypos = y/10
         self.graphik.drawText("Roam", xpos, ypos, 64, (255, 255, 255))
         ypos = y/3
-        self.graphik.drawText("press space to start", xpos, ypos, 32, (255, 255, 255))
+        self.graphik.drawText("press any key to start!", xpos, ypos, 32, (255, 255, 255))
 
     def drawPlayButton(self):
         x, y = self.graphik.getGameDisplay().get_size()
