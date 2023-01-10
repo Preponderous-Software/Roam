@@ -21,6 +21,18 @@ q | cycle inventory left
 print screen | take screenshot
 esc | quit
 
+## How to run
+### Manually
+1. Clone the repository with the following command:
+> git clone https://github.com/Stephenson-Software/Roam.git
+2. Install dependencies with the following command:
+> pip install -r requirements.txt
+3. Run the game with the following command:
+> python src/main.py
+
+### Run Script
+There is also a run.sh script you can execute if you're on linux which will automatically attempt to install the dependencies for you.
+
 ## Support
 You can find the support discord server [here](https://discord.gg/49J4RHQxhy).
 
