@@ -28,7 +28,6 @@ class Status:
         xpos = x/2 - width/2
         ypos = y - y/12 - height/2
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), self.textColor, self.textSize, self.text, self.clear)
-        # self.graphik.drawText(self.text, xpos, ypos, self.size, self.color)
     
     def getTickLastSet(self):
         return self.tickLastSet

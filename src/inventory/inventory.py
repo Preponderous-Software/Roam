@@ -3,7 +3,7 @@ class Inventory:
     def __init__(self):
         self.contents = []
         self.size = 100
-        self.selectedItemIndex = None
+        self.selectedItemIndex = 0
         
     def getContents(self):
         return self.contents
@@ -14,7 +14,6 @@ class Inventory:
     def place(self, item):
         if len(self.contents) < self.size:
             self.contents.append(item)
-            self.selectedItemIndex = self.contents.index(item)
         else:
             return -1
     
@@ -22,7 +21,7 @@ class Inventory:
         # if item is selected
         if self.selectedItemIndex != None and self.selectedItemIndex < len(self.contents):
             if self.contents[self.selectedItemIndex] == item:
-                self.selectedItemIndex = None
+                self.selectedItemIndex = 0
         self.contents.remove(item)
     
     def clear(self):
@@ -37,32 +36,18 @@ class Inventory:
             if isinstance(entity, entityType):
                 count += 1
         return count
-    
-    def cycleRight(self):
-        if len(self.contents) == 0:
-            return
-        
-        if self.selectedItemIndex != None:
-            index = self.selectedItemIndex
-            if index < len(self.contents) - 1:
-                self.selectedItemIndex = index + 1
-            else:
-                self.selectedItemIndex = 0
+
+    def getSelectedItemIndex(self):
+        return self.selectedItemIndex
+
+    def setSelectedItemIndex(self, index):
+        self.selectedItemIndex = index
+            
+    def getItemByIndex(self, index):
+        if index < len(self.contents):
+            return self.contents[index]
         else:
-            self.selectedItemIndex = 0
-    
-    def cycleLeft(self):
-        if len(self.contents) == 0:
-            return
-        
-        if self.selectedItemIndex != None:
-            index = self.selectedItemIndex
-            if index > 0:
-                self.selectedItemIndex = index - 1
-            else:
-                self.selectedItemIndex = len(self.contents) - 1
-        else:
-            self.selectedItemIndex = 0
+            return None
     
     def getSelectedItem(self):
         if self.selectedItemIndex == None:
@@ -80,4 +65,16 @@ class Inventory:
             if len(self.contents) == 0:
                 self.selectedItemIndex = None
             else:
-                self.selectedItemIndex = 0
+                self.selectedItemIndex = self.selectedItemIndex % 10
+    
+    def getFirstTenItems(self):
+        if len(self.contents) > 10:
+            return self.contents[:10]
+        else:
+            return self.contents
+        
+    def getLastTenItems(self):
+        if len(self.contents) > 10:
+            return self.contents[-10:]
+        else:
+            return self.contents
