@@ -15,6 +15,7 @@ shift | run
 ctrl | crouch
 left mouse | gather
 right mouse | place
+1-0 | select item in hotbar
 i | open/close inventory
 print screen | take screenshot
 esc | quit
