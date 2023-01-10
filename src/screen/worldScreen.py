@@ -15,7 +15,6 @@ from lib.graphik.src.graphik import Graphik
 from entity.grass import Grass
 from lib.pyenvlib.grid import Grid
 from entity.rock import Rock
-from ui.selectedItemPreview import SelectedItemPreview
 from entity.leaves import Leaves
 from lib.pyenvlib.location import Location
 from world.map import Map
@@ -48,7 +47,6 @@ class WorldScreen:
         self.numApplesEaten = 0
         self.numDeaths = 0
         self.energyBar = EnergyBar(self.graphik, self.player)
-        self.selectedItemPreview = SelectedItemPreview(self.graphik, self.player.getInventory())
 
     def initializeLocationWidthAndHeight(self):
         x, y = self.graphik.getGameDisplay().get_size()
@@ -302,31 +300,13 @@ class WorldScreen:
         self.status.set("placed '" + toPlace.getName() + "'", self.tick)
         self.player.setTickLastPlaced(self.tick)
     
-    def cyclePlayerInventoryRight(self):
-        # if inventory empty return
-        if len(self.player.getInventory().getContents()) == 0:
-            self.status.set("inventory empty", self.tick)
-            return
-            
-        self.player.cycleInventoryRight()
-        selectedItem = self.player.getInventory().getSelectedItem()
-        if selectedItem == None:
+    def changeSelectedItem(self, index):
+        self.player.getInventory().setSelectedItemIndex(index)
+        item = self.player.getInventory().getSelectedItem()
+        if item == None:
             self.status.set("no item selected", self.tick)
-        else:
-            self.status.set("selected item: " + selectedItem.getName(), self.tick)
-    
-    def cyclePlayerInventoryLeft(self):
-        # if inventory empty return
-        if len(self.player.getInventory().getContents()) == 0:
-            self.status.set("inventory empty", self.tick)
             return
-
-        self.player.cycleInventoryLeft()
-        selectedItem = self.player.getInventory().getSelectedItem()
-        if selectedItem == None:
-            self.status.set("no item selected", self.tick)
-        else:
-            self.status.set("selected item: " + selectedItem.getName(), self.tick)
+        self.status.set("selected '" + item.getName() + "'", self.tick)
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
@@ -348,10 +328,6 @@ class WorldScreen:
             self.player.setDirection(3)
             if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
                 self.movePlayer(self.player.direction)
-        elif key == pygame.K_e:
-            self.cyclePlayerInventoryRight()
-        elif key == pygame.K_q:
-            self.cyclePlayerInventoryLeft()
         elif key == pygame.K_PRINTSCREEN:
             x, y = self.graphik.getGameDisplay().get_size()
             self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
@@ -362,6 +338,26 @@ class WorldScreen:
             self.player.setCrouching(True)
         elif key == pygame.K_i:
             self.showInventory = not self.showInventory
+        elif key == pygame.K_1:
+            self.changeSelectedItem(0)
+        elif key == pygame.K_2:
+            self.changeSelectedItem(1)
+        elif key == pygame.K_3:
+            self.changeSelectedItem(2)
+        elif key == pygame.K_4:
+            self.changeSelectedItem(3)
+        elif key == pygame.K_5:
+            self.changeSelectedItem(4)
+        elif key == pygame.K_6:
+            self.changeSelectedItem(5)
+        elif key == pygame.K_7:
+            self.changeSelectedItem(6)
+        elif key == pygame.K_8:
+            self.changeSelectedItem(7)
+        elif key == pygame.K_9:
+            self.changeSelectedItem(8)
+        elif key == pygame.K_0:
+            self.changeSelectedItem(9)
 
     def handleKeyUpEvent(self, key):
         if (key == pygame.K_w or key == pygame.K_UP) and self.player.getDirection() == 0:
@@ -479,7 +475,6 @@ class WorldScreen:
         self.currentRoom.draw(self.locationWidth, self.locationHeight)
         self.status.draw()
         self.energyBar.draw()
-        self.selectedItemPreview.draw()
 
         # draw room coordinates in top left corner
         coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY()) + ")"
@@ -487,9 +482,39 @@ class WorldScreen:
         
         if self.showInventory:
             self.drawPlayerInventory()
+        else:
+            itemPreviewXPos = self.graphik.getGameDisplay().get_width()/2 - 50*5 - 50/2
+            itemPreviewYPos = self.graphik.getGameDisplay().get_height() - 50*3
+            itemPreviewWidth = 50
+            itemPreviewHeight = 50
+            
+            barXPos = itemPreviewXPos - 5
+            barYPos = itemPreviewYPos - 5
+            barWidth = itemPreviewWidth*11 + 5
+            barHeight = itemPreviewHeight + 10
+            
+            # draw rectangle slightly bigger than item images
+            self.graphik.drawRectangle(barXPos, barYPos, barWidth, barHeight, (0,0,0))                 
+            
+            # draw first 10 items in player inventory in bottom center
+            firstTenItems = self.player.getInventory().getFirstTenItems()
+            for i in range(len(firstTenItems)):
+                item = firstTenItems[i]
+                image = item.getImage()
+                scaledImage = pygame.transform.scale(image, (50, 50))
+                self.graphik.gameDisplay.blit(scaledImage, (itemPreviewXPos, itemPreviewYPos))
+                itemPreviewXPos += 50 + 5
+                
+                if i == self.player.getInventory().getSelectedItemIndex():
+                    self.graphik.drawRectangle(itemPreviewXPos - 50, itemPreviewYPos, 10, 10, (255,255,0))
+            
+            # draw yellow square in the middle of the selected item
+            
         
         # display tick count in top right corner
         self.graphik.drawText("tick: " + str(self.tick), self.graphik.getGameDisplay().get_width() - 100, 20, 20, (255,255,255))
+        
+        pygame.display.update()
 
     def handleMouseDownEvent(self):
         if pygame.mouse.get_pressed()[0]: # left click

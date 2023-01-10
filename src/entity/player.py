@@ -81,11 +81,5 @@ class Player(LivingEntity):
     def isMoving(self):
         return self.direction != -1
     
-    def cycleInventoryRight(self):
-        self.inventory.cycleRight()
-    
-    def cycleInventoryLeft(self):
-        self.inventory.cycleLeft()
-    
     def isSolid(self):
         return self.solid
