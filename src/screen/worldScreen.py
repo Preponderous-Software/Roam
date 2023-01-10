@@ -462,6 +462,10 @@ class WorldScreen:
             scaledImage = pygame.transform.scale(image, (itemWidth, itemHeight))
             self.graphik.gameDisplay.blit(scaledImage, (itemX, itemY))
             
+            if column == self.player.getInventory().getSelectedItemIndex() and row == 0:
+                # draw yellow square in the middle of the selected item
+                self.graphik.drawRectangle(itemX + itemWidth/2 - 5, itemY + itemHeight/2 - 5, 10, 10, (255,255,0))
+            
             column += 1
             if column == itemsPerRow:
                 column = 0
@@ -503,13 +507,14 @@ class WorldScreen:
                 image = item.getImage()
                 scaledImage = pygame.transform.scale(image, (50, 50))
                 self.graphik.gameDisplay.blit(scaledImage, (itemPreviewXPos, itemPreviewYPos))
-                itemPreviewXPos += 50 + 5
                 
                 if i == self.player.getInventory().getSelectedItemIndex():
-                    self.graphik.drawRectangle(itemPreviewXPos - 50, itemPreviewYPos, 10, 10, (255,255,0))
-            
-            # draw yellow square in the middle of the selected item
-            
+                    # draw yellow square in the middle of the selected item
+                    self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
+                    
+                itemPreviewXPos += 50 + 5
+                
+
         
         # display tick count in top right corner
         self.graphik.drawText("tick: " + str(self.tick), self.graphik.getGameDisplay().get_width() - 100, 20, 20, (255,255,255))
