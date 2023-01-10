@@ -471,6 +471,18 @@ class WorldScreen:
                 column = 0
                 row += 1
         
+        # draw white squares for rest of inventory slots
+        while row < itemsPerRow:
+            itemX = backgroundX + column*backgroundWidth/itemsPerRow + margin
+            itemY = backgroundY + row*backgroundHeight/itemsPerRow + margin
+            itemWidth = backgroundWidth/itemsPerRow - 2*margin
+            itemHeight = backgroundHeight/itemsPerRow - 2*margin
+            self.graphik.drawRectangle(itemX, itemY, itemWidth, itemHeight, (255,255,255))
+            column += 1
+            if column == itemsPerRow:
+                column = 0
+                row += 1
+        
         # draw '(press I to close)' text below inventory
         self.graphik.drawText("(press I to close)", backgroundX, backgroundY + backgroundHeight + 20, 20, (255,255,255))
 
