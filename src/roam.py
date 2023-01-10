@@ -63,6 +63,6 @@ class Roam:
 roam = Roam()
 while True:
     result = roam.run()
-    if result is not "restart":
+    if result != "restart":
         break
     roam = Roam()
