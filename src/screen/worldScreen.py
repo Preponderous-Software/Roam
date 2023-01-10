@@ -525,8 +525,11 @@ class WorldScreen:
                     self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
                     
                 itemPreviewXPos += 50 + 5
-                
-
+            
+            # draw white squares for rest of hot bar slots
+            for i in range(10 - len(firstTenItems)):
+                self.graphik.drawRectangle(itemPreviewXPos, itemPreviewYPos, itemPreviewWidth, itemPreviewHeight, (255,255,255))
+                itemPreviewXPos += 50 + 5
         
         # display tick count in top right corner
         self.graphik.drawText("tick: " + str(self.tick), self.graphik.getGameDisplay().get_width() - 100, 20, 20, (255,255,255))
