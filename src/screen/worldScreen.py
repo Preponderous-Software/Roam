@@ -7,6 +7,8 @@ from config.config import Config
 from entity.bear import Bear
 from entity.chicken import Chicken
 from entity.livingEntity import LivingEntity
+from screen.screens import ScreenString
+from stats.stats import Stats
 from ui.energyBar import EnergyBar
 from entity.food import Food
 from lib.graphik.src.graphik import Graphik
@@ -24,13 +26,16 @@ from entity.wood import Wood
 # @author Daniel McCoy Stephenson
 # @since August 16th, 2022
 class WorldScreen:
-    def __init__(self, graphik: Graphik, config: Config, status: Status, tick: int):
+    def __init__(self, graphik: Graphik, config: Config, status: Status, tick: int, stats: Stats):
         self.graphik = graphik
         self.config = config
         self.status = status
         self.tick = tick
+        self.stats = stats
         self.running = True
         self.showInventory = False
+        self.nextScreen = ScreenString.OPTIONS_SCREEN
+        self.changeScreen = False
     
     def initialize(self):
         self.map = Map(self.config.gridSize, self.graphik)
@@ -49,8 +54,15 @@ class WorldScreen:
         x, y = self.graphik.getGameDisplay().get_size()
         self.locationWidth = x/self.currentRoom.getGrid().getRows()
         self.locationHeight = y/self.currentRoom.getGrid().getColumns()
+        
+    def updateStats(self):
+        self.stats.setRoomsExplored(str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
+        self.stats.setApplesEaten(str(self.numApplesEaten))
+        self.stats.setItemsInInventory(str(len(self.player.getInventory().getContents())))
+        self.stats.setNumberOfDeaths(str(self.numDeaths))
+        self.stats.setScore(str(self.score))
 
-    def printStats(self):
+    def printStatsToConsole(self):
         print("=== Stats ===")
         print("Rooms Explored: " + str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
         print("Apples eaten: " + str(self.numApplesEaten))
@@ -159,13 +171,15 @@ class WorldScreen:
                 entity = newLocation.getEntity(entityId)
                 if isinstance(entity, Food):
                     newLocation.removeEntity(entity)
-                    scoreIncrease = 1 * len(self.map.getRooms())
-                    self.score += scoreIncrease
                     self.player.addEnergy(entity.getEnergy())
                     
                     if isinstance(entity, Apple):
                         self.numApplesEaten += 1
-                        self.status.set("ate '" + entity.getName() + "'", self.tick)
+    
+                    self.status.set("ate '" + entity.getName() + "'", self.tick)
+                    
+                    scoreIncrease = int(self.tick * int(self.stats.applesEaten) * 0.10)
+                    self.score += scoreIncrease
 
         # move player
         location.removeEntity(self.player)
@@ -316,7 +330,8 @@ class WorldScreen:
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
-            return "options"
+            self.nextScreen = ScreenString.OPTIONS_SCREEN
+            self.changeScreen = True
         elif key == pygame.K_w or key == pygame.K_UP:
             self.player.setDirection(0)
             if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
@@ -398,7 +413,13 @@ class WorldScreen:
             if isinstance(item, Food):
                 self.player.addEnergy(item.getEnergy())
                 self.player.getInventory().remove(item)
+                
+                if isinstance(item, Apple):
+                    self.numApplesEaten += 1
                 self.status.set("ate " + item.getName() + " from inventory", self.tick)
+                
+                scoreIncrease = int(self.tick * int(self.stats.applesEaten) * 0.10)
+                self.score += scoreIncrease
                 return
     
     def handlePlayerActions(self):
@@ -483,15 +504,13 @@ class WorldScreen:
             self.player.setPlacing(False)
 
     def run(self):
-        while self.running:
+        while not self.changeScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.printStats()
-                    return "exit"
+                    self.printStatsToConsole()
+                    return ScreenString.NONE
                 elif event.type == pygame.KEYDOWN:
-                    result = self.handleKeyDownEvent(event.key)
-                    if result == "options":
-                        return "options"
+                    self.handleKeyDownEvent(event.key)
                 elif event.type == pygame.KEYUP:
                     self.handleKeyUpEvent(event.key)
                 elif event.type == pygame.WINDOWRESIZED:
@@ -520,5 +539,6 @@ class WorldScreen:
                 time.sleep(3)
                 self.respawnPlayer()
         
-        self.printStats()
-        return
+        self.updateStats()
+        self.changeScreen = False
+        return self.nextScreen
