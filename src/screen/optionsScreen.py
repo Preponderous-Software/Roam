@@ -52,14 +52,14 @@ class OptionsScreen:
         ypos = y/2 - height/2
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), (0,0,0), 30, "stats", self.switchToStatsScreen)
 
-    def drawQuitButton(self):
+    def drawBackButton(self):
         # draw in bottom right corner
         x, y = self.graphik.getGameDisplay().get_size()
         width = x/3
         height = y/10
         xpos = x/2 - width/2
         ypos = y/2 - height/2 + width
-        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), (0,0,0), 30, "quit", self.quitApplication)
+        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), (0,0,0), 30, "back", self.switchToWorldScreen)
 
     def run(self):
         while not self.changeScreen:
@@ -72,7 +72,7 @@ class OptionsScreen:
             self.graphik.getGameDisplay().fill((0, 0, 0))
             self.drawMainMenuButton()
             self.drawStatsButton()
-            self.drawQuitButton()
+            self.drawBackButton()
             pygame.display.update()
             
         self.changeScreen = False
