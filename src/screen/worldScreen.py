@@ -467,6 +467,9 @@ class WorldScreen:
 
             if item == None:
                 self.graphik.drawRectangle(itemX, itemY, itemWidth, itemHeight, (255,255,255))
+                if column == self.player.getInventory().getSelectedInventorySlotIndex() and row == 0:
+                    # draw yellow square in the middle of the selected inventory slot
+                    self.graphik.drawRectangle(itemX + itemWidth/2 - 5, itemY + itemHeight/2 - 5, 10, 10, (255,255,0))
                 column += 1
                 if column == itemsPerRow:
                     column = 0
@@ -478,7 +481,7 @@ class WorldScreen:
             self.graphik.gameDisplay.blit(scaledImage, (itemX, itemY))
             
             if column == self.player.getInventory().getSelectedInventorySlotIndex() and row == 0:
-                # draw yellow square in the middle of the selected item
+                # draw yellow square in the middle of the selected inventory slot
                 self.graphik.drawRectangle(itemX + itemWidth/2 - 5, itemY + itemHeight/2 - 5, 10, 10, (255,255,0))
             
             column += 1
@@ -523,6 +526,9 @@ class WorldScreen:
                 if item == None:
                     # draw white square if item slot is empty
                     self.graphik.drawRectangle(itemPreviewXPos, itemPreviewYPos, itemPreviewWidth, itemPreviewHeight, (255,255,255))
+                    if i == self.player.getInventory().getSelectedInventorySlotIndex():
+                        # draw yellow square in the middle of the selected inventory slot
+                        self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
                     itemPreviewXPos += 50 + 5
                     continue
                 image = item.getImage()
@@ -530,7 +536,7 @@ class WorldScreen:
                 self.graphik.gameDisplay.blit(scaledImage, (itemPreviewXPos, itemPreviewYPos))
                 
                 if i == self.player.getInventory().getSelectedInventorySlotIndex():
-                    # draw yellow square in the middle of the selected item
+                    # draw yellow square in the middle of the selected inventory slot
                     self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
                     
                 itemPreviewXPos += 50 + 5
