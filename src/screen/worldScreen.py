@@ -460,13 +460,12 @@ class WorldScreen:
         column = 0
         margin = 5
         for inventorySlot in self.player.getInventory().getInventorySlots():
-            item = inventorySlot.getItem()
             itemX = backgroundX + column*backgroundWidth/itemsPerRow + margin
             itemY = backgroundY + row*backgroundHeight/itemsPerRow + margin
             itemWidth = backgroundWidth/itemsPerRow - 2*margin
             itemHeight = backgroundHeight/itemsPerRow - 2*margin
 
-            if item == None:
+            if inventorySlot.isEmpty():
                 self.graphik.drawRectangle(itemX, itemY, itemWidth, itemHeight, (255,255,255))
                 if column == self.player.getInventory().getSelectedInventorySlotIndex() and row == 0:
                     # draw yellow square in the middle of the selected inventory slot
@@ -477,6 +476,7 @@ class WorldScreen:
                     row += 1
                 continue
             
+            item = inventorySlot.getContents()[0]
             image = item.getImage()
             scaledImage = pygame.transform.scale(image, (itemWidth, itemHeight))
             self.graphik.gameDisplay.blit(scaledImage, (itemX, itemY))
@@ -486,7 +486,7 @@ class WorldScreen:
                 self.graphik.drawRectangle(itemX + itemWidth/2 - 5, itemY + itemHeight/2 - 5, 10, 10, (255,255,0))
             
             # draw item amount in bottom right corner of inventory slot
-            self.graphik.drawText(str(inventorySlot.getAmount()), itemX + itemWidth - 20, itemY + itemHeight - 20, 20, (255,255,255))
+            self.graphik.drawText(str(inventorySlot.getNumItems()), itemX + itemWidth - 20, itemY + itemHeight - 20, 20, (255,255,255))
             
             column += 1
             if column == itemsPerRow:
