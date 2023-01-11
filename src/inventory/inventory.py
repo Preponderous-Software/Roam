@@ -18,22 +18,23 @@ class Inventory:
     
     def placeIntoFirstAvailableInventorySlot(self, item):
         for inventorySlot in self.inventorySlots:
-            if inventorySlot.getItem() == None:
+            if inventorySlot.isEmpty():
                 # set the item
-                inventorySlot.setItem(item)
-                inventorySlot.setAmount(1)
+                inventorySlot.add(item)
                 return True
-            elif inventorySlot.getItem().getName() == item.getName() and inventorySlot.getAmount() < inventorySlot.getMaxStackSize():
+            elif inventorySlot.getContents()[0].getName() == item.getName() and inventorySlot.getNumItems() < inventorySlot.getMaxStackSize():
                 # increment the amount
-                inventorySlot.addAmount(1)
+                inventorySlot.add(item)
                 return True
         return False
     
     def removeByItem(self, item):
         for inventorySlot in self.inventorySlots:
-            if inventorySlot.getItem() == item:
-                if inventorySlot.getAmount() > 1:
-                    inventorySlot.subtractAmount(1)
+            if inventorySlot.isEmpty():
+                continue
+            if inventorySlot.getContents()[0].getName() == item.getName():
+                if inventorySlot.getNumItems() > 1:
+                    inventorySlot.remove(item)
                 else:
                     inventorySlot.clear()
                 return True
@@ -53,16 +54,18 @@ class Inventory:
     def getNumTakenInventorySlots(self):
         count = 0
         for inventorySlot in self.inventorySlots:
-            if inventorySlot.getItem() != None:
+            if inventorySlot.isEmpty() == False:
                 count += 1
         return count
     
     def getNumItemsByType(self, type):
         count = 0
         for inventorySlot in self.inventorySlots:
-            item = inventorySlot.getItem()
+            if inventorySlot.isEmpty():
+                continue
+            item = inventorySlot.getContents()[0]
             if isinstance(item, type):
-                count += inventorySlot.getAmount()
+                count += inventorySlot.getNumItems()
         return count
     
     def getSelectedInventorySlotIndex(self):
@@ -78,7 +81,7 @@ class Inventory:
         return self.inventorySlots[self.selectedInventorySlotIndex]
     
     def removeSelectedItem(self):
-        self.inventorySlots[self.selectedInventorySlotIndex].subtractAmount(1)
+        return self.inventorySlots[self.selectedInventorySlotIndex].pop()
         
     def getFirstTenInventorySlots(self):
         if len(self.inventorySlots) > 10:

@@ -286,11 +286,10 @@ class WorldScreen:
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
 
         inventorySlot = self.player.getInventory().getSelectedInventorySlot()
-        toPlace = inventorySlot.getItem()
-        if toPlace == None:
+        if inventorySlot.isEmpty():
             self.status.set("no item selected", self.tick)
             return
-        self.player.getInventory().removeSelectedItem()
+        toPlace =  self.player.getInventory().removeSelectedItem()
 
         if toPlace == -1:
             return
@@ -301,13 +300,13 @@ class WorldScreen:
         self.status.set("placed '" + toPlace.getName() + "'", self.tick)
         self.player.setTickLastPlaced(self.tick)
     
-    def changeSelectedItem(self, index):
+    def changeSelectedInventorySlot(self, index):
         self.player.getInventory().setSelectedInventorySlotIndex(index)
         inventorySlot = self.player.getInventory().getSelectedInventorySlot()
-        item = inventorySlot.getItem()
-        if item == None:
+        if inventorySlot.isEmpty():
             self.status.set("no item selected", self.tick)
             return
+        item = inventorySlot.getContents()[0]
         self.status.set("selected '" + item.getName() + "'", self.tick)
 
     def handleKeyDownEvent(self, key):
@@ -341,25 +340,25 @@ class WorldScreen:
         elif key == pygame.K_i:
             self.showInventory = not self.showInventory
         elif key == pygame.K_1:
-            self.changeSelectedItem(0)
+            self.changeSelectedInventorySlot(0)
         elif key == pygame.K_2:
-            self.changeSelectedItem(1)
+            self.changeSelectedInventorySlot(1)
         elif key == pygame.K_3:
-            self.changeSelectedItem(2)
+            self.changeSelectedInventorySlot(2)
         elif key == pygame.K_4:
-            self.changeSelectedItem(3)
+            self.changeSelectedInventorySlot(3)
         elif key == pygame.K_5:
-            self.changeSelectedItem(4)
+            self.changeSelectedInventorySlot(4)
         elif key == pygame.K_6:
-            self.changeSelectedItem(5)
+            self.changeSelectedInventorySlot(5)
         elif key == pygame.K_7:
-            self.changeSelectedItem(6)
+            self.changeSelectedInventorySlot(6)
         elif key == pygame.K_8:
-            self.changeSelectedItem(7)
+            self.changeSelectedInventorySlot(7)
         elif key == pygame.K_9:
-            self.changeSelectedItem(8)
+            self.changeSelectedInventorySlot(8)
         elif key == pygame.K_0:
-            self.changeSelectedItem(9)
+            self.changeSelectedInventorySlot(9)
 
     def handleKeyUpEvent(self, key):
         if (key == pygame.K_w or key == pygame.K_UP) and self.player.getDirection() == 0:
@@ -411,7 +410,9 @@ class WorldScreen:
     
     def eatFoodInInventory(self):
         for itemSlot in self.player.getInventory().getInventorySlots():
-            item = itemSlot.getItem()
+            if itemSlot.isEmpty():
+                continue
+            item = itemSlot.getContents()[0]
             if isinstance(item, Food):
                 self.player.addEnergy(item.getEnergy())
                 self.player.getInventory().removeByItem(item)
@@ -525,8 +526,7 @@ class WorldScreen:
             firstTenInventorySlots = self.player.getInventory().getFirstTenInventorySlots()
             for i in range(len(firstTenInventorySlots)):
                 inventorySlot = firstTenInventorySlots[i]
-                item = inventorySlot.getItem()
-                if item == None:
+                if inventorySlot.isEmpty():
                     # draw white square if item slot is empty
                     self.graphik.drawRectangle(itemPreviewXPos, itemPreviewYPos, itemPreviewWidth, itemPreviewHeight, (255,255,255))
                     if i == self.player.getInventory().getSelectedInventorySlotIndex():
@@ -534,6 +534,7 @@ class WorldScreen:
                         self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
                     itemPreviewXPos += 50 + 5
                     continue
+                item = inventorySlot.getContents()[0]
                 image = item.getImage()
                 scaledImage = pygame.transform.scale(image, (50, 50))
                 self.graphik.gameDisplay.blit(scaledImage, (itemPreviewXPos, itemPreviewYPos))
@@ -543,7 +544,7 @@ class WorldScreen:
                     self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
                 
                 # draw item amount in bottom right corner of inventory slot
-                self.graphik.drawText(str(inventorySlot.getAmount()), itemPreviewXPos + itemPreviewWidth - 20, itemPreviewYPos + itemPreviewHeight - 20, 20, (255,255,255))
+                self.graphik.drawText(str(inventorySlot.getNumItems()), itemPreviewXPos + itemPreviewWidth - 20, itemPreviewYPos + itemPreviewHeight - 20, 20, (255,255,255))
                 
                 itemPreviewXPos += 50 + 5
         

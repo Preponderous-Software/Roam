@@ -1,31 +1,27 @@
 class InventorySlot:
     def __init__(self):
-        self.item = None
-        self.amount = 0
+        self.contents = []
     
-    def getItem(self):
-        return self.item
-
-    def setItem(self, item):
-        self.item = item
+    def getContents(self):
+        return self.contents
+    
+    def getNumItems(self):
+        return len(self.contents)
+    
+    def add(self, item):
+        self.contents.append(item)
+    
+    def remove(self, item):
+        self.contents.remove(item)
+    
+    def pop(self):
+        return self.contents.pop(0)
     
     def clear(self):
-        self.item = None
-        self.amount = 0
+        self.contents = []
     
-    def setAmount(self, amount):
-        self.amount = amount
-    
-    def getAmount(self):
-        return self.amount
-
-    def addAmount(self, amount):
-        self.amount += amount
-    
-    def subtractAmount(self, amount):
-        self.amount -= amount
-        if self.amount == 0:
-            self.clear()
+    def isEmpty(self):
+        return len(self.contents) == 0
     
     def getMaxStackSize(self):
         return 20
