@@ -311,8 +311,11 @@ class WorldScreen:
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
-            self.nextScreen = ScreenString.OPTIONS_SCREEN
-            self.changeScreen = True
+            if self.showInventory:
+                self.showInventory = False
+            else:
+                self.nextScreen = ScreenString.OPTIONS_SCREEN
+                self.changeScreen = True
         elif key == pygame.K_w or key == pygame.K_UP:
             self.player.setDirection(0)
             if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
