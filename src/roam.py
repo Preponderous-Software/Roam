@@ -13,13 +13,13 @@ from screen.worldScreen import WorldScreen
 # @author Daniel McCoy Stephenson
 # @since August 8th, 2022
 class Roam:
-    def __init__(self):
+    def __init__(self, config: Config):
         pygame.init()
         pygame.display.set_caption("Roam")
         # pygame.display.set_icon(pygame.image.load('src/media/icon.PNG'))
-        self.config = Config()
         self.running = True
         self.tick = 0
+        self.config = config
         self.gameDisplay = self.initializeGameDisplay()
         self.graphik = Graphik(self.gameDisplay)
         self.status = Status(self.graphik)
@@ -60,9 +60,11 @@ class Roam:
                 print("unrecognized screen: " + result)
                 self.quitApplication()
 
-roam = Roam()
+pygame.init()
+config = Config()
+roam = Roam(config)
 while True:
     result = roam.run()
     if result != "restart":
         break
-    roam = Roam()
+    roam = Roam(config)
