@@ -396,12 +396,12 @@ class WorldScreen:
         playerLocationId = self.player.getLocationID()
         playerLocation = self.currentRoom.getGrid().getLocation(playerLocationId)
         for inventorySlot in self.player.getInventory().getInventorySlots():
-            item = inventorySlot.getItem()
-            if item == None:
+            if inventorySlot.isEmpty():
                 continue
-            self.currentRoom.addEntityToLocation(item, playerLocation)
-            if isinstance(item, LivingEntity):
-                self.currentRoom.addLivingEntity(item)
+            for item in inventorySlot.getContents():
+                self.currentRoom.addEntityToLocation(item, playerLocation)
+                if isinstance(item, LivingEntity):
+                    self.currentRoom.addLivingEntity(item)
         self.player.getInventory().clear()
 
         self.currentRoom.removeEntity(self.player)
