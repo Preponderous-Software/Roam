@@ -547,6 +547,20 @@ class WorldScreen:
             self.player.setGathering(False)
         if not pygame.mouse.get_pressed()[2]:
             self.player.setPlacing(False)
+    
+    def handleMouseWheelEvent(self, event):
+        if event.y > 0:
+            currentSelectedItemIndex = self.player.getInventory().getSelectedItemIndex()
+            newSelectedItemIndex = currentSelectedItemIndex - 1
+            if newSelectedItemIndex < 0:
+                newSelectedItemIndex = 9
+            self.player.getInventory().setSelectedItemIndex(newSelectedItemIndex)
+        elif event.y < 0:
+            currentSelectedItemIndex = self.player.getInventory().getSelectedItemIndex()
+            newSelectedItemIndex = currentSelectedItemIndex + 1
+            if newSelectedItemIndex > 9:
+                newSelectedItemIndex = 0
+            self.player.getInventory().setSelectedItemIndex(newSelectedItemIndex)
 
     def run(self):
         while not self.changeScreen:
@@ -566,6 +580,8 @@ class WorldScreen:
                     self.handleMouseDownEvent()
                 elif event.type == pygame.MOUSEBUTTONUP:
                     self.handleMouseUpEvent()
+                elif event.type == pygame.MOUSEWHEEL:
+                    self.handleMouseWheelEvent(event)
             
             # move living entities
             self.currentRoom.moveLivingEntities()
