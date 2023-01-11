@@ -554,6 +554,10 @@ class WorldScreen:
         pygame.display.update()
 
     def handleMouseDownEvent(self):
+        if self.showInventory:
+            # disallow player to interact with the world while inventory is open
+            self.status.set("close inventory to interact with the world", self.tick)
+            return
         if pygame.mouse.get_pressed()[0]: # left click
             self.player.setGathering(True)
         elif pygame.mouse.get_pressed()[2]: # right click
