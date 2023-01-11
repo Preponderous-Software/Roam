@@ -1,9 +1,12 @@
 # @author Daniel McCoy Stephenson
 # @since August 6th, 2022
+import pygame
+
+
 class Config:
     def __init__(self):
-        self.displayWidth = 800
-        self.displayHeight = 800
+        self.displayWidth = pygame.display.Info().current_h * 0.90
+        self.displayHeight = pygame.display.Info().current_h * 0.90
         self.debug = False
         self.fullscreen = False
         self.black = (0,0,0)
