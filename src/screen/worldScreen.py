@@ -56,7 +56,7 @@ class WorldScreen:
     def updateStats(self):
         self.stats.setRoomsExplored(str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
         self.stats.setApplesEaten(str(self.numApplesEaten))
-        self.stats.setItemsInInventory(str(len(self.player.getInventory().getContents())))
+        self.stats.setItemsInInventory(str(self.player.getInventory().getNumTakenInventorySlots()))
         self.stats.setNumberOfDeaths(str(self.numDeaths))
         self.stats.setScore(str(self.score))
 
@@ -64,7 +64,7 @@ class WorldScreen:
         print("=== Stats ===")
         print("Rooms Explored: " + str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
         print("Apples eaten: " + str(self.numApplesEaten))
-        print("Items in inventory: " + str(len(self.player.getInventory().getContents())))
+        print("Items in inventory: " + str(self.player.getInventory().getNumTakenInventorySlots()))
         print("Number of deaths: " + str(self.numDeaths))
         print("")
         print("Score: " + str(self.score))
@@ -225,14 +225,14 @@ class WorldScreen:
         if toRemove == -1:
             return
             
-        result = self.player.getInventory().place(toRemove)
+        result = self.player.getInventory().placeIntoFirstAvailableInventorySlot(toRemove)
         if result == -1:
             self.status.set("inventory full", self.tick)
             return
         self.currentRoom.removeEntity(toRemove)
         if isinstance(toRemove, LivingEntity):
             self.currentRoom.removeLivingEntity(toRemove)
-        self.status.set("picked up '" + entity.getName() + "' (" + str(self.player.getInventory().getNumEntitiesByType(type(entity))) + ")", self.tick)
+        self.status.set("picked up '" + entity.getName() + "' (" + str(self.player.getInventory().getNumItemsByType(type(entity))) + ")", self.tick)
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
         self.player.setTickLastGathered(self.tick)
     
@@ -254,7 +254,7 @@ class WorldScreen:
         return False
     
     def executePlaceAction(self):
-        if self.player.getInventory().getNumEntities() == 0:
+        if self.player.getInventory().getNumTakenInventorySlots() == 0:
             self.status.set("no items", self.tick)
             return
 
@@ -285,7 +285,8 @@ class WorldScreen:
 
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
 
-        toPlace = self.player.getInventory().getSelectedItem()
+        inventorySlot = self.player.getInventory().getSelectedInventorySlot()
+        toPlace = inventorySlot.getItem()
         if toPlace == None:
             self.status.set("no item selected", self.tick)
             return
@@ -301,8 +302,9 @@ class WorldScreen:
         self.player.setTickLastPlaced(self.tick)
     
     def changeSelectedItem(self, index):
-        self.player.getInventory().setSelectedItemIndex(index)
-        item = self.player.getInventory().getSelectedItem()
+        self.player.getInventory().setSelectedInventorySlotIndex(index)
+        inventorySlot = self.player.getInventory().getSelectedInventorySlot()
+        item = inventorySlot.getItem()
         if item == None:
             self.status.set("no item selected", self.tick)
             return
@@ -387,7 +389,10 @@ class WorldScreen:
         # drop all items and clear inventory
         playerLocationId = self.player.getLocationID()
         playerLocation = self.currentRoom.getGrid().getLocation(playerLocationId)
-        for item in self.player.getInventory().getContents():
+        for inventorySlot in self.player.getInventory().getInventorySlots():
+            item = inventorySlot.getItem()
+            if item == None:
+                continue
             self.currentRoom.addEntityToLocation(item, playerLocation)
             if isinstance(item, LivingEntity):
                 self.currentRoom.addLivingEntity(item)
@@ -405,10 +410,11 @@ class WorldScreen:
         return tickToCheck + ticksPerSecond/self.player.getSpeed() < self.tick
     
     def eatFoodInInventory(self):
-        for item in self.player.getInventory().getContents():
+        for itemSlot in self.player.getInventory().getInventorySlots():
+            item = itemSlot.getItem()
             if isinstance(item, Food):
                 self.player.addEnergy(item.getEnergy())
-                self.player.getInventory().remove(item)
+                self.player.getInventory().removeByItem(item)
                 
                 if isinstance(item, Apple):
                     self.numApplesEaten += 1
@@ -452,32 +458,29 @@ class WorldScreen:
         row = 0
         column = 0
         margin = 5
-        for item in self.player.getInventory().getContents():
+        for inventorySlot in self.player.getInventory().getInventorySlots():
+            item = inventorySlot.getItem()
             itemX = backgroundX + column*backgroundWidth/itemsPerRow + margin
             itemY = backgroundY + row*backgroundHeight/itemsPerRow + margin
             itemWidth = backgroundWidth/itemsPerRow - 2*margin
             itemHeight = backgroundHeight/itemsPerRow - 2*margin
+
+            if item == None:
+                self.graphik.drawRectangle(itemX, itemY, itemWidth, itemHeight, (255,255,255))
+                column += 1
+                if column == itemsPerRow:
+                    column = 0
+                    row += 1
+                continue
             
             image = item.getImage()
             scaledImage = pygame.transform.scale(image, (itemWidth, itemHeight))
             self.graphik.gameDisplay.blit(scaledImage, (itemX, itemY))
             
-            if column == self.player.getInventory().getSelectedItemIndex() and row == 0:
+            if column == self.player.getInventory().getSelectedInventorySlotIndex() and row == 0:
                 # draw yellow square in the middle of the selected item
                 self.graphik.drawRectangle(itemX + itemWidth/2 - 5, itemY + itemHeight/2 - 5, 10, 10, (255,255,0))
             
-            column += 1
-            if column == itemsPerRow:
-                column = 0
-                row += 1
-        
-        # draw white squares for rest of inventory slots
-        while row < itemsPerRow:
-            itemX = backgroundX + column*backgroundWidth/itemsPerRow + margin
-            itemY = backgroundY + row*backgroundHeight/itemsPerRow + margin
-            itemWidth = backgroundWidth/itemsPerRow - 2*margin
-            itemHeight = backgroundHeight/itemsPerRow - 2*margin
-            self.graphik.drawRectangle(itemX, itemY, itemWidth, itemHeight, (255,255,255))
             column += 1
             if column == itemsPerRow:
                 column = 0
@@ -513,22 +516,23 @@ class WorldScreen:
             self.graphik.drawRectangle(barXPos, barYPos, barWidth, barHeight, (0,0,0))                 
             
             # draw first 10 items in player inventory in bottom center
-            firstTenItems = self.player.getInventory().getFirstTenItems()
-            for i in range(len(firstTenItems)):
-                item = firstTenItems[i]
+            firstTenInventorySlots = self.player.getInventory().getFirstTenInventorySlots()
+            for i in range(len(firstTenInventorySlots)):
+                inventorySlot = firstTenInventorySlots[i]
+                item = inventorySlot.getItem()
+                if item == None:
+                    # draw white square if item slot is empty
+                    self.graphik.drawRectangle(itemPreviewXPos, itemPreviewYPos, itemPreviewWidth, itemPreviewHeight, (255,255,255))
+                    itemPreviewXPos += 50 + 5
+                    continue
                 image = item.getImage()
                 scaledImage = pygame.transform.scale(image, (50, 50))
                 self.graphik.gameDisplay.blit(scaledImage, (itemPreviewXPos, itemPreviewYPos))
                 
-                if i == self.player.getInventory().getSelectedItemIndex():
+                if i == self.player.getInventory().getSelectedInventorySlotIndex():
                     # draw yellow square in the middle of the selected item
                     self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
                     
-                itemPreviewXPos += 50 + 5
-            
-            # draw white squares for rest of hot bar slots
-            for i in range(10 - len(firstTenItems)):
-                self.graphik.drawRectangle(itemPreviewXPos, itemPreviewYPos, itemPreviewWidth, itemPreviewHeight, (255,255,255))
                 itemPreviewXPos += 50 + 5
         
         # display tick count in top right corner
@@ -550,17 +554,17 @@ class WorldScreen:
     
     def handleMouseWheelEvent(self, event):
         if event.y > 0:
-            currentSelectedItemIndex = self.player.getInventory().getSelectedItemIndex()
-            newSelectedItemIndex = currentSelectedItemIndex - 1
-            if newSelectedItemIndex < 0:
-                newSelectedItemIndex = 9
-            self.player.getInventory().setSelectedItemIndex(newSelectedItemIndex)
+            currentSelectedInventorySlotIndex = self.player.getInventory().getSelectedInventorySlotIndex()
+            newSelectedInventorySlotIndex = currentSelectedInventorySlotIndex - 1
+            if newSelectedInventorySlotIndex < 0:
+                newSelectedInventorySlotIndex = 9
+            self.player.getInventory().setSelectedInventorySlotIndex(newSelectedInventorySlotIndex)
         elif event.y < 0:
-            currentSelectedItemIndex = self.player.getInventory().getSelectedItemIndex()
-            newSelectedItemIndex = currentSelectedItemIndex + 1
-            if newSelectedItemIndex > 9:
-                newSelectedItemIndex = 0
-            self.player.getInventory().setSelectedItemIndex(newSelectedItemIndex)
+            currentSelectedInventorySlotIndex = self.player.getInventory().getSelectedInventorySlotIndex()
+            newSelectedInventorySlotIndex = currentSelectedInventorySlotIndex + 1
+            if newSelectedInventorySlotIndex > 9:
+                newSelectedInventorySlotIndex = 0
+            self.player.getInventory().setSelectedInventorySlotIndex(newSelectedInventorySlotIndex)
 
     def run(self):
         while not self.changeScreen:

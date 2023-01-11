@@ -1,80 +1,78 @@
 # @author Daniel McCoy Stephenson
+from inventory.inventorySlot import InventorySlot
+
+
 class Inventory:
     def __init__(self):
-        self.contents = []
+        self.inventorySlots = []
         self.size = 100
-        self.selectedItemIndex = 0
-        
-    def getContents(self):
-        return self.contents
+        for i in range(self.size):
+            self.inventorySlots.append(InventorySlot())
+        self.selectedInventorySlotIndex = 0
     
-    def getSize(self):
-        return self.size
+    def getInventorySlots(self):
+        return self.inventorySlots
     
-    def place(self, item):
-        if len(self.contents) < self.size:
-            self.contents.append(item)
-        else:
-            return -1
+    def getNumInventorySlots(self):
+        return len(self.inventorySlots)
     
-    def remove(self, item):            
-        # if item is selected
-        if self.selectedItemIndex != None and self.selectedItemIndex < len(self.contents):
-            if self.contents[self.selectedItemIndex] == item:
-                self.selectedItemIndex = 0
-        self.contents.remove(item)
+    def placeIntoFirstAvailableInventorySlot(self, item):
+        for inventorySlot in self.inventorySlots:
+            if inventorySlot.getItem() == None:
+                inventorySlot.setItem(item)
+                return True
+        return False
+    
+    def removeByItem(self, item):
+        for inventorySlot in self.inventorySlots:
+            if inventorySlot.getItem() == item:
+                inventorySlot.setItem(None)
+                return True
+        return False
     
     def clear(self):
-        self.contents = []
-    
-    def getNumEntities(self):
-        return len(self.contents)
-    
-    def getNumEntitiesByType(self, entityType):
+        for inventorySlot in self.inventorySlots:
+            inventorySlot.setItem(None)
+            
+    def getNumFreeInventorySlots(self):
         count = 0
-        for entity in self.contents:
-            if isinstance(entity, entityType):
+        for inventorySlot in self.inventorySlots:
+            if inventorySlot.getItem() == None:
                 count += 1
         return count
-
-    def getSelectedItemIndex(self):
-        return self.selectedItemIndex
-
-    def setSelectedItemIndex(self, index):
-        self.selectedItemIndex = index
+    
+    def getNumTakenInventorySlots(self):
+        count = 0
+        for inventorySlot in self.inventorySlots:
+            if inventorySlot.getItem() != None:
+                count += 1
+        return count
+    
+    def getNumItemsByType(self, type):
+        count = 0
+        for inventorySlot in self.inventorySlots:
+            item = inventorySlot.getItem()
+            if isinstance(item, type):
+                count += 1
+        return count
+    
+    def getSelectedInventorySlotIndex(self):
+        return self.selectedInventorySlotIndex
+    
+    def setSelectedInventorySlotIndex(self, index):
+        self.selectedInventorySlotIndex = index
             
     def getItemByIndex(self, index):
-        if index < len(self.contents):
-            return self.contents[index]
-        else:
-            return None
+        return self.inventorySlots[index].getItem()
     
-    def getSelectedItem(self):
-        if self.selectedItemIndex == None:
-            return None
-        else:
-            if self.selectedItemIndex > len(self.contents) - 1:
-                self.selectedItemIndex = None
-                return None
-            
-            return self.contents[self.selectedItemIndex]
+    def getSelectedInventorySlot(self):
+        return self.inventorySlots[self.selectedInventorySlotIndex]
     
     def removeSelectedItem(self):
-        if self.selectedItemIndex != None:
-            self.contents.pop(self.selectedItemIndex)
-            if len(self.contents) == 0:
-                self.selectedItemIndex = None
-            else:
-                self.selectedItemIndex = self.selectedItemIndex % 10
-    
-    def getFirstTenItems(self):
-        if len(self.contents) > 10:
-            return self.contents[:10]
-        else:
-            return self.contents
+        self.inventorySlots[self.selectedInventorySlotIndex].setItem(None)
         
-    def getLastTenItems(self):
-        if len(self.contents) > 10:
-            return self.contents[-10:]
+    def getFirstTenInventorySlots(self):
+        if len(self.inventorySlots) > 10:
+            return self.inventorySlots[:10]
         else:
-            return self.contents
+            return self.inventorySlots
