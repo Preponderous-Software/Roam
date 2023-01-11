@@ -342,6 +342,10 @@ class WorldScreen:
             self.player.setCrouching(True)
         elif key == pygame.K_i:
             self.showInventory = not self.showInventory
+            if self.player.isGathering():
+                self.player.setGathering(False)
+            if self.player.isPlacing():
+                self.player.setPlacing(False)
         elif key == pygame.K_1:
             self.changeSelectedInventorySlot(0)
         elif key == pygame.K_2:
