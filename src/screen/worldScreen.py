@@ -226,8 +226,8 @@ class WorldScreen:
             return
             
         result = self.player.getInventory().placeIntoFirstAvailableInventorySlot(toRemove)
-        if result == -1:
-            self.status.set("inventory full", self.tick)
+        if result == False:
+            self.status.set("no available inventory slots", self.tick)
             return
         self.currentRoom.removeEntity(toRemove)
         if isinstance(toRemove, LivingEntity):
@@ -454,7 +454,7 @@ class WorldScreen:
         self.graphik.drawRectangle(backgroundX, backgroundY, backgroundWidth, backgroundHeight, (0,0,0))
             
         # draw contents inside inventory background
-        itemsPerRow = 10
+        itemsPerRow = 5
         row = 0
         column = 0
         margin = 5
@@ -483,6 +483,9 @@ class WorldScreen:
             if column == self.player.getInventory().getSelectedInventorySlotIndex() and row == 0:
                 # draw yellow square in the middle of the selected inventory slot
                 self.graphik.drawRectangle(itemX + itemWidth/2 - 5, itemY + itemHeight/2 - 5, 10, 10, (255,255,0))
+            
+            # draw item amount in bottom right corner of inventory slot
+            self.graphik.drawText(str(inventorySlot.getAmount()), itemX + itemWidth - 20, itemY + itemHeight - 20, 20, (255,255,255))
             
             column += 1
             if column == itemsPerRow:
@@ -538,7 +541,10 @@ class WorldScreen:
                 if i == self.player.getInventory().getSelectedInventorySlotIndex():
                     # draw yellow square in the middle of the selected inventory slot
                     self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
-                    
+                
+                # draw item amount in bottom right corner of inventory slot
+                self.graphik.drawText(str(inventorySlot.getAmount()), itemPreviewXPos + itemPreviewWidth - 20, itemPreviewYPos + itemPreviewHeight - 20, 20, (255,255,255))
+                
                 itemPreviewXPos += 50 + 5
         
         # display tick count in top right corner
