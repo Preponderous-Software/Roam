@@ -1,6 +1,8 @@
 import pygame
 from config.config import Config
+from entity.player import Player
 from lib.graphik.src.graphik import Graphik
+from screen.inventoryScreen import InventoryScreen
 from screen.mainMenuScreen import MainMenuScreen
 from screen.optionsScreen import OptionsScreen
 from screen.screens import ScreenString
@@ -24,10 +26,12 @@ class Roam:
         self.graphik = Graphik(self.gameDisplay)
         self.status = Status(self.graphik)
         self.stats = Stats()
-        self.worldScreen = WorldScreen(self.graphik, self.config, self.status, self.tick, self.stats)
+        self.player = Player()
+        self.worldScreen = WorldScreen(self.graphik, self.config, self.status, self.tick, self.stats, self.player)
         self.optionsScreen = OptionsScreen(self.graphik, self.config, self.status)
         self.mainMenuScreen = MainMenuScreen(self.graphik, self.config, self.initializeWorldScreen)
         self.statsScreen = StatsScreen(self.graphik, self.config, self.status, self.stats)
+        self.inventoryScreen = InventoryScreen(self.graphik, self.config, self.status, self.player.getInventory())
         self.currentScreen = self.mainMenuScreen
 
     def initializeGameDisplay(self):
@@ -54,6 +58,8 @@ class Roam:
                 self.currentScreen = self.optionsScreen
             elif result == ScreenString.STATS_SCREEN:
                 self.currentScreen = self.statsScreen
+            elif result == ScreenString.INVENTORY_SCREEN:
+                self.currentScreen = self.inventoryScreen
             elif result == ScreenString.NONE:
                 self.quitApplication()
             else:
