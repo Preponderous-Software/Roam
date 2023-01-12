@@ -2,6 +2,7 @@ import pygame
 from config.config import Config
 
 from lib.graphik.src.graphik import Graphik
+from screen.screens import ScreenString
 
 class MainMenuScreen:
     def __init__(self, graphik: Graphik, config: Config, initializeWorldScreen):
@@ -9,25 +10,16 @@ class MainMenuScreen:
         self.config = config
         self.running = True
         self.initializeWorldScreen = initializeWorldScreen
+        self.nextScreen = ScreenString.WORLD_SCREEN
+        self.changeScreen = False
         
-    def stop(self):
-        self.running = False
+    def switchToWorldScreen(self):
+        self.nextScreen = ScreenString.WORLD_SCREEN
+        self.changeScreen = True
 
     def quitApplication(self):
         pygame.quit()
         quit()
-    
-    def setGridSizeToSmall(self):
-        self.config.gridSize = self.config.smallGridSize
-        self.stop()
-
-    def setGridSizeToMedium(self):
-        self.config.gridSize = self.config.mediumGridSize
-        self.stop()
-
-    def setGridSizeToLarge(self):
-        self.config.gridSize = self.config.largeGridSize
-        self.stop()
     
     def drawText(self):
         x, y = self.graphik.getGameDisplay().get_size()
@@ -35,34 +27,16 @@ class MainMenuScreen:
         ypos = y/10
         self.graphik.drawText("Roam", xpos, ypos, 64, (255, 255, 255))
         ypos = y/3
-        self.graphik.drawText("choose your grid size!", xpos, ypos, 32, (255, 255, 255))
+        self.graphik.drawText("press any key to start!", xpos, ypos, 32, (255, 255, 255))
 
-    def drawSmallButton(self):
-        x, y = self.graphik.getGameDisplay().get_size()
-        width = x/5
-        height = y/10
-        xpos = x/2 - width/2 - width*1.5
-        ypos = y/2 - height/2
-        backgroundColor = (255, 255, 255)
-        self.graphik.drawButton(xpos, ypos, width, height, backgroundColor, (0,0,0), 30, "small", self.setGridSizeToSmall)
-
-    def drawMediumButton(self):
+    def drawPlayButton(self):
         x, y = self.graphik.getGameDisplay().get_size()
         width = x/5
         height = y/10
         xpos = x/2 - width/2
         ypos = y/2 - height/2
         backgroundColor = (255, 255, 255)
-        self.graphik.drawButton(xpos, ypos, width, height, backgroundColor, (0,0,0), 30, "medium", self.setGridSizeToMedium)
-    
-    def drawLargeButton(self):
-        x, y = self.graphik.getGameDisplay().get_size()
-        width = x/5
-        height = y/10
-        xpos = x/2 - width/2 + width*1.5
-        ypos = y/2 - height/2
-        backgroundColor = (255, 255, 255)
-        self.graphik.drawButton(xpos, ypos, width, height, backgroundColor, (0,0,0), 30, "large", self.setGridSizeToLarge)
+        self.graphik.drawButton(xpos, ypos, width, height, backgroundColor, (0,0,0), 30, "play", self.switchToWorldScreen)
 
     def drawQuitButton(self):
         x, y = self.graphik.getGameDisplay().get_size()
@@ -73,28 +47,22 @@ class MainMenuScreen:
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), (0,0,0), 30, "quit", self.quitApplication)
 
     def handleKeyDownEvent(self, key):
-        if key == pygame.K_1:
-            self.setGridSizeToSmall()
-        elif key == pygame.K_2:
-            self.setGridSizeToMedium()
-        elif key == pygame.K_3:
-            self.setGridSizeToLarge()
+        self.switchToWorldScreen()
 
     def run(self):
-        self.running = True
-        while self.running:
+        while not self.changeScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return "exit"
+                    self.nextScreen = ScreenString.NONE
+                    self.changeScreen = True
                 elif event.type == pygame.KEYDOWN:
                     self.handleKeyDownEvent(event.key)
             
             self.graphik.getGameDisplay().fill((0, 0, 0))
             self.drawText()
-            self.drawSmallButton()
-            self.drawMediumButton()
-            self.drawLargeButton()
+            self.drawPlayButton()
             self.drawQuitButton()
             pygame.display.update()
         self.initializeWorldScreen()
-        return "world"
+        self.changeScreen = False
+        return ScreenString.WORLD_SCREEN

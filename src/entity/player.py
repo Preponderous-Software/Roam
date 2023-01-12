@@ -14,7 +14,7 @@ class Player(LivingEntity):
         self.gathering = False
         self.placing = False
         self.tickLastMoved = -1
-        self.speed = 15
+        self.speed = 30
         self.crouching = False
         self.tickLastGathered = -1
         self.tickLastPlaced = -1
@@ -80,12 +80,6 @@ class Player(LivingEntity):
     
     def isMoving(self):
         return self.direction != -1
-    
-    def cycleInventoryRight(self):
-        self.inventory.cycleRight()
-    
-    def cycleInventoryLeft(self):
-        self.inventory.cycleLeft()
     
     def isSolid(self):
         return self.solid

@@ -7,13 +7,14 @@ from config.config import Config
 from entity.bear import Bear
 from entity.chicken import Chicken
 from entity.livingEntity import LivingEntity
+from screen.screens import ScreenString
+from stats.stats import Stats
 from ui.energyBar import EnergyBar
 from entity.food import Food
 from lib.graphik.src.graphik import Graphik
 from entity.grass import Grass
 from lib.pyenvlib.grid import Grid
 from entity.rock import Rock
-from ui.selectedItemPreview import SelectedItemPreview
 from entity.leaves import Leaves
 from lib.pyenvlib.location import Location
 from world.map import Map
@@ -24,37 +25,46 @@ from entity.wood import Wood
 # @author Daniel McCoy Stephenson
 # @since August 16th, 2022
 class WorldScreen:
-    def __init__(self, graphik: Graphik, config: Config, status: Status, tick: int):
+    def __init__(self, graphik: Graphik, config: Config, status: Status, tick: int, stats: Stats, player: Player):
         self.graphik = graphik
         self.config = config
         self.status = status
         self.tick = tick
+        self.stats = stats
+        self.player = player
         self.running = True
         self.showInventory = False
+        self.nextScreen = ScreenString.OPTIONS_SCREEN
+        self.changeScreen = False
     
     def initialize(self):
         self.map = Map(self.config.gridSize, self.graphik)
         self.currentRoom = self.map.getSpawnRoom()
         self.initializeLocationWidthAndHeight()
-        self.player = Player()
         self.currentRoom.addEntity(self.player)
         self.status.set("entered the world", self.tick)
         self.score = 0
         self.numApplesEaten = 0
         self.numDeaths = 0
         self.energyBar = EnergyBar(self.graphik, self.player)
-        self.selectedItemPreview = SelectedItemPreview(self.graphik, self.player.getInventory())
 
     def initializeLocationWidthAndHeight(self):
         x, y = self.graphik.getGameDisplay().get_size()
         self.locationWidth = x/self.currentRoom.getGrid().getRows()
         self.locationHeight = y/self.currentRoom.getGrid().getColumns()
+        
+    def updateStats(self):
+        self.stats.setRoomsExplored(str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
+        self.stats.setApplesEaten(str(self.numApplesEaten))
+        self.stats.setItemsInInventory(str(self.player.getInventory().getNumItems()))
+        self.stats.setNumberOfDeaths(str(self.numDeaths))
+        self.stats.setScore(str(self.score))
 
-    def printStats(self):
+    def printStatsToConsole(self):
         print("=== Stats ===")
         print("Rooms Explored: " + str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
         print("Apples eaten: " + str(self.numApplesEaten))
-        print("Items in inventory: " + str(len(self.player.getInventory().getContents())))
+        print("Items in inventory: " + str(self.player.getInventory().getNumTakenInventorySlots()))
         print("Number of deaths: " + str(self.numDeaths))
         print("")
         print("Score: " + str(self.score))
@@ -159,13 +169,15 @@ class WorldScreen:
                 entity = newLocation.getEntity(entityId)
                 if isinstance(entity, Food):
                     newLocation.removeEntity(entity)
-                    scoreIncrease = 1 * len(self.map.getRooms())
-                    self.score += scoreIncrease
                     self.player.addEnergy(entity.getEnergy())
                     
                     if isinstance(entity, Apple):
                         self.numApplesEaten += 1
-                        self.status.set("ate '" + entity.getName() + "'", self.tick)
+    
+                    self.status.set("ate '" + entity.getName() + "'", self.tick)
+                    
+                    scoreIncrease = int(self.tick * int(self.stats.applesEaten) * 0.10)
+                    self.score += scoreIncrease
 
         # move player
         location.removeEntity(self.player)
@@ -213,14 +225,14 @@ class WorldScreen:
         if toRemove == -1:
             return
             
-        result = self.player.getInventory().place(toRemove)
-        if result == -1:
-            self.status.set("inventory full", self.tick)
+        result = self.player.getInventory().placeIntoFirstAvailableInventorySlot(toRemove)
+        if result == False:
+            self.status.set("no available inventory slots", self.tick)
             return
         self.currentRoom.removeEntity(toRemove)
         if isinstance(toRemove, LivingEntity):
             self.currentRoom.removeLivingEntity(toRemove)
-        self.status.set("picked up '" + entity.getName() + "' (" + str(self.player.getInventory().getNumEntitiesByType(type(entity))) + ")", self.tick)
+        self.status.set("picked up '" + entity.getName() + "' (" + str(self.player.getInventory().getNumItemsByType(type(entity))) + ")", self.tick)
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
         self.player.setTickLastGathered(self.tick)
     
@@ -242,7 +254,7 @@ class WorldScreen:
         return False
     
     def executePlaceAction(self):
-        if self.player.getInventory().getNumEntities() == 0:
+        if self.player.getInventory().getNumTakenInventorySlots() == 0:
             self.status.set("no items", self.tick)
             return
 
@@ -273,11 +285,11 @@ class WorldScreen:
 
         self.player.removeEnergy(self.config.playerInteractionEnergyCost)
 
-        toPlace = self.player.getInventory().getSelectedItem()
-        if toPlace == None:
+        inventorySlot = self.player.getInventory().getSelectedInventorySlot()
+        if inventorySlot.isEmpty():
             self.status.set("no item selected", self.tick)
             return
-        self.player.getInventory().removeSelectedItem()
+        toPlace =  self.player.getInventory().removeSelectedItem()
 
         if toPlace == -1:
             return
@@ -288,47 +300,35 @@ class WorldScreen:
         self.status.set("placed '" + toPlace.getName() + "'", self.tick)
         self.player.setTickLastPlaced(self.tick)
     
-    def cyclePlayerInventoryRight(self):
-        # if inventory empty return
-        if len(self.player.getInventory().getContents()) == 0:
-            self.status.set("inventory empty", self.tick)
-            return
-            
-        self.player.cycleInventoryRight()
-        selectedItem = self.player.getInventory().getSelectedItem()
-        if selectedItem == None:
+    def changeSelectedInventorySlot(self, index):
+        self.player.getInventory().setSelectedInventorySlotIndex(index)
+        inventorySlot = self.player.getInventory().getSelectedInventorySlot()
+        if inventorySlot.isEmpty():
             self.status.set("no item selected", self.tick)
-        else:
-            self.status.set("selected item: " + selectedItem.getName(), self.tick)
-    
-    def cyclePlayerInventoryLeft(self):
-        # if inventory empty return
-        if len(self.player.getInventory().getContents()) == 0:
-            self.status.set("inventory empty", self.tick)
             return
-
-        self.player.cycleInventoryLeft()
-        selectedItem = self.player.getInventory().getSelectedItem()
-        if selectedItem == None:
-            self.status.set("no item selected", self.tick)
-        else:
-            self.status.set("selected item: " + selectedItem.getName(), self.tick)
+        item = inventorySlot.getContents()[0]
+        self.status.set("selected '" + item.getName() + "'", self.tick)
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
-            return "options"
+            self.nextScreen = ScreenString.OPTIONS_SCREEN
+            self.changeScreen = True
         elif key == pygame.K_w or key == pygame.K_UP:
             self.player.setDirection(0)
+            if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
+                self.movePlayer(self.player.direction)
         elif key == pygame.K_a or key == pygame.K_LEFT:
             self.player.setDirection(1)
+            if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
+                self.movePlayer(self.player.direction)
         elif key == pygame.K_s or key == pygame.K_DOWN:
             self.player.setDirection(2)
+            if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
+                self.movePlayer(self.player.direction)
         elif key == pygame.K_d or key == pygame.K_RIGHT:
             self.player.setDirection(3)
-        elif key == pygame.K_e:
-            self.cyclePlayerInventoryRight()
-        elif key == pygame.K_q:
-            self.cyclePlayerInventoryLeft()
+            if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
+                self.movePlayer(self.player.direction)
         elif key == pygame.K_PRINTSCREEN:
             x, y = self.graphik.getGameDisplay().get_size()
             self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
@@ -338,7 +338,31 @@ class WorldScreen:
         elif key == pygame.K_LCTRL:
             self.player.setCrouching(True)
         elif key == pygame.K_i:
-            self.showInventory = not self.showInventory
+            self.switchToInventoryScreen()
+            if self.player.isGathering():
+                self.player.setGathering(False)
+            if self.player.isPlacing():
+                self.player.setPlacing(False)
+        elif key == pygame.K_1:
+            self.changeSelectedInventorySlot(0)
+        elif key == pygame.K_2:
+            self.changeSelectedInventorySlot(1)
+        elif key == pygame.K_3:
+            self.changeSelectedInventorySlot(2)
+        elif key == pygame.K_4:
+            self.changeSelectedInventorySlot(3)
+        elif key == pygame.K_5:
+            self.changeSelectedInventorySlot(4)
+        elif key == pygame.K_6:
+            self.changeSelectedInventorySlot(5)
+        elif key == pygame.K_7:
+            self.changeSelectedInventorySlot(6)
+        elif key == pygame.K_8:
+            self.changeSelectedInventorySlot(7)
+        elif key == pygame.K_9:
+            self.changeSelectedInventorySlot(8)
+        elif key == pygame.K_0:
+            self.changeSelectedInventorySlot(9)
 
     def handleKeyUpEvent(self, key):
         if (key == pygame.K_w or key == pygame.K_UP) and self.player.getDirection() == 0:
@@ -368,10 +392,13 @@ class WorldScreen:
         # drop all items and clear inventory
         playerLocationId = self.player.getLocationID()
         playerLocation = self.currentRoom.getGrid().getLocation(playerLocationId)
-        for item in self.player.getInventory().getContents():
-            self.currentRoom.addEntityToLocation(item, playerLocation)
-            if isinstance(item, LivingEntity):
-                self.currentRoom.addLivingEntity(item)
+        for inventorySlot in self.player.getInventory().getInventorySlots():
+            if inventorySlot.isEmpty():
+                continue
+            for item in inventorySlot.getContents():
+                self.currentRoom.addEntityToLocation(item, playerLocation)
+                if isinstance(item, LivingEntity):
+                    self.currentRoom.addLivingEntity(item)
         self.player.getInventory().clear()
 
         self.currentRoom.removeEntity(self.player)
@@ -386,11 +413,20 @@ class WorldScreen:
         return tickToCheck + ticksPerSecond/self.player.getSpeed() < self.tick
     
     def eatFoodInInventory(self):
-        for item in self.player.getInventory().getContents():
+        for itemSlot in self.player.getInventory().getInventorySlots():
+            if itemSlot.isEmpty():
+                continue
+            item = itemSlot.getContents()[0]
             if isinstance(item, Food):
                 self.player.addEnergy(item.getEnergy())
-                self.player.getInventory().remove(item)
+                self.player.getInventory().removeByItem(item)
+                
+                if isinstance(item, Apple):
+                    self.numApplesEaten += 1
                 self.status.set("ate " + item.getName() + " from inventory", self.tick)
+                
+                scoreIncrease = int(self.tick * int(self.stats.applesEaten) * 0.10)
+                self.score += scoreIncrease
                 return
     
     def handlePlayerActions(self):
@@ -414,52 +450,69 @@ class WorldScreen:
             self.score = ceil(self.score * 0.9)
             self.numDeaths += 1
     
-    def drawPlayerInventory(self):
-        # draw inventory background that is 50% size of screen and centered
-        backgroundX = self.graphik.getGameDisplay().get_width()/4
-        backgroundY = self.graphik.getGameDisplay().get_height()/4
-        backgroundWidth = self.graphik.getGameDisplay().get_width()/2
-        backgroundHeight = self.graphik.getGameDisplay().get_height()/2
-        self.graphik.drawRectangle(backgroundX, backgroundY, backgroundWidth, backgroundHeight, (0,0,0))
-            
-        # draw contents inside inventory background
-        itemsPerRow = 10
-        row = 0
-        column = 0
-        margin = 5
-        for item in self.player.getInventory().getContents():
-            itemX = backgroundX + column*backgroundWidth/itemsPerRow + margin
-            itemY = backgroundY + row*backgroundHeight/itemsPerRow + margin
-            itemWidth = backgroundWidth/itemsPerRow - 2*margin
-            itemHeight = backgroundHeight/itemsPerRow - 2*margin
-            
-            image = item.getImage()
-            scaledImage = pygame.transform.scale(image, (itemWidth, itemHeight))
-            self.graphik.gameDisplay.blit(scaledImage, (itemX, itemY))
-            
-            column += 1
-            if column == itemsPerRow:
-                column = 0
-                row += 1
-        
-        # draw '(press I to close)' text below inventory
-        self.graphik.drawText("(press I to close)", backgroundX, backgroundY + backgroundHeight + 20, 20, (255,255,255))
+    def switchToInventoryScreen(self):
+        self.nextScreen = ScreenString.INVENTORY_SCREEN
+        self.changeScreen = True
 
     def draw(self):
         self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
         self.currentRoom.draw(self.locationWidth, self.locationHeight)
         self.status.draw()
         self.energyBar.draw()
-        self.selectedItemPreview.draw()
 
         # draw room coordinates in top left corner
         coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY()) + ")"
         self.graphik.drawText(coordinatesText, 30, 20, 20, (255,255,255))
+          
+        itemPreviewXPos = self.graphik.getGameDisplay().get_width()/2 - 50*5 - 50/2
+        itemPreviewYPos = self.graphik.getGameDisplay().get_height() - 50*3
+        itemPreviewWidth = 50
+        itemPreviewHeight = 50
         
-        if self.showInventory:
-            self.drawPlayerInventory()
+        barXPos = itemPreviewXPos - 5
+        barYPos = itemPreviewYPos - 5
+        barWidth = itemPreviewWidth*11 + 5
+        barHeight = itemPreviewHeight + 10
+        
+        # draw rectangle slightly bigger than item images
+        self.graphik.drawRectangle(barXPos, barYPos, barWidth, barHeight, (0,0,0))                 
+        
+        # draw first 10 items in player inventory in bottom center
+        firstTenInventorySlots = self.player.getInventory().getFirstTenInventorySlots()
+        for i in range(len(firstTenInventorySlots)):
+            inventorySlot = firstTenInventorySlots[i]
+            if inventorySlot.isEmpty():
+                # draw white square if item slot is empty
+                self.graphik.drawRectangle(itemPreviewXPos, itemPreviewYPos, itemPreviewWidth, itemPreviewHeight, (255,255,255))
+                if i == self.player.getInventory().getSelectedInventorySlotIndex():
+                    # draw yellow square in the middle of the selected inventory slot
+                    self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
+                itemPreviewXPos += 50 + 5
+                continue
+            item = inventorySlot.getContents()[0]
+            image = item.getImage()
+            scaledImage = pygame.transform.scale(image, (50, 50))
+            self.graphik.gameDisplay.blit(scaledImage, (itemPreviewXPos, itemPreviewYPos))
+            
+            if i == self.player.getInventory().getSelectedInventorySlotIndex():
+                # draw yellow square in the middle of the selected inventory slot
+                self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
+            
+            # draw item amount in bottom right corner of inventory slot
+            self.graphik.drawText(str(inventorySlot.getNumItems()), itemPreviewXPos + itemPreviewWidth - 20, itemPreviewYPos + itemPreviewHeight - 20, 20, (255,255,255))
+            
+            itemPreviewXPos += 50 + 5
+        
+        # display tick count in top right corner
+        self.graphik.drawText("tick: " + str(self.tick), self.graphik.getGameDisplay().get_width() - 100, 20, 20, (255,255,255))
+        
+        pygame.display.update()
 
     def handleMouseDownEvent(self):
+        if self.showInventory:
+            # disallow player to interact with the world while inventory is open
+            self.status.set("close inventory to interact with the world", self.tick)
+            return
         if pygame.mouse.get_pressed()[0]: # left click
             self.player.setGathering(True)
         elif pygame.mouse.get_pressed()[2]: # right click
@@ -470,17 +523,29 @@ class WorldScreen:
             self.player.setGathering(False)
         if not pygame.mouse.get_pressed()[2]:
             self.player.setPlacing(False)
+    
+    def handleMouseWheelEvent(self, event):
+        if event.y > 0:
+            currentSelectedInventorySlotIndex = self.player.getInventory().getSelectedInventorySlotIndex()
+            newSelectedInventorySlotIndex = currentSelectedInventorySlotIndex - 1
+            if newSelectedInventorySlotIndex < 0:
+                newSelectedInventorySlotIndex = 9
+            self.player.getInventory().setSelectedInventorySlotIndex(newSelectedInventorySlotIndex)
+        elif event.y < 0:
+            currentSelectedInventorySlotIndex = self.player.getInventory().getSelectedInventorySlotIndex()
+            newSelectedInventorySlotIndex = currentSelectedInventorySlotIndex + 1
+            if newSelectedInventorySlotIndex > 9:
+                newSelectedInventorySlotIndex = 0
+            self.player.getInventory().setSelectedInventorySlotIndex(newSelectedInventorySlotIndex)
 
     def run(self):
-        while self.running:
+        while not self.changeScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.printStats()
-                    return "exit"
+                    self.printStatsToConsole()
+                    return ScreenString.NONE
                 elif event.type == pygame.KEYDOWN:
-                    result = self.handleKeyDownEvent(event.key)
-                    if result == "options":
-                        return "options"
+                    self.handleKeyDownEvent(event.key)
                 elif event.type == pygame.KEYUP:
                     self.handleKeyUpEvent(event.key)
                 elif event.type == pygame.WINDOWRESIZED:
@@ -491,6 +556,8 @@ class WorldScreen:
                     self.handleMouseDownEvent()
                 elif event.type == pygame.MOUSEBUTTONUP:
                     self.handleMouseUpEvent()
+                elif event.type == pygame.MOUSEWHEEL:
+                    self.handleMouseWheelEvent(event)
             
             # move living entities
             self.currentRoom.moveLivingEntities()
@@ -509,5 +576,6 @@ class WorldScreen:
                 time.sleep(3)
                 self.respawnPlayer()
         
-        self.printStats()
-        return
+        self.updateStats()
+        self.changeScreen = False
+        return self.nextScreen
