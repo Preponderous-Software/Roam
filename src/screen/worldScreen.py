@@ -25,12 +25,13 @@ from entity.wood import Wood
 # @author Daniel McCoy Stephenson
 # @since August 16th, 2022
 class WorldScreen:
-    def __init__(self, graphik: Graphik, config: Config, status: Status, tick: int, stats: Stats):
+    def __init__(self, graphik: Graphik, config: Config, status: Status, tick: int, stats: Stats, player: Player):
         self.graphik = graphik
         self.config = config
         self.status = status
         self.tick = tick
         self.stats = stats
+        self.player = player
         self.running = True
         self.showInventory = False
         self.nextScreen = ScreenString.OPTIONS_SCREEN
@@ -40,7 +41,6 @@ class WorldScreen:
         self.map = Map(self.config.gridSize, self.graphik)
         self.currentRoom = self.map.getSpawnRoom()
         self.initializeLocationWidthAndHeight()
-        self.player = Player()
         self.currentRoom.addEntity(self.player)
         self.status.set("entered the world", self.tick)
         self.score = 0
@@ -311,11 +311,8 @@ class WorldScreen:
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
-            if self.showInventory:
-                self.showInventory = False
-            else:
-                self.nextScreen = ScreenString.OPTIONS_SCREEN
-                self.changeScreen = True
+            self.nextScreen = ScreenString.OPTIONS_SCREEN
+            self.changeScreen = True
         elif key == pygame.K_w or key == pygame.K_UP:
             self.player.setDirection(0)
             if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
@@ -341,7 +338,7 @@ class WorldScreen:
         elif key == pygame.K_LCTRL:
             self.player.setCrouching(True)
         elif key == pygame.K_i:
-            self.showInventory = not self.showInventory
+            self.switchToInventoryScreen()
             if self.player.isGathering():
                 self.player.setGathering(False)
             if self.player.isPlacing():
@@ -453,55 +450,9 @@ class WorldScreen:
             self.score = ceil(self.score * 0.9)
             self.numDeaths += 1
     
-    def drawPlayerInventory(self):
-        # draw inventory background that is 50% size of screen and centered
-        backgroundX = self.graphik.getGameDisplay().get_width()/4
-        backgroundY = self.graphik.getGameDisplay().get_height()/4
-        backgroundWidth = self.graphik.getGameDisplay().get_width()/2
-        backgroundHeight = self.graphik.getGameDisplay().get_height()/2
-        self.graphik.drawRectangle(backgroundX, backgroundY, backgroundWidth, backgroundHeight, (0,0,0))
-            
-        # draw contents inside inventory background
-        itemsPerRow = 5
-        row = 0
-        column = 0
-        margin = 5
-        for inventorySlot in self.player.getInventory().getInventorySlots():
-            itemX = backgroundX + column*backgroundWidth/itemsPerRow + margin
-            itemY = backgroundY + row*backgroundHeight/itemsPerRow + margin
-            itemWidth = backgroundWidth/itemsPerRow - 2*margin
-            itemHeight = backgroundHeight/itemsPerRow - 2*margin
-
-            if inventorySlot.isEmpty():
-                self.graphik.drawRectangle(itemX, itemY, itemWidth, itemHeight, (255,255,255))
-                if column == self.player.getInventory().getSelectedInventorySlotIndex() and row == 0:
-                    # draw yellow square in the middle of the selected inventory slot
-                    self.graphik.drawRectangle(itemX + itemWidth/2 - 5, itemY + itemHeight/2 - 5, 10, 10, (255,255,0))
-                column += 1
-                if column == itemsPerRow:
-                    column = 0
-                    row += 1
-                continue
-            
-            item = inventorySlot.getContents()[0]
-            image = item.getImage()
-            scaledImage = pygame.transform.scale(image, (itemWidth, itemHeight))
-            self.graphik.gameDisplay.blit(scaledImage, (itemX, itemY))
-            
-            if column == self.player.getInventory().getSelectedInventorySlotIndex() and row == 0:
-                # draw yellow square in the middle of the selected inventory slot
-                self.graphik.drawRectangle(itemX + itemWidth/2 - 5, itemY + itemHeight/2 - 5, 10, 10, (255,255,0))
-            
-            # draw item amount in bottom right corner of inventory slot
-            self.graphik.drawText(str(inventorySlot.getNumItems()), itemX + itemWidth - 20, itemY + itemHeight - 20, 20, (255,255,255))
-            
-            column += 1
-            if column == itemsPerRow:
-                column = 0
-                row += 1
-        
-        # draw '(press I to close)' text below inventory
-        self.graphik.drawText("(press I to close)", backgroundX, backgroundY + backgroundHeight + 20, 20, (255,255,255))
+    def switchToInventoryScreen(self):
+        self.nextScreen = ScreenString.INVENTORY_SCREEN
+        self.changeScreen = True
 
     def draw(self):
         self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
@@ -512,48 +463,45 @@ class WorldScreen:
         # draw room coordinates in top left corner
         coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY()) + ")"
         self.graphik.drawText(coordinatesText, 30, 20, 20, (255,255,255))
+          
+        itemPreviewXPos = self.graphik.getGameDisplay().get_width()/2 - 50*5 - 50/2
+        itemPreviewYPos = self.graphik.getGameDisplay().get_height() - 50*3
+        itemPreviewWidth = 50
+        itemPreviewHeight = 50
         
-        if self.showInventory:
-            self.drawPlayerInventory()
-        else:
-            itemPreviewXPos = self.graphik.getGameDisplay().get_width()/2 - 50*5 - 50/2
-            itemPreviewYPos = self.graphik.getGameDisplay().get_height() - 50*3
-            itemPreviewWidth = 50
-            itemPreviewHeight = 50
-            
-            barXPos = itemPreviewXPos - 5
-            barYPos = itemPreviewYPos - 5
-            barWidth = itemPreviewWidth*11 + 5
-            barHeight = itemPreviewHeight + 10
-            
-            # draw rectangle slightly bigger than item images
-            self.graphik.drawRectangle(barXPos, barYPos, barWidth, barHeight, (0,0,0))                 
-            
-            # draw first 10 items in player inventory in bottom center
-            firstTenInventorySlots = self.player.getInventory().getFirstTenInventorySlots()
-            for i in range(len(firstTenInventorySlots)):
-                inventorySlot = firstTenInventorySlots[i]
-                if inventorySlot.isEmpty():
-                    # draw white square if item slot is empty
-                    self.graphik.drawRectangle(itemPreviewXPos, itemPreviewYPos, itemPreviewWidth, itemPreviewHeight, (255,255,255))
-                    if i == self.player.getInventory().getSelectedInventorySlotIndex():
-                        # draw yellow square in the middle of the selected inventory slot
-                        self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
-                    itemPreviewXPos += 50 + 5
-                    continue
-                item = inventorySlot.getContents()[0]
-                image = item.getImage()
-                scaledImage = pygame.transform.scale(image, (50, 50))
-                self.graphik.gameDisplay.blit(scaledImage, (itemPreviewXPos, itemPreviewYPos))
-                
+        barXPos = itemPreviewXPos - 5
+        barYPos = itemPreviewYPos - 5
+        barWidth = itemPreviewWidth*11 + 5
+        barHeight = itemPreviewHeight + 10
+        
+        # draw rectangle slightly bigger than item images
+        self.graphik.drawRectangle(barXPos, barYPos, barWidth, barHeight, (0,0,0))                 
+        
+        # draw first 10 items in player inventory in bottom center
+        firstTenInventorySlots = self.player.getInventory().getFirstTenInventorySlots()
+        for i in range(len(firstTenInventorySlots)):
+            inventorySlot = firstTenInventorySlots[i]
+            if inventorySlot.isEmpty():
+                # draw white square if item slot is empty
+                self.graphik.drawRectangle(itemPreviewXPos, itemPreviewYPos, itemPreviewWidth, itemPreviewHeight, (255,255,255))
                 if i == self.player.getInventory().getSelectedInventorySlotIndex():
                     # draw yellow square in the middle of the selected inventory slot
                     self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
-                
-                # draw item amount in bottom right corner of inventory slot
-                self.graphik.drawText(str(inventorySlot.getNumItems()), itemPreviewXPos + itemPreviewWidth - 20, itemPreviewYPos + itemPreviewHeight - 20, 20, (255,255,255))
-                
                 itemPreviewXPos += 50 + 5
+                continue
+            item = inventorySlot.getContents()[0]
+            image = item.getImage()
+            scaledImage = pygame.transform.scale(image, (50, 50))
+            self.graphik.gameDisplay.blit(scaledImage, (itemPreviewXPos, itemPreviewYPos))
+            
+            if i == self.player.getInventory().getSelectedInventorySlotIndex():
+                # draw yellow square in the middle of the selected inventory slot
+                self.graphik.drawRectangle(itemPreviewXPos + itemPreviewWidth/2 - 5, itemPreviewYPos + itemPreviewHeight/2 - 5, 10, 10, (255,255,0))
+            
+            # draw item amount in bottom right corner of inventory slot
+            self.graphik.drawText(str(inventorySlot.getNumItems()), itemPreviewXPos + itemPreviewWidth - 20, itemPreviewYPos + itemPreviewHeight - 20, 20, (255,255,255))
+            
+            itemPreviewXPos += 50 + 5
         
         # display tick count in top right corner
         self.graphik.drawText("tick: " + str(self.tick), self.graphik.getGameDisplay().get_width() - 100, 20, 20, (255,255,255))
