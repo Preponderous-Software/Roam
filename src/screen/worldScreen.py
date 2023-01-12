@@ -56,7 +56,7 @@ class WorldScreen:
     def updateStats(self):
         self.stats.setRoomsExplored(str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
         self.stats.setApplesEaten(str(self.numApplesEaten))
-        self.stats.setItemsInInventory(str(self.player.getInventory().getNumTakenInventorySlots()))
+        self.stats.setItemsInInventory(str(self.player.getInventory().getNumItems()))
         self.stats.setNumberOfDeaths(str(self.numDeaths))
         self.stats.setScore(str(self.score))
 

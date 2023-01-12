@@ -58,6 +58,14 @@ class Inventory:
                 count += 1
         return count
     
+    def getNumItems(self):
+        count = 0
+        for inventorySlot in self.inventorySlots:
+            if inventorySlot.isEmpty():
+                continue
+            count += inventorySlot.getNumItems()
+        return count
+    
     def getNumItemsByType(self, type):
         count = 0
         for inventorySlot in self.inventorySlots:
