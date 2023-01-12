@@ -1,5 +1,5 @@
 import datetime
-from math import ceil, floor, sqrt
+from math import ceil
 import time
 import pygame
 from entity.apple import Apple

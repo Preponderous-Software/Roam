@@ -1,3 +1,4 @@
+# @author Daniel McCoy Stephenson
 class Stats:
     def __init__(self):
         self.score = 0

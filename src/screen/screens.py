@@ -1,3 +1,4 @@
+# @author Daniel McCoy Stephenson
 class ScreenString:
     MAIN_MENU_SCREEN = "menu_screen"
     WORLD_SCREEN = "world_screen"

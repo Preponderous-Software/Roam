@@ -5,7 +5,7 @@ from screen.screens import ScreenString
 from ui.status import Status
 import pygame
 
-
+# @author Daniel McCoy Stephensons
 class InventoryScreen:
     def __init__(self, graphik: Graphik, config: Config, status: Status, inventory: Inventory):
         self.graphik = graphik
