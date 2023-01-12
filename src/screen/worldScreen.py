@@ -315,6 +315,7 @@ class WorldScreen:
             self.changeScreen = True
         elif key == pygame.K_w or key == pygame.K_UP:
             self.player.setDirection(0)
+            self.player
             if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
                 self.movePlayer(self.player.direction)
         elif key == pygame.K_a or key == pygame.K_LEFT:
