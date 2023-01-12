@@ -7,7 +7,7 @@ from inventory.inventory import Inventory
 # @since August 8th, 2022
 class Player(LivingEntity):
     def __init__(self):
-        LivingEntity.__init__(self, "Player", "assets/player.png", 100, [Apple])
+        LivingEntity.__init__(self, "Player", "assets/player_down.png", 100, [Apple])
         self.direction = -1 # -1 when not moving
         self.lastDirection = -1
         self.inventory = Inventory()
@@ -26,6 +26,15 @@ class Player(LivingEntity):
     def setDirection(self, direction):
         self.lastDirection = self.direction
         self.direction = direction
+
+        if self.direction == 0:
+            self.imagePath = "assets/player_up.png"
+        elif self.direction == 1:
+            self.imagePath = "assets/player_left.png"
+        elif self.direction == 2:
+            self.imagePath = "assets/player_down.png"
+        elif self.direction == 3:
+            self.imagePath = "assets/player_right.png"
     
     def getLastDirection(self):
         return self.lastDirection
