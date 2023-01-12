@@ -22,12 +22,16 @@ esc | quit
 
 ## How to run
 ### Manually
-1. Clone the repository with the following command:
+1. If you don't have python installed, install it from [here](https://www.python.org/downloads/).
+2. If you don't have git installed, install it from [here](https://git-scm.com/downloads).
+3. Clone the repository with the following command:
 > git clone https://github.com/Stephenson-Software/Roam.git
-2. Install dependencies with the following command:
+4. Install pygame with the following command:
+> pip install pygame --pre
+5. Install rest of dependencies with the following command:
 > pip install -r requirements.txt
-3. Run the game with the following command:
-> python src/main.py
+6. Run the game with the following command:
+> python src/roam.py
 
 ### Run Script
 There is also a run.sh script you can execute if you're on linux which will automatically attempt to install the dependencies for you.
