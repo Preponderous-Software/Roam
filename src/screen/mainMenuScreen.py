@@ -56,6 +56,7 @@ class MainMenuScreen:
                 if event.type == pygame.QUIT:
                     self.nextScreen = ScreenString.NONE
                     self.changeScreen = True
+                    break
                 elif event.type == pygame.KEYDOWN:
                     self.handleKeyDownEvent(event.key)
             
@@ -66,4 +67,4 @@ class MainMenuScreen:
             pygame.display.update()
         self.initializeWorldScreen()
         self.changeScreen = False
-        return ScreenString.WORLD_SCREEN
+        return self.nextScreen
