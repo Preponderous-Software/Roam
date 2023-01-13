@@ -1,3 +1,4 @@
+import datetime
 from config.config import Config
 from inventory.inventory import Inventory
 from lib.graphik.src.graphik import Graphik
@@ -15,10 +16,18 @@ class InventoryScreen:
         self.nextScreen = ScreenString.WORLD_SCREEN
         self.changeScreen = False
     
+    # @source https://stackoverflow.com/questions/63342477/how-to-take-screenshot-of-entire-display-pygame
+    def captureScreen(self, name, pos, size): # (pygame Surface, String, tuple, tuple)
+        image = pygame.Surface(size)  # Create image surface
+        image.blit(self.graphik.getGameDisplay(), (0,0), (pos, size))  # Blit portion of the display to the image
+        pygame.image.save(image, name)  # Save the image to the disk**
+    
     def handleKeyDownEvent(self, key):
         if key == pygame.K_i or key == pygame.K_ESCAPE:
             self.switchToWorldScreen()
-
+        elif key == pygame.K_PRINTSCREEN:
+            x, y = self.graphik.getGameDisplay().get_size()
+            self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
         
     def switchToWorldScreen(self):
         self.nextScreen = ScreenString.WORLD_SCREEN
