@@ -139,7 +139,6 @@ class WorldScreen:
         targetLocation = self.currentRoom.getGrid().getLocationByCoordinates(targetX, targetY)
         self.currentRoom.addEntityToLocation(self.player, targetLocation)
         self.initializeLocationWidthAndHeight()
-        pygame.display.set_caption(("Roam " + str(self.currentRoom.getName())))
         
     def movePlayer(self, direction: int):        
         if self.player.isCrouching():
@@ -462,7 +461,7 @@ class WorldScreen:
         self.energyBar.draw()
 
         # draw room coordinates in top left corner
-        coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY()) + ")"
+        coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY() * -1) + ")"
         self.graphik.drawText(coordinatesText, 30, 20, 20, (255,255,255))
           
         itemPreviewXPos = self.graphik.getGameDisplay().get_width()/2 - 50*5 - 50/2
