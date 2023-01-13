@@ -7,8 +7,8 @@ echo "Current branch: $(git branch --show-current)"
 
 # check that dependencies are installed
 echo "Checking dependencies"
-pip install pygame --pre
-pip install -r requirements.txt
+pip install pygame --pre --quiet
+pip install -r requirements.txt --quiet
 
 # start program
 echo "Starting program"
