@@ -85,26 +85,65 @@ class WorldScreen:
         elif direction == -1:
             return -1
     
-    def getCoordinatesForNewRoomBasedOnPlayerLocation(self):
+    def getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection(self):
         location = self.getLocationOfPlayer()
         x = self.currentRoom.getX()
         y = self.currentRoom.getY()
-        if location.getX() == self.config.gridSize - 1:
-            # we are on the right side of this room
-            x += 1
-        elif location.getX() == 0:
-            # we are on the left side of this room
-            x -= 1
-        elif location.getY() == self.config.gridSize - 1:
-            # we are at the bottom of this room
-            y += 1
-        elif location.getY() == 0:
-            # we are at the top of this room
-            y -= 1
+
+        if self.ifCorner(location):
+            direction = self.player.getDirection()
+            # if top left corner
+            if location.getX() == 0 and location.getY() == 0:
+                # if facing up
+                if direction == 0:
+                    y -= 1
+                # if facing left
+                elif direction == 1:
+                    x -= 1
+            # if top right corner
+            elif location.getX() == self.config.gridSize - 1 and location.getY() == 0:
+                # if facing up
+                if direction == 0:
+                    y -= 1
+                # if facing right
+                elif direction == 3:
+                    x += 1
+            # if bottom left corner
+            elif location.getX() == 0 and location.getY() == self.config.gridSize - 1:
+                # if facing down
+                if direction == 2:
+                    y += 1
+                # if facing left
+                elif direction == 1:
+                    x -= 1
+            # if bottom right corner
+            elif location.getX() == self.config.gridSize - 1 and location.getY() == self.config.gridSize - 1:
+                # if facing down
+                if direction == 2:
+                    y += 1
+                # if facing right
+                elif direction == 3:
+                    x += 1
+        else:
+            if location.getX() == self.config.gridSize - 1:
+                # we are on the right side of this room
+                x += 1
+            elif location.getX() == 0:
+                # we are on the left side of this room
+                x -= 1
+            elif location.getY() == self.config.gridSize - 1:
+                # we are at the bottom of this room
+                y += 1
+            elif location.getY() == 0:
+                # we are at the top of this room
+                y -= 1
         return x, y
     
+    def ifCorner(self, location: Location):
+        return (location.getX() == 0 and location.getY() == 0) or (location.getX() == self.config.gridSize - 1 and location.getY() == 0) or (location.getX() == 0 and location.getY() == self.config.gridSize - 1) or (location.getX() == self.config.gridSize - 1 and location.getY() == self.config.gridSize - 1)
+    
     def changeRooms(self):
-        x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
+        x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
 
         if abs(x) > self.config.worldBorder or abs(y) > self.config.worldBorder:
             self.status.set("reached world border", self.tick)
@@ -115,7 +154,7 @@ class WorldScreen:
         
         room = self.map.getRoom(x, y)
         if room == -1:
-            x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocation()
+            x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
             self.currentRoom = self.map.generateNewRoom(x, y)
             self.status.set("new area discovered", self.tick)
         else:
@@ -126,15 +165,52 @@ class WorldScreen:
 
         min = 0
         max = self.config.gridSize - 1
-        if playerLocation.getY() == min:
-            targetY = max
-        elif playerLocation.getY() == max:
-            targetY = min
         
-        if playerLocation.getX() == min:
-            targetX = max
-        elif playerLocation.getX() == max:
-            targetX = min
+        # if in corner
+        if self.ifCorner(playerLocation):
+            playerDirection = self.player.getDirection()
+            # if top left corner
+            if playerLocation.getX() == 0 and playerLocation.getY() == 0:
+                # if facing up
+                if playerDirection == 0:
+                    targetY = max
+                # if facing left
+                elif playerDirection == 1:
+                    targetX = max
+            # if top right corner
+            elif playerLocation.getX() == max and playerLocation.getY() == 0:
+                # if facing up
+                if playerDirection == 0:
+                    targetY = max
+                # if facing right
+                elif playerDirection == 3:
+                    targetX = min
+            # if bottom left corner
+            elif playerLocation.getX() == 0 and playerLocation.getY() == max:
+                # if facing down
+                if playerDirection == 2:
+                    targetY = min
+                # if facing left
+                elif playerDirection == 1:
+                    targetX = max
+            # if bottom right corner
+            elif playerLocation.getX() == max and playerLocation.getY() == max:
+                # if facing down
+                if playerDirection == 2:
+                    targetY = min
+                # if facing right
+                elif playerDirection == 3:
+                    targetX = min
+        else:
+            # handle border
+            if playerLocation.getX() == 0:
+                targetX = max
+            elif playerLocation.getX() == max:
+                targetX = min
+            elif playerLocation.getY() == 0:
+                targetY = max
+            elif playerLocation.getY() == max:
+                targetY = min
 
         targetLocation = self.currentRoom.getGrid().getLocationByCoordinates(targetX, targetY)
         self.currentRoom.addEntityToLocation(self.player, targetLocation)
