@@ -54,7 +54,7 @@ class WorldScreen:
         self.locationHeight = y/self.currentRoom.getGrid().getColumns()
         
     def updateStats(self):
-        self.stats.setRoomsExplored(str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
+        self.stats.setRoomsExplored(str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder*2 + 1)*(self.config.worldBorder*2 + 1)))
         self.stats.setApplesEaten(str(self.numApplesEaten))
         self.stats.setItemsInInventory(str(self.player.getInventory().getNumItems()))
         self.stats.setNumberOfDeaths(str(self.numDeaths))
