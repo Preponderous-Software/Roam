@@ -84,11 +84,20 @@ class Room(Environment):
             newLocation.addEntity(entity)
             entity.setLocationID(newLocation.getID())
 
-            # if target is edible and living, kill it
-            for targetId in list(newLocation.getEntities().keys()):
-                target = newLocation.getEntity(targetId)
-                if entity.canEat(target) and isinstance(target, LivingEntity):
-                    target.kill()
+            # search for food
+            for targetEntityId in list(newLocation.getEntities().keys()):
+                if targetEntityId == entity.getID():
+                    continue
+                targetEntity = newLocation.getEntity(targetEntityId)
+                if entity.canEat(targetEntity):
+                    if isinstance(targetEntity, LivingEntity) and targetEntity.getEnergy() > 0:
+                        targetEntity.kill()
+                        entity.addEnergy(targetEntity.getEnergy())
+                    else:
+                        self.removeEntity(targetEntity)
+                        entity.addEnergy(10)
+                    break
+                
 
     def locationContainsSolidEntity(self, location):
         for entityId in list(location.getEntities().keys()):
