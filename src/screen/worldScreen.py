@@ -510,7 +510,7 @@ class WorldScreen:
                     self.numApplesEaten += 1
                 self.status.set("ate " + item.getName() + " from inventory")
                 
-                scoreIncrease = int(self.tick * int(self.stats.applesEaten) * 0.10)
+                scoreIncrease = int(self.tickCounter.getTick() * int(self.stats.applesEaten) * 0.10)
                 self.score += scoreIncrease
                 return
     
@@ -657,7 +657,8 @@ class WorldScreen:
                     self.handleMouseWheelEvent(event)
             
             # move living entities
-            self.currentRoom.moveLivingEntities()
+            self.currentRoom.moveLivingEntities(self.tickCounter.getTick())
+            self.currentRoom.reproduceLivingEntities(self.tickCounter.getTick())
 
             self.handleMouseOver()
 
