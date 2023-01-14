@@ -264,7 +264,7 @@ class WorldScreen:
         self.player.setTickLastMoved(self.tickCounter.getTick())
     
     def canBePickedUp(self, entity):
-        itemTypes = [Wood, Leaves, Grass, Apple, Rock, Chicken]
+        itemTypes = [Wood, Leaves, Grass, Apple, Rock, Chicken, Bear]
         for itemType in itemTypes:
             if isinstance(entity, itemType):
                 return True
