@@ -4,11 +4,12 @@ from entity.drawableEntity import DrawableEntity
 # @author Daniel McCoy Stephenson
 # @since August 5th, 2022
 class LivingEntity(DrawableEntity):
-    def __init__(self, name, color, energy, edibleEntityTypes):
+    def __init__(self, name, color, energy, edibleEntityTypes, tickCreated):
         DrawableEntity.__init__(self, name, color)
         self.energy = energy
         self.edibleEntityTypes = edibleEntityTypes
         self.targetEnergy = energy
+        self.tickCreated = tickCreated
     
     def getEnergy(self):
         return self.energy
@@ -33,3 +34,9 @@ class LivingEntity(DrawableEntity):
     
     def kill(self):
         self.energy = 0
+    
+    def getTickCreated(self):
+        return self.tickCreated
+    
+    def getAge(self, tick):
+        return tick - self.tickCreated
