@@ -411,7 +411,7 @@ class WorldScreen:
             self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
             self.status.set("screenshot saved")
         elif key == pygame.K_LSHIFT:
-            self.player.setSpeed(self.player.getSpeed()*self.config.runSpeedFactor)
+            self.player.setMovementSpeed(self.player.getMovementSpeed()*self.config.runSpeedFactor)
         elif key == pygame.K_LCTRL:
             self.player.setCrouching(True)
         elif key == pygame.K_i:
@@ -455,7 +455,7 @@ class WorldScreen:
         elif key == pygame.K_q:
             self.player.setPlacing(False)
         elif key == pygame.K_LSHIFT:
-            self.player.setSpeed(self.player.getSpeed()/self.config.runSpeedFactor)
+            self.player.setMovementSpeed(self.player.getMovementSpeed()/self.config.runSpeedFactor)
         elif key == pygame.K_LCTRL:
             self.player.setCrouching(False)
 
@@ -487,7 +487,15 @@ class WorldScreen:
     
     def checkPlayerMovementCooldown(self, tickToCheck):
         ticksPerSecond = self.config.ticksPerSecond
-        return tickToCheck + ticksPerSecond/self.player.getSpeed() < self.tickCounter.getTick()
+        return tickToCheck + ticksPerSecond/self.player.getMovementSpeed() < self.tickCounter.getTick()
+    
+    def checkPlayerGatherCooldown(self, tickToCheck):
+        ticksPerSecond = self.config.ticksPerSecond
+        return tickToCheck + ticksPerSecond/self.player.getGatherSpeed() < self.tickCounter.getTick()
+    
+    def checkPlayerPlaceCooldown(self, tickToCheck):
+        ticksPerSecond = self.config.ticksPerSecond
+        return tickToCheck + ticksPerSecond/self.player.getPlaceSpeed() < self.tickCounter.getTick()
     
     def eatFoodInInventory(self):
         for itemSlot in self.player.getInventory().getInventorySlots():
@@ -510,9 +518,9 @@ class WorldScreen:
         if self.player.isMoving() and self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
             self.movePlayer(self.player.direction)
 
-        if self.player.isGathering() and self.checkPlayerMovementCooldown(self.player.getTickLastGathered()):
+        if self.player.isGathering() and self.checkPlayerGatherCooldown(self.player.getTickLastGathered()):
             self.executeGatherAction()
-        elif self.player.isPlacing() and self.checkPlayerMovementCooldown(self.player.getTickLastPlaced()):
+        elif self.player.isPlacing() and self.checkPlayerPlaceCooldown(self.player.getTickLastPlaced()):
             self.executePlaceAction()
         
         if self.player.needsEnergy() and self.config.autoEatFoodInInventory:

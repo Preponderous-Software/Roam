@@ -2,6 +2,7 @@ import pygame
 from config.config import Config
 from entity.living.player import Player
 from lib.graphik.src.graphik import Graphik
+from screen.configScreen import ConfigScreen
 from screen.inventoryScreen import InventoryScreen
 from screen.mainMenuScreen import MainMenuScreen
 from screen.optionsScreen import OptionsScreen
@@ -33,6 +34,7 @@ class Roam:
         self.mainMenuScreen = MainMenuScreen(self.graphik, self.config, self.initializeWorldScreen)
         self.statsScreen = StatsScreen(self.graphik, self.config, self.status, self.stats)
         self.inventoryScreen = InventoryScreen(self.graphik, self.config, self.status, self.player.getInventory())
+        self.configScreen = ConfigScreen(self.graphik, self.config, self.status)
         self.currentScreen = self.mainMenuScreen
 
     def initializeGameDisplay(self):
@@ -61,6 +63,8 @@ class Roam:
                 self.currentScreen = self.statsScreen
             elif result == ScreenString.INVENTORY_SCREEN:
                 self.currentScreen = self.inventoryScreen
+            elif result == ScreenString.CONFIG_SCREEN:
+                self.currentScreen = self.configScreen
             elif result == ScreenString.NONE:
                 self.quitApplication()
             else:
