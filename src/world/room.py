@@ -127,7 +127,12 @@ class Room(Environment):
                 # check reproduction cooldown
                 if entity.getTickLastReproduced() != None and entity.getTickLastReproduced() + reproductionCooldown > tick:
                     continue
-                
+
+                # reset image
+                if isinstance(entity, Chicken):
+                    entity.setImagePath("assets/chicken.png")
+                elif isinstance(entity, Bear):
+                    entity.setImagePath("assets/bear.png")
 
                 # throw dice
                 if random.randrange(1, 101) > 1: # 1% chance
@@ -143,6 +148,12 @@ class Room(Environment):
                     entityLocationMappings.append((newEntity, location))
                     entity.setTickLastReproduced(tick)
                     targetEntity.setTickLastReproduced(tick)
+                    if isinstance(entity, Chicken):
+                        entity.setImagePath("assets/chickenOnReproductionCooldown.png")
+                        targetEntity.setImagePath("assets/chickenOnReproductionCooldown.png")
+                    if isinstance(entity, Bear):
+                        entity.setImagePath("assets/bearOnReproductionCooldown.png")
+                        targetEntity.setImagePath("assets/bearOnReproductionCooldown.png")
                 
         for entityLocationMapping in entityLocationMappings:
             entity = entityLocationMapping[0]
