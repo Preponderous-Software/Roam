@@ -1,4 +1,3 @@
-import random
 from entity.drawableEntity import DrawableEntity
 
 

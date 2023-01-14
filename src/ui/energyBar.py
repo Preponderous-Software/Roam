@@ -1,5 +1,5 @@
 from lib.graphik.src.graphik import Graphik
-from entity.player import Player
+from entity.living.player import Player
 
 # @author Daniel McCoy Stephenson
 # @since August 16th, 2022

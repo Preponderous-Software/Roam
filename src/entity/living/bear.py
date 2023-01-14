@@ -1,0 +1,15 @@
+import random
+from entity.living.chicken import Chicken
+from entity.living.livingEntity import LivingEntity
+from entity.living.player import Player
+
+
+# @author Daniel McCoy Stephenson
+# @since December 24th, 2022
+class Bear(LivingEntity):
+    def __init__(self, tickCreated):
+        LivingEntity.__init__(self, "Bear", "assets/bear.png", random.randrange(20, 30), [Chicken, Player], tickCreated)
+        self.solid = False
+
+    def isSolid(self):
+        return self.solid

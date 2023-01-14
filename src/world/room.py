@@ -1,8 +1,9 @@
 import random
 
 import pygame
-from entity.livingEntity import LivingEntity
-from entity.player import Player
+from entity.living.bear import Bear
+from entity.living.chicken import Chicken
+from entity.living.livingEntity import LivingEntity
 from lib.pyenvlib.environment import Environment
 from lib.graphik.src.graphik import Graphik
 
@@ -66,7 +67,7 @@ class Room(Environment):
         ticksPerSecond = self.config.ticksPerSecond
         return tickToCheck + ticksPerSecond/entity.getSpeed() < self.tick
     
-    def moveLivingEntities(self):
+    def moveLivingEntities(self, tick):
         for entityId in self.livingEntities:
             # 1% chance to skip
             if random.randrange(1, 101) > 1:
@@ -85,11 +86,70 @@ class Room(Environment):
             newLocation.addEntity(entity)
             entity.setLocationID(newLocation.getID())
 
-            # if target is edible and living, kill it
-            for targetId in list(newLocation.getEntities().keys()):
-                target = newLocation.getEntity(targetId)
-                if entity.canEat(target) and isinstance(target, LivingEntity):
-                    target.kill()
+            # search for food
+            for targetEntityId in list(newLocation.getEntities().keys()):
+                if targetEntityId == entity.getID():
+                    continue
+                targetEntity = newLocation.getEntity(targetEntityId)
+                if entity.canEat(targetEntity):
+                    if isinstance(targetEntity, LivingEntity) and targetEntity.getEnergy() > 0:
+                        targetEntity.kill()
+                        entity.addEnergy(targetEntity.getEnergy())
+                    else:
+                        self.removeEntity(targetEntity)
+                        entity.addEnergy(10)
+                    break
+            
+    def reproduceLivingEntities(self, tick):
+        entityLocationMappings = []
+        minAgeToReproduce = 30 * 60 * 5 # 5 minutes (at 30/ticks per second)
+        reproductionCooldown = minAgeToReproduce/2 # 2.5 minutes
+        for entityId in self.livingEntities:
+            entity = self.livingEntities[entityId]
+            if entity.getAge(tick) < minAgeToReproduce:
+                continue
+            locationId = entity.getLocationID()
+            location = self.getGrid().getLocation(locationId)
+            for targetEntityId in list(location.getEntities().keys()):
+                targetEntity = location.getEntity(targetEntityId)
+                # check if target entity is a living entity
+                if isinstance(targetEntity, LivingEntity) == False:
+                    continue
+                # check if target entity is the entity itself
+                if targetEntity.getID() == entity.getID():
+                    continue
+                # check if target entity is the same type as the entity
+                if isinstance(targetEntity, type(entity)) == False:
+                    continue
+                # check if target entity is old enough to reproduce
+                if targetEntity.getAge(tick) < minAgeToReproduce:
+                    continue
+                # check reproduction cooldown
+                if entity.getTickLastReproduced() != None and entity.getTickLastReproduced() + reproductionCooldown > tick:
+                    continue
+                
+
+                # throw dice
+                if random.randrange(1, 101) > 1: # 1% chance
+                    continue
+
+                newEntity = None
+                if isinstance(entity, Bear):
+                    newEntity = Bear(tick)
+                elif isinstance(entity, Chicken):
+                    newEntity = Chicken(tick)
+
+                if newEntity != None:
+                    entityLocationMappings.append((newEntity, location))
+                    entity.setTickLastReproduced(tick)
+                    targetEntity.setTickLastReproduced(tick)
+                
+        for entityLocationMapping in entityLocationMappings:
+            entity = entityLocationMapping[0]
+            location = entityLocationMapping[1]
+            self.addEntityToLocation(entity, location)
+            self.addLivingEntity(entity)
+                
 
     def locationContainsSolidEntity(self, location):
         for entityId in list(location.getEntities().keys()):

@@ -1,7 +1,6 @@
-# @author Daniel McCoy Stephenson
 from inventory.inventorySlot import InventorySlot
 
-
+# @author Daniel McCoy Stephenson
 class Inventory:
     def __init__(self):
         self.inventorySlots = []

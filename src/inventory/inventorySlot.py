@@ -1,3 +1,4 @@
+# @author Daniel McCoy Stephenson
 class InventorySlot:
     def __init__(self):
         self.contents = []

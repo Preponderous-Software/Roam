@@ -1,3 +1,4 @@
+import datetime
 from config.config import Config
 from lib.graphik.src.graphik import Graphik
 from screen.screens import ScreenString
@@ -5,7 +6,7 @@ from stats.stats import Stats
 from ui.status import Status
 import pygame
 
-
+# @author Daniel McCoy Stephenson
 class StatsScreen:
     def __init__(self, graphik: Graphik, config: Config, status: Status, stats: Stats):
         self.graphik = graphik
@@ -15,9 +16,18 @@ class StatsScreen:
         self.nextScreen = ScreenString.OPTIONS_SCREEN
         self.changeScreen = False
     
+    # @source https://stackoverflow.com/questions/63342477/how-to-take-screenshot-of-entire-display-pygame
+    def captureScreen(self, name, pos, size): # (pygame Surface, String, tuple, tuple)
+        image = pygame.Surface(size)  # Create image surface
+        image.blit(self.graphik.getGameDisplay(), (0,0), (pos, size))  # Blit portion of the display to the image
+        pygame.image.save(image, name)  # Save the image to the disk**
+    
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
             self.switchToOptionsScreen()
+        elif key == pygame.K_PRINTSCREEN:
+            x, y = self.graphik.getGameDisplay().get_size()
+            self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
         
     def switchToOptionsScreen(self):
         self.nextScreen = ScreenString.OPTIONS_SCREEN
@@ -29,10 +39,12 @@ class StatsScreen:
 
     def drawStats(self):
         x, y = self.graphik.getGameDisplay().get_size()
-        width = x/3
+        
+        # aim for center of screen
+        width = x/5
         height = y/10
-        xpos = x/2 - width/2
-        ypos = y/2 - height/2 - width
+        xpos = x/2
+        ypos = 0 + height/2
         
         # draw score
         text = "score: " + str(self.stats.getScore())

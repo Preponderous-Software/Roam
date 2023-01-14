@@ -1,24 +1,26 @@
 from math import ceil
 import random
 from entity.apple import Apple
-from entity.bear import Bear
-from entity.chicken import Chicken
+from entity.living.bear import Bear
+from entity.living.chicken import Chicken
 from lib.graphik.src.graphik import Graphik
 from entity.rock import Rock
 from entity.wood import Wood
 from lib.pyenvlib.entity import Entity
 from entity.grass import Grass
 from entity.leaves import Leaves
+from world.tickCounter import TickCounter
 from world.room import Room
 
 
 # @author Daniel McCoy Stephenson
 # @since August 15th, 2022
 class Map:
-    def __init__(self, gridSize, graphik: Graphik):
+    def __init__(self, gridSize, graphik: Graphik, tickCounter: TickCounter):
         self.rooms = []
         self.gridSize = gridSize
         self.graphik = graphik
+        self.tickCounter = tickCounter
         self.spawnRoom = self.generateNewRoom(0, 0)
     
     def getRooms(self):
@@ -97,14 +99,14 @@ class Map:
     def spawnChickens(self, room: Room):
         for i in range(0, 5):
             if random.randrange(1, 101) > 75: # 25% chance
-                newChicken = Chicken()
+                newChicken = Chicken(self.tickCounter.getTick())
                 room.addEntity(newChicken)
                 room.addLivingEntity(newChicken)
     
     def spawnBears(self, room: Room):
         for i in range(0, 2):
             if random.randrange(1, 101) > 90: # 10% chance
-                newBear = Bear()
+                newBear = Bear(self.tickCounter.getTick())
                 room.addEntity(newBear)
                 room.addLivingEntity(newBear)
 
