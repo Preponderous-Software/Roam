@@ -5,6 +5,9 @@ git pull
 # print branch status
 echo "Current branch: $(git branch --show-current)"
 
+# read in and print version
+echo "Current version: $(cat version.txt)"
+
 # check that dependencies are installed
 echo "Checking dependencies"
 pip install pygame --pre --quiet

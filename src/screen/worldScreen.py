@@ -624,10 +624,9 @@ class WorldScreen:
             self.player.getInventory().setSelectedInventorySlotIndex(newSelectedInventorySlotIndex)
     
     def handleMouseOver(self):
-        x = pygame.mouse.get_pos()[0]
-        y = pygame.mouse.get_pos()[1]
         location = self.getLocationAtMousePosition()
-        if location is None:
+        if location == -1:
+            # mouse is not over a location
             return
         for entityId in location.getEntities():
             entity = location.getEntity(entityId)
