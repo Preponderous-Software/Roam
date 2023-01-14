@@ -55,8 +55,6 @@ class OptionsScreen:
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), (0,0,0), 30, "stats", self.switchToStatsScreen)
         ypos = ypos + height + margin
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), (0,0,0), 30, "inventory", self.switchToInventoryScreen)
-        ypos = ypos + height + margin
-        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), (0,0,0), 30, "config", self.switchToConfigScreen)
         self.drawBackButton()
 
     def drawBackButton(self):
