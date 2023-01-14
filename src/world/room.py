@@ -1,7 +1,7 @@
 import random
 
 import pygame
-from entity.livingEntity import LivingEntity
+from entity.living.livingEntity import LivingEntity
 from lib.pyenvlib.environment import Environment
 from lib.graphik.src.graphik import Graphik
 

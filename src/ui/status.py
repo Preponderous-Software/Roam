@@ -1,20 +1,22 @@
 from lib.graphik.src.graphik import Graphik
+from world.tickCounter import TickCounter
 
 
 # @author Daniel McCoy Stephenson
 # since August 14th, 2022
 class Status:
-    def __init__(self, graphik: Graphik):
+    def __init__(self, graphik: Graphik, tickCounter: TickCounter):
         self.graphik = graphik
         self.text = -1
         self.textSize = 18
         self.textColor = (0, 0, 0)
         self.tickLastSet = -1
         self.durationInTicks = 20
+        self.tickCounter = tickCounter
     
-    def set(self, text, tick):
+    def set(self, text):
         self.text = text
-        self.tickLastSet = tick
+        self.tickLastSet = self.tickCounter.getTick()
     
     def clear(self):
         self.text = -1

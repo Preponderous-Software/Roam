@@ -1,13 +1,13 @@
 from entity.apple import Apple
-from entity.livingEntity import LivingEntity
+from entity.living.livingEntity import LivingEntity
 from inventory.inventory import Inventory
 
 
 # @author Daniel McCoy Stephenson
 # @since August 8th, 2022
 class Player(LivingEntity):
-    def __init__(self):
-        LivingEntity.__init__(self, "Player", "assets/player_down.png", 100, [Apple])
+    def __init__(self, tickCreated):
+        LivingEntity.__init__(self, "Player", "assets/player_down.png", 100, [Apple], tickCreated)
         self.direction = -1 # -1 when not moving
         self.lastDirection = -1
         self.inventory = Inventory()

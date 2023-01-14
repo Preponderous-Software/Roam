@@ -1,6 +1,6 @@
 import pygame
 from config.config import Config
-from entity.player import Player
+from entity.living.player import Player
 from lib.graphik.src.graphik import Graphik
 from screen.inventoryScreen import InventoryScreen
 from screen.mainMenuScreen import MainMenuScreen
@@ -10,6 +10,7 @@ from screen.statsScreen import StatsScreen
 from stats.stats import Stats
 from ui.status import Status
 from screen.worldScreen import WorldScreen
+from world.tickCounter import TickCounter
 
 
 # @author Daniel McCoy Stephenson
@@ -20,14 +21,14 @@ class Roam:
         pygame.display.set_caption("Roam")
         # pygame.display.set_icon(pygame.image.load('src/media/icon.PNG'))
         self.running = True
-        self.tick = 0
+        self.tickCounter = TickCounter()
         self.config = config
         self.gameDisplay = self.initializeGameDisplay()
         self.graphik = Graphik(self.gameDisplay)
-        self.status = Status(self.graphik)
+        self.status = Status(self.graphik, self.tickCounter)
         self.stats = Stats()
-        self.player = Player()
-        self.worldScreen = WorldScreen(self.graphik, self.config, self.status, self.tick, self.stats, self.player)
+        self.player = Player(self.tickCounter.getTick())
+        self.worldScreen = WorldScreen(self.graphik, self.config, self.status, self.tickCounter, self.stats, self.player)
         self.optionsScreen = OptionsScreen(self.graphik, self.config, self.status)
         self.mainMenuScreen = MainMenuScreen(self.graphik, self.config, self.initializeWorldScreen)
         self.statsScreen = StatsScreen(self.graphik, self.config, self.status, self.stats)
