@@ -43,6 +43,6 @@ class Map:
         return grid.getLocation(locationID)
 
     def generateNewRoom(self, x, y):
-        newRoom = self.roomFactory.createGrassRoom(x, y)
+        newRoom = self.roomFactory.createRandomRoom(x, y)
         self.rooms.append(newRoom)
         return newRoom

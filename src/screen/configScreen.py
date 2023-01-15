@@ -1,7 +1,7 @@
 from time import sleep
 from config.config import Config
 from lib.graphik.src.graphik import Graphik
-from screen.screens import ScreenString
+from screen.screenType import ScreenType
 from ui.status import Status
 import pygame
 
@@ -12,7 +12,7 @@ class ConfigScreen:
         self.config = config
         self.status = status
         self.running = True
-        self.nextScreen = ScreenString.MAIN_MENU_SCREEN
+        self.nextScreen = ScreenType.MAIN_MENU_SCREEN
         self.changeScreen = False
     
     def handleKeyDownEvent(self, key):
@@ -20,11 +20,11 @@ class ConfigScreen:
             self.switchToMainMenuScreen()
     
     def switchToMainMenuScreen(self):
-        self.nextScreen = ScreenString.MAIN_MENU_SCREEN
+        self.nextScreen = ScreenType.MAIN_MENU_SCREEN
         self.changeScreen = True
 
     def quitApplication(self):
-        self.nextScreen = ScreenString.NONE
+        self.nextScreen = ScreenType.NONE
         self.changeScreen = True
     
     def toggleDebug(self):
@@ -73,7 +73,7 @@ class ConfigScreen:
         while not self.changeScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return ScreenString.NONE
+                    return ScreenType.NONE
                 elif event.type == pygame.KEYDOWN:
                     self.handleKeyDownEvent(event.key)         
     
