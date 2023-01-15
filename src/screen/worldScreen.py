@@ -17,6 +17,7 @@ from lib.pyenvlib.grid import Grid
 from entity.rock import Rock
 from entity.leaves import Leaves
 from lib.pyenvlib.location import Location
+from world.roomFactory import RoomFactory
 from world.tickCounter import TickCounter
 from world.map import Map
 from entity.living.player import Player
@@ -72,7 +73,7 @@ class WorldScreen:
         print("----------")    
 
     def getLocationOfPlayer(self):
-        return self.map.getLocation(self.player, self.currentRoom)
+        return self.map.getLocationOfEntity(self.player, self.currentRoom)
 
     def getLocationDirection(self, direction: int, grid: Grid, location: Location):
         if direction == 0:
