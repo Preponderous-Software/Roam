@@ -10,6 +10,7 @@ from entity.wood import Wood
 from lib.pyenvlib.entity import Entity
 
 from world.room import Room
+from world.roomType import RoomType
 
 
 class RoomFactory():
@@ -17,6 +18,25 @@ class RoomFactory():
         self.gridSize = gridSize
         self.graphik = graphik
         self.tickCounter = tickCounter
+    
+    def createRoom(self, roomType, x, y):
+        if roomType == RoomType.EMPTY:
+            return self.createEmptyRoom((0, 0, 0), x, y)
+        elif roomType == RoomType.GRASSLAND:
+            return self.createGrassRoom(x, y)
+        elif roomType == RoomType.FOREST:
+            return self.createForestRoom(x, y)
+    
+    def createRandomRoom(self, x, y):
+        # get random int
+        number = random.randrange(0, 2)
+        if number == 0:
+            newRoom = self.createRoom(RoomType.GRASSLAND, x, y)
+        elif number == 1:
+            newRoom = self.createRoom(RoomType.FOREST, x, y)
+        else:
+            newRoom = self.createRoom(RoomType.EMPTY, x, y)
+        return newRoom
         
     # create methods
     def createEmptyRoom(self, color, x, y):
@@ -30,20 +50,24 @@ class RoomFactory():
         # generate grass
         self.spawnGrass(newRoom)
 
-        # generate food
-        maxTrees = ceil(self.gridSize/3)
-        for i in range(0, maxTrees):
-            self.spawnTree(newRoom)
-
         # generate rocks
         self.spawnRocks(newRoom)
 
         # generate chickens
         self.spawnChickens(newRoom)
+        
+        return newRoom
+
+    def createForestRoom(self, x, y):
+        newRoom = self.createGrassRoom(x, y)
+
+        # generate food
+        maxTrees = ceil(self.gridSize/3)
+        for i in range(0, maxTrees):
+            self.spawnTree(newRoom)
 
         # generate bears
         self.spawnBears(newRoom)
-        
         return newRoom
 
     # spawn methods

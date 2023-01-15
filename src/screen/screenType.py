@@ -1,5 +1,5 @@
 # @author Daniel McCoy Stephenson
-class ScreenString:
+class ScreenType:
     MAIN_MENU_SCREEN = "menu_screen"
     WORLD_SCREEN = "world_screen"
     OPTIONS_SCREEN = "options_screen"

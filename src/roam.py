@@ -6,7 +6,7 @@ from screen.configScreen import ConfigScreen
 from screen.inventoryScreen import InventoryScreen
 from screen.mainMenuScreen import MainMenuScreen
 from screen.optionsScreen import OptionsScreen
-from screen.screens import ScreenString
+from screen.screenType import ScreenType
 from screen.statsScreen import StatsScreen
 from stats.stats import Stats
 from ui.status import Status
@@ -53,19 +53,19 @@ class Roam:
     def run(self):
         while True:
             result = self.currentScreen.run()
-            if result == ScreenString.MAIN_MENU_SCREEN:
+            if result == ScreenType.MAIN_MENU_SCREEN:
                 return "restart"
-            if result == ScreenString.WORLD_SCREEN:
+            if result == ScreenType.WORLD_SCREEN:
                 self.currentScreen = self.worldScreen
-            elif result == ScreenString.OPTIONS_SCREEN:
+            elif result == ScreenType.OPTIONS_SCREEN:
                 self.currentScreen = self.optionsScreen
-            elif result == ScreenString.STATS_SCREEN:
+            elif result == ScreenType.STATS_SCREEN:
                 self.currentScreen = self.statsScreen
-            elif result == ScreenString.INVENTORY_SCREEN:
+            elif result == ScreenType.INVENTORY_SCREEN:
                 self.currentScreen = self.inventoryScreen
-            elif result == ScreenString.CONFIG_SCREEN:
+            elif result == ScreenType.CONFIG_SCREEN:
                 self.currentScreen = self.configScreen
-            elif result == ScreenString.NONE:
+            elif result == ScreenType.NONE:
                 self.quitApplication()
             else:
                 print("unrecognized screen: " + result)

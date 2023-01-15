@@ -1,7 +1,7 @@
 import datetime
 from config.config import Config
 from lib.graphik.src.graphik import Graphik
-from screen.screens import ScreenString
+from screen.screenType import ScreenType
 from stats.stats import Stats
 from ui.status import Status
 import pygame
@@ -13,7 +13,7 @@ class StatsScreen:
         self.config = config
         self.status = status
         self.stats = stats
-        self.nextScreen = ScreenString.OPTIONS_SCREEN
+        self.nextScreen = ScreenType.OPTIONS_SCREEN
         self.changeScreen = False
     
     # @source https://stackoverflow.com/questions/63342477/how-to-take-screenshot-of-entire-display-pygame
@@ -30,7 +30,7 @@ class StatsScreen:
             self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
         
     def switchToOptionsScreen(self):
-        self.nextScreen = ScreenString.OPTIONS_SCREEN
+        self.nextScreen = ScreenType.OPTIONS_SCREEN
         self.changeScreen = True
 
     def quitApplication(self):
@@ -86,7 +86,7 @@ class StatsScreen:
         while not self.changeScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.nextScreen = ScreenString.NONE
+                    self.nextScreen = ScreenType.NONE
                     self.changeScreen = True
                 elif event.type == pygame.KEYDOWN:
                     self.handleKeyDownEvent(event.key)

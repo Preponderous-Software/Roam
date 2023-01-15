@@ -7,7 +7,7 @@ from config.config import Config
 from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from entity.living.livingEntity import LivingEntity
-from screen.screens import ScreenString
+from screen.screenType import ScreenType
 from stats.stats import Stats
 from ui.energyBar import EnergyBar
 from entity.food import Food
@@ -36,7 +36,7 @@ class WorldScreen:
         self.player = player
         self.running = True
         self.showInventory = False
-        self.nextScreen = ScreenString.OPTIONS_SCREEN
+        self.nextScreen = ScreenType.OPTIONS_SCREEN
         self.changeScreen = False
     
     def initialize(self):
@@ -388,7 +388,7 @@ class WorldScreen:
 
     def handleKeyDownEvent(self, key):
         if key == pygame.K_ESCAPE:
-            self.nextScreen = ScreenString.OPTIONS_SCREEN
+            self.nextScreen = ScreenType.OPTIONS_SCREEN
             self.changeScreen = True
         elif key == pygame.K_w or key == pygame.K_UP:
             self.player.setDirection(0)
@@ -537,7 +537,7 @@ class WorldScreen:
             self.numDeaths += 1
     
     def switchToInventoryScreen(self):
-        self.nextScreen = ScreenString.INVENTORY_SCREEN
+        self.nextScreen = ScreenType.INVENTORY_SCREEN
         self.changeScreen = True
 
     def draw(self):
@@ -640,7 +640,7 @@ class WorldScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.printStatsToConsole()
-                    return ScreenString.NONE
+                    return ScreenType.NONE
                 elif event.type == pygame.KEYDOWN:
                     self.handleKeyDownEvent(event.key)
                 elif event.type == pygame.KEYUP:

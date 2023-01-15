@@ -2,7 +2,7 @@ import pygame
 from config.config import Config
 
 from lib.graphik.src.graphik import Graphik
-from screen.screens import ScreenString
+from screen.screenType import ScreenType
 
 # @author Daniel McCoy Stephenson
 class MainMenuScreen:
@@ -11,15 +11,15 @@ class MainMenuScreen:
         self.config = config
         self.running = True
         self.initializeWorldScreen = initializeWorldScreen
-        self.nextScreen = ScreenString.WORLD_SCREEN
+        self.nextScreen = ScreenType.WORLD_SCREEN
         self.changeScreen = False
         
     def switchToWorldScreen(self):
-        self.nextScreen = ScreenString.WORLD_SCREEN
+        self.nextScreen = ScreenType.WORLD_SCREEN
         self.changeScreen = True
     
     def switchToConfigScreen(self):
-        self.nextScreen = ScreenString.CONFIG_SCREEN
+        self.nextScreen = ScreenType.CONFIG_SCREEN
         self.changeScreen = True
 
     def quitApplication(self):
@@ -55,7 +55,7 @@ class MainMenuScreen:
         while not self.changeScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.nextScreen = ScreenString.NONE
+                    self.nextScreen = ScreenType.NONE
                     self.changeScreen = True
                     break
                 elif event.type == pygame.KEYDOWN:
