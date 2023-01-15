@@ -114,7 +114,7 @@ class InventoryScreen:
             # if mouse click was inside inventory slot, select that inventory slot
             if pos[0] > itemX and pos[0] < itemX + itemWidth and pos[1] > itemY and pos[1] < itemY + itemHeight:
                 index = row*itemsPerRow + column
-                inventorySlot 
+                self.inventory.setSelectedInventorySlotIndex(index)
             
             column += 1
             if column == itemsPerRow:
