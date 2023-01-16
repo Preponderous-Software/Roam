@@ -3,6 +3,7 @@ import random
 from entity.apple import Apple
 from entity.coalOre import CoalOre
 from entity.grass import Grass
+from entity.ironOre import IronOre
 from entity.jungleWood import JungleWood
 from entity.leaves import Leaves
 from entity.living.bear import Bear
@@ -105,7 +106,7 @@ class RoomFactory():
         self.fillWithRocks(newRoom)
         
         # generate coal
-        self.spawnSomeCoalOre(newRoom)
+        self.spawnSomeOre(newRoom)
         return newRoom
 
     # spawn methods
@@ -126,11 +127,15 @@ class RoomFactory():
             location = room.getGrid().getLocation(locationId)
             room.addEntityToLocation(Stone(), location)
     
-    def spawnSomeCoalOre(self, room: Room):
+    def spawnSomeOre(self, room: Room):
         for locationId in room.getGrid().getLocations():
             location = room.getGrid().getLocation(locationId)
             if random.randrange(1, 101) == 1: # 5% chance
-                room.addEntityToLocation(CoalOre(), location)
+                # 50% chance for coal, 50% chance for iron
+                if random.randrange(1, 101) > 50:
+                    room.addEntityToLocation(CoalOre(), location)
+                else:
+                    room.addEntityToLocation(IronOre(), location)
 
     def spawnOakTree(self, room: Room):
         wood = OakWood()
