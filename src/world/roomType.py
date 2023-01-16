@@ -4,4 +4,5 @@ class RoomType:
     GRASSLAND = "grassland"
     FOREST = "forest"
     JUNGLE = "jungle"
+    MOUNTAIN = "mountain"
     
