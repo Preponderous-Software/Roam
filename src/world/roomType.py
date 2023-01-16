@@ -2,5 +2,6 @@
 class RoomType:
     EMPTY = "empty"
     GRASSLAND = "grassland"
-    FOREST = "forest"    
+    FOREST = "forest"
+    JUNGLE = "jungle"
     
