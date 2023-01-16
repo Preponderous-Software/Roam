@@ -28,16 +28,20 @@ class RoomFactory():
             return self.createForestRoom(x, y)
         elif roomType == RoomType.JUNGLE:
             return self.createJungleRoom(x, y)
+        elif roomType == RoomType.MOUNTAIN:
+            return self.createMountainRoom(x, y)
     
     def createRandomRoom(self, x, y):
         # get random int
-        number = random.randrange(0, 3)
+        number = random.randrange(0, 4)
         if number == 0:
             newRoom = self.createRoom(RoomType.GRASSLAND, x, y)
         elif number == 1:
             newRoom = self.createRoom(RoomType.FOREST, x, y)
         elif number == 2:
             newRoom = self.createRoom(RoomType.JUNGLE, x, y)
+        elif number == 3:
+            newRoom = self.createRoom(RoomType.MOUNTAIN, x, y)
         else:
             newRoom = self.createRoom(RoomType.EMPTY, x, y)
         return newRoom
@@ -55,7 +59,7 @@ class RoomFactory():
         self.spawnGrass(newRoom)
 
         # generate rocks
-        self.spawnRocks(newRoom)
+        self.spawnSomeRocks(newRoom)
 
         # generate chickens
         self.spawnChickens(newRoom)
@@ -86,6 +90,13 @@ class RoomFactory():
             self.spawnTree(newRoom)
         return newRoom
 
+    def createMountainRoom(self, x, y):
+        newRoom = self.createEmptyRoom((random.randrange(100, 110), random.randrange(100, 110), random.randrange(100, 110)), x, y)
+        
+        # generate rocks
+        self.fillWithRocks(newRoom)
+        return newRoom
+
     # spawn methods
     def spawnGrass(self, room: Room):
         for locationId in room.getGrid().getLocations():
@@ -93,11 +104,16 @@ class RoomFactory():
             if random.randrange(1, 101) > 5: # 95% chance
                 room.addEntityToLocation(Grass(), location)
     
-    def spawnRocks(self, room: Room):
+    def spawnSomeRocks(self, room: Room):
         for locationId in room.getGrid().getLocations():
             location = room.getGrid().getLocation(locationId)
             if random.randrange(1, 101) == 1: # 1% chance
                 room.addEntityToLocation(Rock(), location)
+
+    def fillWithRocks(self, room: Room):
+        for locationId in room.getGrid().getLocations():
+            location = room.getGrid().getLocation(locationId)
+            room.addEntityToLocation(Rock(), location)
 
     def spawnTree(self, room: Room):
         wood = Wood()
