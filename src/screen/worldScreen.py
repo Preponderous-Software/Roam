@@ -487,7 +487,7 @@ class WorldScreen:
         self.currentRoom = self.map.getSpawnRoom()
         self.player.energy = self.player.targetEnergy
         self.status.set("respawned")
-        pygame.display.set_caption(("Roam " + str(self.currentRoom.getName())))
+        self.player.setTickCreated(self.tickCounter.getTick())
     
     def checkPlayerMovementCooldown(self, tickToCheck):
         ticksPerSecond = self.config.ticksPerSecond
