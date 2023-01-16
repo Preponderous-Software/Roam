@@ -18,17 +18,23 @@ class RoomFactory():
         self.gridSize = gridSize
         self.graphik = graphik
         self.tickCounter = tickCounter
+        self.lastRoomTypeCreated = RoomType.GRASSLAND
     
     def createRoom(self, roomType, x, y):
         if roomType == RoomType.EMPTY:
+            self.lastRoomTypeCreated = RoomType.EMPTY
             return self.createEmptyRoom((0, 0, 0), x, y)
         elif roomType == RoomType.GRASSLAND:
+            self.lastRoomTypeCreated = RoomType.GRASSLAND
             return self.createGrassRoom(x, y)
         elif roomType == RoomType.FOREST:
+            self.lastRoomTypeCreated = RoomType.FOREST
             return self.createForestRoom(x, y)
         elif roomType == RoomType.JUNGLE:
+            self.lastRoomTypeCreated = RoomType.JUNGLE
             return self.createJungleRoom(x, y)
         elif roomType == RoomType.MOUNTAIN:
+            self.lastRoomTypeCreated = RoomType.MOUNTAIN
             return self.createMountainRoom(x, y)
     
     def createRandomRoom(self, x, y):

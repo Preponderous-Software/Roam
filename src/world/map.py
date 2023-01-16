@@ -43,6 +43,11 @@ class Map:
         return grid.getLocation(locationID)
 
     def generateNewRoom(self, x, y):
-        newRoom = self.roomFactory.createRandomRoom(x, y)
+        # 50% chance to generate last room type
+        newRoom = None
+        if random.randrange(1, 101) > 50:
+            newRoom = self.roomFactory.createRoom(self.roomFactory.lastRoomTypeCreated, x, y)
+        else:
+            newRoom = self.roomFactory.createRandomRoom(x, y)
         self.rooms.append(newRoom)
         return newRoom
