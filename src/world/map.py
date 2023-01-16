@@ -5,7 +5,7 @@ from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from lib.graphik.src.graphik import Graphik
 from entity.rock import Rock
-from entity.wood import Wood
+from entity.oakWood import OakWood
 from lib.pyenvlib.entity import Entity
 from entity.grass import Grass
 from entity.leaves import Leaves

@@ -2,11 +2,12 @@ from math import ceil
 import random
 from entity.apple import Apple
 from entity.grass import Grass
+from entity.jungleWood import JungleWood
 from entity.leaves import Leaves
 from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from entity.rock import Rock
-from entity.wood import Wood
+from entity.oakWood import OakWood
 from lib.pyenvlib.entity import Entity
 
 from world.room import Room
@@ -78,7 +79,7 @@ class RoomFactory():
         # generate food
         maxTrees = ceil(self.gridSize/3)
         for i in range(0, maxTrees):
-            self.spawnTree(newRoom)
+            self.spawnOakTree(newRoom)
 
         # generate bears
         self.spawnBears(newRoom)
@@ -93,7 +94,7 @@ class RoomFactory():
         # generate lots of food
         maxTrees = ceil(self.gridSize/3)
         for i in range(0, maxTrees*4):
-            self.spawnTree(newRoom)
+            self.spawnJungleTree(newRoom)
         return newRoom
 
     def createMountainRoom(self, x, y):
@@ -121,8 +122,8 @@ class RoomFactory():
             location = room.getGrid().getLocation(locationId)
             room.addEntityToLocation(Rock(), location)
 
-    def spawnTree(self, room: Room):
-        wood = Wood()
+    def spawnOakTree(self, room: Room):
+        wood = OakWood()
         room.addEntity(wood)
 
         location = self.getLocationOfEntity(wood, room)
@@ -135,11 +136,30 @@ class RoomFactory():
         
         # spawn leaves and apples around the tree
         for appleSpawnLocation in locationsToSpawnApples:
-            if appleSpawnLocation == -1 or self.locationContainsEntityType(appleSpawnLocation, Wood):
+            if appleSpawnLocation == -1 or self.locationContainsEntityType(appleSpawnLocation, OakWood):
                 continue
             room.addEntityToLocation(Leaves(), appleSpawnLocation)
             if random.randrange(0, 2) == 0:
                 room.addEntityToLocation(Apple(), appleSpawnLocation)
+    
+    def spawnJungleTree(self, room: Room):
+        wood = JungleWood()
+        room.addEntity(wood)
+        
+        location = self.getLocationOfEntity(wood, room)
+        
+        locationsToSpawnLeaves = []
+        locationsToSpawnLeaves.append(room.grid.getUp(location))
+        locationsToSpawnLeaves.append(room.grid.getLeft(location))
+        locationsToSpawnLeaves.append(room.grid.getDown(location))
+        locationsToSpawnLeaves.append(room.grid.getRight(location))
+        
+        # spawn abundance of leaves around the tree
+        for leavesSpawnLocation in locationsToSpawnLeaves:
+            if leavesSpawnLocation == -1 or self.locationContainsEntityType(leavesSpawnLocation, JungleWood):
+                continue
+            room.addEntityToLocation(Leaves(), leavesSpawnLocation)
+            room.addEntityToLocation(Leaves(), leavesSpawnLocation)
     
     def spawnChickens(self, room: Room):
         for i in range(0, 5):
