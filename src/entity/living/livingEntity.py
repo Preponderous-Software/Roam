@@ -39,6 +39,9 @@ class LivingEntity(DrawableEntity):
     def getTickCreated(self):
         return self.tickCreated
     
+    def setTickCreated(self, tick):
+        self.tickCreated = tick
+    
     def getAge(self, tick):
         return tick - self.tickCreated
     
