@@ -4,6 +4,7 @@ import time
 import pygame
 from entity.apple import Apple
 from config.config import Config
+from entity.coalOre import CoalOre
 from entity.jungleWood import JungleWood
 from entity.living.bear import Bear
 from entity.living.chicken import Chicken
@@ -15,7 +16,7 @@ from entity.food import Food
 from lib.graphik.src.graphik import Graphik
 from entity.grass import Grass
 from lib.pyenvlib.grid import Grid
-from entity.rock import Rock
+from entity.stone import Stone
 from entity.leaves import Leaves
 from lib.pyenvlib.location import Location
 from world.roomFactory import RoomFactory
@@ -266,7 +267,7 @@ class WorldScreen:
         self.player.setTickLastMoved(self.tickCounter.getTick())
     
     def canBePickedUp(self, entity):
-        itemTypes = [OakWood, JungleWood, Leaves, Grass, Apple, Rock, Chicken, Bear]
+        itemTypes = [OakWood, JungleWood, Leaves, Grass, Apple, Stone, CoalOre, Chicken, Bear]
         for itemType in itemTypes:
             if isinstance(entity, itemType):
                 return True
