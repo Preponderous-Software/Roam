@@ -4,7 +4,7 @@ from entity.apple import Apple
 from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from lib.graphik.src.graphik import Graphik
-from entity.rock import Rock
+from entity.stone import Stone
 from entity.oakWood import OakWood
 from lib.pyenvlib.entity import Entity
 from entity.grass import Grass

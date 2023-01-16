@@ -1,12 +1,13 @@
 from math import ceil
 import random
 from entity.apple import Apple
+from entity.coalOre import CoalOre
 from entity.grass import Grass
 from entity.jungleWood import JungleWood
 from entity.leaves import Leaves
 from entity.living.bear import Bear
 from entity.living.chicken import Chicken
-from entity.rock import Rock
+from entity.stone import Stone
 from entity.oakWood import OakWood
 from lib.pyenvlib.entity import Entity
 
@@ -102,6 +103,9 @@ class RoomFactory():
         
         # generate rocks
         self.fillWithRocks(newRoom)
+        
+        # generate coal
+        self.spawnSomeCoalOre(newRoom)
         return newRoom
 
     # spawn methods
@@ -115,12 +119,18 @@ class RoomFactory():
         for locationId in room.getGrid().getLocations():
             location = room.getGrid().getLocation(locationId)
             if random.randrange(1, 101) == 1: # 1% chance
-                room.addEntityToLocation(Rock(), location)
+                room.addEntityToLocation(Stone(), location)
 
     def fillWithRocks(self, room: Room):
         for locationId in room.getGrid().getLocations():
             location = room.getGrid().getLocation(locationId)
-            room.addEntityToLocation(Rock(), location)
+            room.addEntityToLocation(Stone(), location)
+    
+    def spawnSomeCoalOre(self, room: Room):
+        for locationId in room.getGrid().getLocations():
+            location = room.getGrid().getLocation(locationId)
+            if random.randrange(1, 101) == 1: # 5% chance
+                room.addEntityToLocation(CoalOre(), location)
 
     def spawnOakTree(self, room: Room):
         wood = OakWood()
