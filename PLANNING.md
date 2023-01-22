@@ -12,10 +12,20 @@ Energy will decrease when the player moves and will replenish when the player ea
 The map will be generated as the player explores.
 
 ### Inventory
-The player will have an inventory that can hold items. The player can cycle through the inventory with the `e` and `q` keys and can open/close the inventory with the `i` key.
+The player will have an inventory that can hold items. The player can open/close the inventory with the `i` key.
 
-### Crafting
+### Crafting (unimplemented)
 The player will be able to craft items using the items in their inventory.
 
 ### Food
 The player will be able to eat food to replenish energy. Food will be able to be found in the world or grown by the player.
+
+## Room Types
+- Grass
+- Forest
+- Jungle
+- Mountain
+
+## Mobs
+- Chicken
+- Bear
