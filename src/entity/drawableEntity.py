@@ -11,6 +11,9 @@ class DrawableEntity(Entity):
     
     def getImage(self):
         return pygame.image.load(self.imagePath)
+
+    def getImagePath(self):
+        return self.imagePath
     
     def setImagePath(self, imagePath):
         self.imagePath = imagePath

@@ -1,0 +1,30 @@
+{
+    "type": "object",
+    "properties": {
+        "inventorySlots": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "slotIndex": {"type": "integer"},
+                    "slotContents": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "entityId": {"type": "string"},
+                                "entityClass": {"type": "string"},
+                                "name": {"type": "string"},
+                                "assetPath": {"type": "string"},
+                                "energy": {"type": "integer"}
+                            },
+                            "required": ["entityId", "entityClass", "name", "assetPath"]
+                        }
+                    }
+                },
+                "required": ["slotIndex", "slotContents"]
+            }
+        }
+    },
+    "required": ["inventorySlots"]
+}
