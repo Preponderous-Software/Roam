@@ -18,7 +18,7 @@ from entity.stone import Stone
 from inventory.inventory import Inventory
 
 
-class JsonReaderWriter:
+class InventoryJsonReaderWriter:
 
     def saveInventory(self, inventory: Inventory):
         print("Saving inventory...")

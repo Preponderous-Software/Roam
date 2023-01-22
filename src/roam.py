@@ -1,7 +1,7 @@
 import pygame
 from config.config import Config
 from entity.living.player import Player
-from jsonReaderWriter import JsonReaderWriter
+from inventory.inventoryJsonReaderWriter import InventoryJsonReaderWriter
 from lib.graphik.src.graphik import Graphik
 from screen.configScreen import ConfigScreen
 from screen.inventoryScreen import InventoryScreen
@@ -50,15 +50,14 @@ class Roam:
         self.worldScreen.initialize()
 
     def save(self):
-        jsonReaderWriter = JsonReaderWriter()
-        jsonReaderWriter.saveInventory(self.player.getInventory())
+        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
+        inventoryJsonReaderWriter.saveInventory(self.player.getInventory())
 
     def load(self):
-        jsonReaderWriter = JsonReaderWriter()
-        inventory = jsonReaderWriter.loadInventory()
+        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
+        inventory = inventoryJsonReaderWriter.loadInventory()
         if inventory is not None:
             self.player.setInventory(inventory)
-        pass
 
     def quitApplication(self):
         self.save()
