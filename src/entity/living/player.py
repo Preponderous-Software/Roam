@@ -43,6 +43,9 @@ class Player(LivingEntity):
     
     def getInventory(self):
         return self.inventory
+
+    def setInventory(self, inventory):
+        self.inventory = inventory
     
     def isGathering(self):
         return self.gathering

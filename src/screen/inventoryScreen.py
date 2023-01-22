@@ -139,3 +139,6 @@ class InventoryScreen:
             
         self.changeScreen = False
         return self.nextScreen
+    
+    def setInventory(self, inventory):
+        self.inventory = inventory

@@ -1,6 +1,7 @@
 import pygame
 from config.config import Config
 from entity.living.player import Player
+from jsonReaderWriter import JsonReaderWriter
 from lib.graphik.src.graphik import Graphik
 from screen.configScreen import ConfigScreen
 from screen.inventoryScreen import InventoryScreen
@@ -37,6 +38,8 @@ class Roam:
         self.configScreen = ConfigScreen(self.graphik, self.config, self.status)
         self.currentScreen = self.mainMenuScreen
 
+        self.load()
+
     def initializeGameDisplay(self):
         if self.config.fullscreen:
             return pygame.display.set_mode((self.config.displayWidth, self.config.displayHeight), pygame.FULLSCREEN)
@@ -46,12 +49,25 @@ class Roam:
     def initializeWorldScreen(self):
         self.worldScreen.initialize()
 
+    def save(self):
+        jsonReaderWriter = JsonReaderWriter()
+        jsonReaderWriter.saveInventory(self.player.getInventory())
+
+    def load(self):
+        jsonReaderWriter = JsonReaderWriter()
+        inventory = jsonReaderWriter.loadInventory()
+        if inventory is not None:
+            self.player.setInventory(inventory)
+        pass
+
     def quitApplication(self):
+        self.save()
         pygame.quit()
         quit()
     
     def run(self):
         while True:
+            self.save()
             result = self.currentScreen.run()
             if result == ScreenType.MAIN_MENU_SCREEN:
                 return "restart"
@@ -63,6 +79,7 @@ class Roam:
                 self.currentScreen = self.statsScreen
             elif result == ScreenType.INVENTORY_SCREEN:
                 self.currentScreen = self.inventoryScreen
+                self.inventoryScreen.setInventory(self.player.getInventory())
             elif result == ScreenType.CONFIG_SCREEN:
                 self.currentScreen = self.configScreen
             elif result == ScreenType.NONE:
