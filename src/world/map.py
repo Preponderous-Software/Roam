@@ -69,3 +69,6 @@ class Map:
         roomJsonReaderWriter.saveRoom(newRoom, path)
 
         return newRoom
+    
+    def addRoom(self, room):
+        self.rooms.append(room)

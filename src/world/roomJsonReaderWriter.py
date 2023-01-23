@@ -109,7 +109,8 @@ class RoomJsonReaderWriter:
     
     # generate room methods
     def generateRoomFromJson(self, roomJson):
-        room = Room(roomJson["name"], self.gridSize, (0, 0, 0), roomJson["x"], roomJson["y"], self.graphik)
+        brownColor = (139, 69, 19) # TODO: load in color from json
+        room = Room(roomJson["name"], self.gridSize, brownColor, roomJson["x"], roomJson["y"], self.graphik)
         room.setID(roomJson["id"])
         # room.setCreationDate(roomJson["creationDate"])
         room.setGrid(self.generateGridFromJson(roomJson["grid"]))

@@ -1,5 +1,6 @@
 import datetime
 from math import ceil
+import os
 import time
 import pygame
 from entity.apple import Apple
@@ -165,9 +166,15 @@ class WorldScreen:
         
         room = self.map.getRoom(x, y)
         if room == -1:
-            x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
-            self.currentRoom = self.map.generateNewRoom(x, y)
-            self.status.set("new area discovered")
+            # attempt to load room if file exists, otherwise generate new room
+            path = "data/rooms/room_" + str(x) + "_" + str(y) + ".json"
+            if os.path.exists(path):
+                room = roomJsonReaderWriter.loadRoom(path)
+                self.map.addRoom(room)
+            else:
+                x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
+                self.currentRoom = self.map.generateNewRoom(x, y)
+                self.status.set("new area discovered")
         else:
             self.currentRoom = room
 
