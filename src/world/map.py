@@ -35,6 +35,7 @@ class Map:
         else:
             print("Generating new spawn room")
             self.spawnRoom = self.generateNewRoom(0, 0)
+        self.rooms.append(self.spawnRoom)
     
     def getRooms(self):
         return self.rooms
