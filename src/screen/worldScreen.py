@@ -21,6 +21,7 @@ from entity.stone import Stone
 from entity.leaves import Leaves
 from lib.pyenvlib.location import Location
 from world.roomFactory import RoomFactory
+from world.roomJsonReaderWriter import RoomJsonReaderWriter
 from world.tickCounter import TickCounter
 from world.map import Map
 from entity.living.player import Player
@@ -156,6 +157,11 @@ class WorldScreen:
 
         playerLocation = self.getLocationOfPlayer()
         self.currentRoom.removeEntity(self.player)
+
+        # save current room to file
+        roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
+        path = "data/rooms/room_" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".json"
+        roomJsonReaderWriter.saveRoom(self.currentRoom, path)
         
         room = self.map.getRoom(x, y)
         if room == -1:
@@ -678,6 +684,11 @@ class WorldScreen:
             if self.player.isDead():
                 time.sleep(3)
                 self.respawnPlayer()
+        
+        # save current room to file
+        roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
+        path = "data/rooms/room_" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".json"
+        roomJsonReaderWriter.saveRoom(self.currentRoom, path)
         
         self.updateStats()
         self.changeScreen = False

@@ -14,6 +14,7 @@ from entity.leaves import Leaves
 from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from entity.living.livingEntity import LivingEntity
+from entity.living.player import Player
 from entity.oakWood import OakWood
 from entity.stone import Stone
 from lib.graphik.src.graphik import Graphik
@@ -139,6 +140,8 @@ class RoomJsonReaderWriter:
         entities = {}
         for entityJson in entitiesJson:
             entity = self.generateEntityFromJson(entityJson)
+            if (entity == None):
+                continue
             entities[entity.getID()] = entity
         return entities
 
@@ -175,6 +178,8 @@ class RoomJsonReaderWriter:
         elif entityClass == "Chicken":
             entity = Chicken(entityJson['tickCreated'])
             entity.setID(UUID(entityJson['id']))
+        elif entityClass == "Player":
+            pass
         else:
-            print("Unknown entity class: " + entity['entityClass'])
+            raise Exception("Unknown entity class: " + entityJson['entityClass'])
         return entity
