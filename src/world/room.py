@@ -168,3 +168,6 @@ class Room(Environment):
             if entity.isSolid():
                 return True
         return False
+    
+    def getLivingEntities(self):
+        return self.livingEntities
