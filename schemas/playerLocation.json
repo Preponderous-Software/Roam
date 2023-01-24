@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "properties": {
+        "roomX": {
+            "type": "integer"
+        },
+        "roomY": {
+            "type": "integer"
+        },
+        "locationId": {
+            "type": "string"
+        }
+    }
+}
