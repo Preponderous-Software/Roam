@@ -14,7 +14,7 @@ from entity.leaves import Leaves
 from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from entity.living.livingEntity import LivingEntity
-from entity.living.player import Player
+from player.player import Player
 from entity.oakWood import OakWood
 from entity.stone import Stone
 from lib.graphik.src.graphik import Graphik

@@ -1,7 +1,7 @@
 import random
 from entity.living.chicken import Chicken
 from entity.living.livingEntity import LivingEntity
-from entity.living.player import Player
+from player.player import Player
 
 
 # @author Daniel McCoy Stephenson

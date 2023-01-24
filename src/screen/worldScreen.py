@@ -25,7 +25,7 @@ from world.roomFactory import RoomFactory
 from world.roomJsonReaderWriter import RoomJsonReaderWriter
 from world.tickCounter import TickCounter
 from world.map import Map
-from entity.living.player import Player
+from player.player import Player
 from ui.status import Status
 from entity.oakWood import OakWood
 
@@ -700,10 +700,7 @@ class WorldScreen:
                 time.sleep(3)
                 self.respawnPlayer()
         
-        # save current room to file
-        roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
-        path = "data/rooms/room_" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".json"
-        roomJsonReaderWriter.saveRoom(self.currentRoom, path)
+        self.saveCurrentRoomToFile()
         
         self.updateStats()
         self.changeScreen = False

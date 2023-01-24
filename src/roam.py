@@ -1,6 +1,6 @@
 import pygame
 from config.config import Config
-from entity.living.player import Player
+from player.player import Player
 from inventory.inventoryJsonReaderWriter import InventoryJsonReaderWriter
 from lib.graphik.src.graphik import Graphik
 from screen.configScreen import ConfigScreen
