@@ -161,16 +161,18 @@ class WorldScreen:
 
         # save current room to file
         roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
-        path = "data/rooms/room_" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".json"
-        roomJsonReaderWriter.saveRoom(self.currentRoom, path)
+        currentRoomPath = "data/rooms/room_" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".json"
+        roomJsonReaderWriter.saveRoom(self.currentRoom, currentRoomPath)
         
         room = self.map.getRoom(x, y)
         if room == -1:
             # attempt to load room if file exists, otherwise generate new room
-            path = "data/rooms/room_" + str(x) + "_" + str(y) + ".json"
-            if os.path.exists(path):
-                room = roomJsonReaderWriter.loadRoom(path)
+            nextRoomPath = "data/rooms/room_" + str(x) + "_" + str(y) + ".json"
+            if os.path.exists(nextRoomPath):
+                room = roomJsonReaderWriter.loadRoom(nextRoomPath)
                 self.map.addRoom(room)
+                self.currentRoom = room
+                self.status.set("area loaded")
             else:
                 x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
                 self.currentRoom = self.map.generateNewRoom(x, y)
