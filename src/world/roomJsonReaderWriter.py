@@ -30,9 +30,11 @@ class RoomJsonReaderWriter:
         self.gridSize = gridSize
         self.graphik = graphik
         self.tickCounter = tickCounter
+        self.roomSchema = json.load(open("schemas/room.json"))
 
     # save and load methods
     def saveRoom(self, room, path):
+        print("Saving room to " + path)
         roomJson = self.generateJsonForRoom(room)
         if not os.path.exists("data/rooms"):
             os.makedirs("data/rooms")
@@ -40,6 +42,7 @@ class RoomJsonReaderWriter:
             json.dump(roomJson, outfile, indent=4)
 
     def loadRoom(self, path):
+        print("Loading room from " + path)
         with open(path) as json_file:
             roomJson = json.load(json_file)
             return self.generateRoomFromJson(roomJson)
@@ -56,9 +59,8 @@ class RoomJsonReaderWriter:
         roomJson["grid"] = self.generateJsonForGrid(room.getGrid())
         roomJson["creationDate"] = str(room.getCreationDate())
 
-        # validate json with scema``
-        roomSchema = json.load(open("schemas/room.json"))
-        jsonschema.validate(roomJson, roomSchema)
+        # validate json with schema
+        jsonschema.validate(roomJson, self.roomSchema)
         return roomJson
     
     def generateJsonForGrid(self, grid):

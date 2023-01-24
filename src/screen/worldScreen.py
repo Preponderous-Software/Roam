@@ -43,6 +43,7 @@ class WorldScreen:
         self.showInventory = False
         self.nextScreen = ScreenType.OPTIONS_SCREEN
         self.changeScreen = False
+        self.roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
     
     def initialize(self):
         self.map = Map(self.config.gridSize, self.graphik, self.tickCounter)
@@ -149,6 +150,10 @@ class WorldScreen:
     def ifCorner(self, location: Location):
         return (location.getX() == 0 and location.getY() == 0) or (location.getX() == self.config.gridSize - 1 and location.getY() == 0) or (location.getX() == 0 and location.getY() == self.config.gridSize - 1) or (location.getX() == self.config.gridSize - 1 and location.getY() == self.config.gridSize - 1)
     
+    def saveCurrentRoomToFile(self):
+        currentRoomPath = "data/rooms/room_" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".json"
+        self.roomJsonReaderWriter.saveRoom(self.currentRoom, currentRoomPath)
+    
     def changeRooms(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
 
@@ -159,16 +164,14 @@ class WorldScreen:
         playerLocation = self.getLocationOfPlayer()
         self.currentRoom.removeEntity(self.player)
 
-        # save current room to file
-        roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
-        currentRoomPath = "data/rooms/room_" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".json"
-        roomJsonReaderWriter.saveRoom(self.currentRoom, currentRoomPath)
+        self.saveCurrentRoomToFile()
         
         room = self.map.getRoom(x, y)
         if room == -1:
             # attempt to load room if file exists, otherwise generate new room
             nextRoomPath = "data/rooms/room_" + str(x) + "_" + str(y) + ".json"
             if os.path.exists(nextRoomPath):
+                roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
                 room = roomJsonReaderWriter.loadRoom(nextRoomPath)
                 self.map.addRoom(room)
                 self.currentRoom = room
@@ -499,6 +502,9 @@ class WorldScreen:
 
         self.currentRoom.removeEntity(self.player)
         self.map.getSpawnRoom().addEntity(self.player)
+        
+        self.saveCurrentRoomToFile()
+        
         self.currentRoom = self.map.getSpawnRoom()
         self.player.energy = self.player.targetEnergy
         self.status.set("respawned")
