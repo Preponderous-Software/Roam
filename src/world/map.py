@@ -44,6 +44,15 @@ class Map:
         for room in self.getRooms():
             if room.getX() == x and room.getY() == y:
                 return room
+    
+        # attempt to load room if file exists, otherwise generate new room
+        nextRoomPath = "data/rooms/room_" + str(x) + "_" + str(y) + ".json"
+        if os.path.exists(nextRoomPath):
+            roomJsonReaderWriter = RoomJsonReaderWriter(self.gridSize, self.graphik, self.tickCounter)
+            room = roomJsonReaderWriter.loadRoom(nextRoomPath)
+            self.addRoom(room)
+            return room
+        
         return -1
     
     def getSpawnRoom(self):

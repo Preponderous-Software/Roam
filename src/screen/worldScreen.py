@@ -1,7 +1,10 @@
 import datetime
+import json
 from math import ceil
 import os
 import time
+from uuid import UUID
+import jsonschema
 import pygame
 from entity.apple import Apple
 from config.config import Config
@@ -49,7 +52,13 @@ class WorldScreen:
         self.map = Map(self.config.gridSize, self.graphik, self.tickCounter)
         self.currentRoom = self.map.getSpawnRoom()
         self.initializeLocationWidthAndHeight()
-        self.currentRoom.addEntity(self.player)
+        
+        # load player location if possible
+        if (os.path.exists("data/playerLocation.json")):
+            self.loadPlayerLocationFromFile()
+        else:
+            self.currentRoom.addEntity(self.player)
+            
         self.status.set("entered the world")
         self.score = 0
         self.numApplesEaten = 0
@@ -659,6 +668,40 @@ class WorldScreen:
                 # set status to age of entity
                 self.status.set(entity.getName() + " (age: " + str(entity.getAge(self.tickCounter.getTick())) + " ticks)")
 
+    def savePlayerLocationToFile(self):
+        jsonPlayerLocation = {}
+        
+        jsonPlayerLocation["roomX"] = self.currentRoom.getX()
+        jsonPlayerLocation["roomY"] = self.currentRoom.getY()
+        
+        playerLocationId = self.player.getLocationID()
+        jsonPlayerLocation["locationId"] = str(playerLocationId)
+        
+        # validate
+        playerLocationSchema = json.load(open("schemas/playerLocation.json"))
+        jsonschema.validate(jsonPlayerLocation, playerLocationSchema)
+        
+        path = "data/playerLocation.json"
+        json.dump(jsonPlayerLocation, open(path, "w"), indent=4)
+    
+    def loadPlayerLocationFromFile(self):
+        path = "data/playerLocation.json"
+        if not os.path.exists(path):
+            return
+        jsonPlayerLocation = json.load(open(path))
+        
+        # validate
+        playerLocationSchema = json.load(open("schemas/playerLocation.json"))
+        jsonschema.validate(jsonPlayerLocation, playerLocationSchema)
+        
+        roomX = jsonPlayerLocation["roomX"]
+        roomY = jsonPlayerLocation["roomY"]        
+        self.currentRoom = self.map.getRoom(roomX, roomY)
+        
+        locationId = jsonPlayerLocation["locationId"]
+        location = self.currentRoom.getGrid().getLocation(locationId)
+        self.currentRoom.addEntityToLocation(self.player, location)
+
     def run(self):
         while not self.changeScreen:
             for event in pygame.event.get():
@@ -701,6 +744,7 @@ class WorldScreen:
                 self.respawnPlayer()
         
         self.saveCurrentRoomToFile()
+        self.savePlayerLocationToFile()
         
         self.updateStats()
         self.changeScreen = False
