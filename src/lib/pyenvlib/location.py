@@ -60,3 +60,12 @@ class Location(object):
             print("Warning: An entity was not present when attempting to retrieve it from a location.")
             return None
         return self.entities[id]
+    
+    def setID(self, id):
+        self.id = id
+    
+    def setCreationDate(self, creationDate):
+        self.creationDate = creationDate
+    
+    def setEntities(self, entities):
+        self.entities = entities

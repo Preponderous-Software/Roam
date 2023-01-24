@@ -1,0 +1,115 @@
+{
+    "type": "object",
+    "properties": {
+        "backgroundColor": {
+            "type": "string"
+        },
+        "x": {
+            "type": "number"
+        },
+        "y": {
+            "type": "number"
+        },
+        "livingEntityIds": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "id": {
+            "type": "string"
+        },
+        "name": {
+            "type": "string"
+        },
+        "grid": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "columns": {
+                    "type": "integer"
+                },
+                "rows": {
+                    "type": "integer"
+                },
+                "locations": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "x": {
+                                "type": "integer"
+                            },
+                            "y": {
+                                "type": "integer"
+                            },
+                            "entities": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "creationDate": {
+                                            "type": "string"
+                                        },
+                                        "environmentId": {
+                                            "type": "string"
+                                        },
+                                        "gridId": {
+                                            "type": "string"
+                                        },
+                                        "locationId": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "name",
+                                        "creationDate",
+                                        "environmentId",
+                                        "gridId",
+                                        "locationId"
+                                    ]
+                                }
+                            }
+                        },
+                        "required": [
+                            "x",
+                            "y",
+                            "entities"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "id",
+                "columns",
+                "rows",
+                "locations"
+            ]
+        },
+        "creationDate": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "backgroundColor",
+        "x",
+        "y",
+        "livingEntityIds",
+        "id",
+        "name",
+        "grid",
+        "creationDate"
+    ]
+}

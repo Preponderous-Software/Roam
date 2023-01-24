@@ -50,6 +50,9 @@ class Room(Environment):
         self.livingEntities[entity.getID()] = entity
     
     def removeLivingEntity(self, entity):
+        if entity.getID() not in self.livingEntities:
+            print("Entity was not found in living entities list when trying to remove it. Entity ID: " + str(entity.getID()))
+            return
         del self.livingEntities[entity.getID()]
     
     def getRandomAdjacentLocation(self, location):
@@ -168,3 +171,6 @@ class Room(Environment):
             if entity.isSolid():
                 return True
         return False
+    
+    def getLivingEntities(self):
+        return self.livingEntities
