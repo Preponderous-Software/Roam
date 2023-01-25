@@ -58,6 +58,10 @@ class WorldScreen:
             self.loadPlayerLocationFromFile()
         else:
             self.currentRoom.addEntity(self.player)
+        
+        # load stats if possible
+        if (os.path.exists("data/stats.json")):
+            self.loadStatsFromFile()
             
         self.status.set("entered the world")
         self.score = 0
@@ -701,6 +705,38 @@ class WorldScreen:
         locationId = jsonPlayerLocation["locationId"]
         location = self.currentRoom.getGrid().getLocation(locationId)
         self.currentRoom.addEntityToLocation(self.player, location)
+    
+    def saveStatsToFile(self):
+        jsonStats = {}
+        
+        jsonStats["score"] = str(self.score)
+        jsonStats["roomsExplored"] = str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder*2 + 1)*(self.config.worldBorder*2 + 1))
+        jsonStats["applesEaten"] = str(self.numApplesEaten)
+        jsonStats["itemsInInventory"] = str(self.player.getInventory().getNumItems())
+        jsonStats["numberOfDeaths"] = str(self.numDeaths)
+        
+        # validate
+        statsSchema = json.load(open("schemas/stats.json"))
+        jsonschema.validate(jsonStats, statsSchema)
+        
+        path = "data/stats.json"
+        json.dump(jsonStats, open(path, "w"), indent=4)
+    
+    def loadStatsFromFile(self):
+        path = "data/stats.json"
+        if not os.path.exists(path):
+            return
+        jsonStats = json.load(open(path))
+        
+        # validate
+        statsSchema = json.load(open("schemas/stats.json"))
+        jsonschema.validate(jsonStats, statsSchema)
+        
+        self.score = jsonStats["score"]
+        self.roomsExplored = jsonStats["roomsExplored"]
+        self.applesEaten = jsonStats["applesEaten"]
+        self.itemsInInventory = jsonStats["itemsInInventory"]
+        self.numberOfDeaths = jsonStats["numberOfDeaths"]
 
     def run(self):
         while not self.changeScreen:
@@ -745,6 +781,7 @@ class WorldScreen:
         
         self.saveCurrentRoomToFile()
         self.savePlayerLocationToFile()
+        self.saveStatsToFile()
         
         self.updateStats()
         self.changeScreen = False
