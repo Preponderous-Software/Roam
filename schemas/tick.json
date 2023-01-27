@@ -1,0 +1,8 @@
+{
+    "type": "object",
+    "properties": {
+        "tick": {
+            "type": "integer"
+        }
+    }
+}

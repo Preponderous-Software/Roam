@@ -62,6 +62,10 @@ class WorldScreen:
         # load stats if possible
         if (os.path.exists("data/stats.json")):
             self.stats.load()
+        
+        # load tick if possible
+        if (os.path.exists("data/tick.json")):
+            self.tickCounter.load()
             
         self.status.set("entered the world")
         self.energyBar = EnergyBar(self.graphik, self.player)
@@ -741,6 +745,7 @@ class WorldScreen:
         self.saveCurrentRoomToFile()
         self.savePlayerLocationToFile()
         self.stats.save()
+        self.tickCounter.save()
         
         self.changeScreen = False
         return self.nextScreen
