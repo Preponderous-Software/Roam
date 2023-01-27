@@ -15,6 +15,9 @@ class LivingEntity(DrawableEntity):
     def getEnergy(self):
         return self.energy
 
+    def setEnergy(self, energy):
+        self.energy = energy
+
     def addEnergy(self, amount):
         self.energy += amount
     

@@ -4,5 +4,8 @@
         "tick": {
             "type": "integer"
         }
-    }
+    },
+    "required": [
+        "tick"
+    ]
 }
