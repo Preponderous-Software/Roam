@@ -273,7 +273,7 @@ class WorldScreen:
                 self.player.kill()
                 return
         
-        if self.player.getEnergy() < self.player.getTargetEnergy() * 0.95:
+        if self.player.needsEnergy():
             # search for food to eat
             for entityId in list(newLocation.getEntities().keys()):
                 entity = newLocation.getEntity(entityId)
@@ -281,8 +281,7 @@ class WorldScreen:
                     newLocation.removeEntity(entity)
                     self.player.addEnergy(entity.getEnergy())
                     
-                    if isinstance(entity, Apple):
-                        self.stats.incrementFoodEaten()
+                    self.stats.incrementFoodEaten()
     
                     self.status.set("ate '" + entity.getName() + "'")
                     
