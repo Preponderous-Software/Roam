@@ -59,6 +59,10 @@ class WorldScreen:
         else:
             self.currentRoom.addEntity(self.player)
         
+        # load player attributes if possible
+        if (os.path.exists("data/playerAttributes.json")):
+            self.loadPlayerAttributesFromFile()
+        
         # load stats if possible
         if (os.path.exists("data/stats.json")):
             self.stats.load()
@@ -700,6 +704,30 @@ class WorldScreen:
         locationId = jsonPlayerLocation["locationId"]
         location = self.currentRoom.getGrid().getLocation(locationId)
         self.currentRoom.addEntityToLocation(self.player, location)
+    
+    def savePlayerAttributesToFile(self):
+        jsonPlayerAttributes = {}
+        jsonPlayerAttributes["energy"] = ceil(self.player.getEnergy())
+        
+        # validate
+        playerAttributesSchema = json.load(open("schemas/playerAttributes.json"))
+        jsonschema.validate(jsonPlayerAttributes, playerAttributesSchema)
+        
+        path = "data/playerAttributes.json"
+        json.dump(jsonPlayerAttributes, open(path, "w"), indent=4)
+    
+    def loadPlayerAttributesFromFile(self):
+        path = "data/playerAttributes.json"
+        if not os.path.exists(path):
+            return
+        jsonPlayerAttributes = json.load(open(path))
+        
+        # validate
+        playerAttributesSchema = json.load(open("schemas/playerAttributes.json"))
+        jsonschema.validate(jsonPlayerAttributes, playerAttributesSchema)
+        
+        energy = jsonPlayerAttributes["energy"]
+        self.player.setEnergy(energy)
 
     def run(self):
         while not self.changeScreen:
@@ -744,6 +772,7 @@ class WorldScreen:
         
         self.saveCurrentRoomToFile()
         self.savePlayerLocationToFile()
+        self.savePlayerAttributesToFile()
         self.stats.save()
         self.tickCounter.save()
         
