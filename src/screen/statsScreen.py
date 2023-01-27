@@ -59,20 +59,14 @@ class StatsScreen:
         # draw apples eaten
         self.xpos = xpos
         self.ypos = ypos + height*2
-        text = "apples eaten: " + str(self.stats.getApplesEaten())
+        text = "food eaten: " + str(self.stats.getFoodEaten())
         self.graphik.drawText(text, xpos, ypos + height*2, 30, (255,255,255))
-        
-        # draw items in inventory
-        self.xpos = xpos
-        self.ypos = ypos + height*3
-        text = "items in inventory: " + str(self.stats.getItemsInInventory())
-        self.graphik.drawText(text, xpos, ypos + height*3, 30, (255,255,255))
         
         # draw number of deaths
         self.xpos = xpos
-        self.ypos = ypos + height*4
+        self.ypos = ypos + height*3
         text = "number of deaths: " + str(self.stats.getNumberOfDeaths())
-        self.graphik.drawText(text, xpos, ypos + height*4, 30, (255,255,255))
+        self.graphik.drawText(text, xpos, ypos + height*3, 30, (255,255,255))
 
     def drawBackButton(self):
         x, y = self.graphik.getGameDisplay().get_size()
