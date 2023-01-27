@@ -285,9 +285,7 @@ class WorldScreen:
     
                     self.status.set("ate '" + entity.getName() + "'")
                     
-                    scoreIncrease = int(self.tickCounter.getTick() * int(self.stats.foodEaten) * 0.10)
-                    newScore = self.stats.getScore() + scoreIncrease
-                    self.stats.setScore(newScore)
+                    self.stats.incrementScore()
 
         # move player
         location.removeEntity(self.player)
@@ -546,9 +544,7 @@ class WorldScreen:
                 
                 self.status.set("ate " + item.getName() + " from inventory")
                 
-                scoreIncrease = int(self.tickCounter.getTick() * int(self.stats.foodEaten) * 0.10)
-                newScore = self.stats.getScore() + scoreIncrease
-                self.stats.setScore(newScore)
+                self.stats.incrementScore()
                 return
     
     def handlePlayerActions(self):

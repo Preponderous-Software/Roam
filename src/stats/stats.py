@@ -17,8 +17,8 @@ class Stats:
     def setScore(self, score):
         self.score = score
     
-    def incrementScore(self, score):
-        self.score += score
+    def incrementScore(self):
+        self.score += 1
     
     def getRoomsExplored(self):
         return self.roomsExplored
