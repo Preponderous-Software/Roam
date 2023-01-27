@@ -58,33 +58,26 @@ class WorldScreen:
             self.loadPlayerLocationFromFile()
         else:
             self.currentRoom.addEntity(self.player)
+        
+        # load stats if possible
+        if (os.path.exists("data/stats.json")):
+            self.stats.load()
             
         self.status.set("entered the world")
-        self.score = 0
-        self.numApplesEaten = 0
-        self.numDeaths = 0
         self.energyBar = EnergyBar(self.graphik, self.player)
 
     def initializeLocationWidthAndHeight(self):
         x, y = self.graphik.getGameDisplay().get_size()
         self.locationWidth = x/self.currentRoom.getGrid().getRows()
         self.locationHeight = y/self.currentRoom.getGrid().getColumns()
-        
-    def updateStats(self):
-        self.stats.setRoomsExplored(str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder*2 + 1)*(self.config.worldBorder*2 + 1)))
-        self.stats.setApplesEaten(str(self.numApplesEaten))
-        self.stats.setItemsInInventory(str(self.player.getInventory().getNumItems()))
-        self.stats.setNumberOfDeaths(str(self.numDeaths))
-        self.stats.setScore(str(self.score))
 
     def printStatsToConsole(self):
         print("=== Stats ===")
-        print("Rooms Explored: " + str(len(self.map.getRooms())) + "/" + str((self.config.worldBorder + 1)*(self.config.worldBorder + 1)))
-        print("Apples eaten: " + str(self.numApplesEaten))
-        print("Items in inventory: " + str(self.player.getInventory().getNumTakenInventorySlots()))
-        print("Number of deaths: " + str(self.numDeaths))
+        print("Rooms Explored: " + str(self.stats.getRoomsExplored()))
+        print("Apples eaten: " + str(self.stats.getFoodEaten()))
+        print("Number of deaths: " + str(self.stats.getNumberOfDeaths()))
         print("")
-        print("Score: " + str(self.score))
+        print("Score: " + str(self.stats.getScore()))
         print("----------")    
 
     def getLocationOfPlayer(self):
@@ -189,6 +182,7 @@ class WorldScreen:
                 x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
                 self.currentRoom = self.map.generateNewRoom(x, y)
                 self.status.set("new area discovered")
+                self.stats.incrementRoomsExplored()
         else:
             self.currentRoom = room
 
@@ -279,12 +273,13 @@ class WorldScreen:
                     self.player.addEnergy(entity.getEnergy())
                     
                     if isinstance(entity, Apple):
-                        self.numApplesEaten += 1
+                        self.stats.incrementFoodEaten()
     
                     self.status.set("ate '" + entity.getName() + "'")
                     
-                    scoreIncrease = int(self.tickCounter.getTick() * int(self.stats.applesEaten) * 0.10)
-                    self.score += scoreIncrease
+                    scoreIncrease = int(self.tickCounter.getTick() * int(self.stats.foodEaten) * 0.10)
+                    newScore = self.stats.getScore() + scoreIncrease
+                    self.stats.setScore(newScore)
 
         # move player
         location.removeEntity(self.player)
@@ -539,13 +534,13 @@ class WorldScreen:
             if isinstance(item, Food):
                 self.player.addEnergy(item.getEnergy())
                 self.player.getInventory().removeByItem(item)
+                self.stats.incrementFoodEaten()
                 
-                if isinstance(item, Apple):
-                    self.numApplesEaten += 1
                 self.status.set("ate " + item.getName() + " from inventory")
                 
-                scoreIncrease = int(self.tickCounter.getTick() * int(self.stats.applesEaten) * 0.10)
-                self.score += scoreIncrease
+                scoreIncrease = int(self.tickCounter.getTick() * int(self.stats.foodEaten) * 0.10)
+                newScore = self.stats.getScore() + scoreIncrease
+                self.stats.setScore(newScore)
                 return
     
     def handlePlayerActions(self):
@@ -566,8 +561,8 @@ class WorldScreen:
             self.status.set("low on energy!")
         if self.player.isDead():
             self.status.set("you died")
-            self.score = ceil(self.score * 0.9)
-            self.numDeaths += 1
+            self.stats.setScore(ceil(self.stats.getScore() * 0.9))
+            self.stats.incrementNumberOfDeaths()
     
     def switchToInventoryScreen(self):
         self.nextScreen = ScreenType.INVENTORY_SCREEN
@@ -745,7 +740,7 @@ class WorldScreen:
         
         self.saveCurrentRoomToFile()
         self.savePlayerLocationToFile()
+        self.stats.save()
         
-        self.updateStats()
         self.changeScreen = False
         return self.nextScreen
