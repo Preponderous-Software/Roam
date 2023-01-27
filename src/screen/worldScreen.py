@@ -58,6 +58,7 @@ class WorldScreen:
             self.loadPlayerLocationFromFile()
         else:
             self.currentRoom.addEntity(self.player)
+            self.stats.incrementRoomsExplored()
         
         # load player attributes if possible
         if (os.path.exists("data/playerAttributes.json")):
