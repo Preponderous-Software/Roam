@@ -1,6 +1,6 @@
 from config.config import Config
 from lib.graphik.src.graphik import Graphik
-from screen.screens import ScreenString
+from screen.screenType import ScreenType
 from ui.status import Status
 import pygame
 
@@ -11,7 +11,7 @@ class OptionsScreen:
         self.config = config
         self.status = status
         self.running = True
-        self.nextScreen = ScreenString.WORLD_SCREEN
+        self.nextScreen = ScreenType.WORLD_SCREEN
         self.changeScreen = False
     
     def handleKeyDownEvent(self, key):
@@ -19,27 +19,27 @@ class OptionsScreen:
             self.switchToWorldScreen()
     
     def switchToWorldScreen(self):
-        self.nextScreen = ScreenString.WORLD_SCREEN
+        self.nextScreen = ScreenType.WORLD_SCREEN
         self.changeScreen = True
     
     def switchToStatsScreen(self):
-        self.nextScreen = ScreenString.STATS_SCREEN
+        self.nextScreen = ScreenType.STATS_SCREEN
         self.changeScreen = True
     
     def switchToInventoryScreen(self):
-        self.nextScreen = ScreenString.INVENTORY_SCREEN
+        self.nextScreen = ScreenType.INVENTORY_SCREEN
         self.changeScreen = True
     
     def switchToMainMenuScreen(self):
-        self.nextScreen = ScreenString.MAIN_MENU_SCREEN
+        self.nextScreen = ScreenType.MAIN_MENU_SCREEN
         self.changeScreen = True
     
     def switchToConfigScreen(self):
-        self.nextScreen = ScreenString.CONFIG_SCREEN
+        self.nextScreen = ScreenType.CONFIG_SCREEN
         self.changeScreen = True
 
     def quitApplication(self):
-        self.nextScreen = ScreenString.NONE
+        self.nextScreen = ScreenType.NONE
         self.changeScreen = True
     
     def drawMenuButtons(self):
@@ -55,8 +55,6 @@ class OptionsScreen:
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), (0,0,0), 30, "stats", self.switchToStatsScreen)
         ypos = ypos + height + margin
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), (0,0,0), 30, "inventory", self.switchToInventoryScreen)
-        ypos = ypos + height + margin
-        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), (0,0,0), 30, "config", self.switchToConfigScreen)
         self.drawBackButton()
 
     def drawBackButton(self):
@@ -72,7 +70,7 @@ class OptionsScreen:
         while not self.changeScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return ScreenString.NONE
+                    return ScreenType.NONE
                 elif event.type == pygame.KEYDOWN:
                     self.handleKeyDownEvent(event.key)           
     

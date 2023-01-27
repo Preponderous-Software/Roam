@@ -50,6 +50,9 @@ class Room(Environment):
         self.livingEntities[entity.getID()] = entity
     
     def removeLivingEntity(self, entity):
+        if entity.getID() not in self.livingEntities:
+            print("Entity was not found in living entities list when trying to remove it. Entity ID: " + str(entity.getID()))
+            return
         del self.livingEntities[entity.getID()]
     
     def getRandomAdjacentLocation(self, location):
@@ -127,7 +130,12 @@ class Room(Environment):
                 # check reproduction cooldown
                 if entity.getTickLastReproduced() != None and entity.getTickLastReproduced() + reproductionCooldown > tick:
                     continue
-                
+
+                # reset image
+                if isinstance(entity, Chicken):
+                    entity.setImagePath("assets/chicken.png")
+                elif isinstance(entity, Bear):
+                    entity.setImagePath("assets/bear.png")
 
                 # throw dice
                 if random.randrange(1, 101) > 1: # 1% chance
@@ -143,6 +151,12 @@ class Room(Environment):
                     entityLocationMappings.append((newEntity, location))
                     entity.setTickLastReproduced(tick)
                     targetEntity.setTickLastReproduced(tick)
+                    if isinstance(entity, Chicken):
+                        entity.setImagePath("assets/chickenOnReproductionCooldown.png")
+                        targetEntity.setImagePath("assets/chickenOnReproductionCooldown.png")
+                    if isinstance(entity, Bear):
+                        entity.setImagePath("assets/bearOnReproductionCooldown.png")
+                        targetEntity.setImagePath("assets/bearOnReproductionCooldown.png")
                 
         for entityLocationMapping in entityLocationMappings:
             entity = entityLocationMapping[0]
@@ -157,3 +171,6 @@ class Room(Environment):
             if entity.isSolid():
                 return True
         return False
+    
+    def getLivingEntities(self):
+        return self.livingEntities

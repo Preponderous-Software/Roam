@@ -15,6 +15,9 @@ class LivingEntity(DrawableEntity):
     def getEnergy(self):
         return self.energy
 
+    def setEnergy(self, energy):
+        self.energy = energy
+
     def addEnergy(self, amount):
         self.energy += amount
     
@@ -38,6 +41,9 @@ class LivingEntity(DrawableEntity):
     
     def getTickCreated(self):
         return self.tickCreated
+    
+    def setTickCreated(self, tick):
+        self.tickCreated = tick
     
     def getAge(self, tick):
         return tick - self.tickCreated

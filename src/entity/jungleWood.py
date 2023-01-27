@@ -1,12 +1,11 @@
-import random
 from entity.drawableEntity import DrawableEntity
 
 
 # @author Daniel McCoy Stephenson
-# @since August 18th, 2022
-class Rock(DrawableEntity):
+# @since August 8th, 2022
+class JungleWood(DrawableEntity):
     def __init__(self):
-        DrawableEntity.__init__(self, "Rock", "assets/rock.png")
+        DrawableEntity.__init__(self, "Jungle Wood", "assets/jungleWood.png")
         self.solid = True
     
     def isSolid(self):

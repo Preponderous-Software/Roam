@@ -1,0 +1,20 @@
+{
+    "type": "object",
+    "properties": {
+        "score": {
+            "type": "string"
+        },
+        "roomsExplored": {
+            "type": "string"
+        },
+        "applesEaten": {
+            "type": "string"
+        },
+        "itemsInInventory": {
+            "type": "string"
+        },
+        "numberOfDeaths": {
+            "type": "string"
+        }
+    }
+}

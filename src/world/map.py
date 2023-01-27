@@ -1,14 +1,17 @@
 from math import ceil
+import os
 import random
 from entity.apple import Apple
 from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from lib.graphik.src.graphik import Graphik
-from entity.rock import Rock
-from entity.wood import Wood
+from entity.stone import Stone
+from entity.oakWood import OakWood
 from lib.pyenvlib.entity import Entity
 from entity.grass import Grass
 from entity.leaves import Leaves
+from world.roomFactory import RoomFactory
+from world.roomJsonReaderWriter import RoomJsonReaderWriter
 from world.tickCounter import TickCounter
 from world.room import Room
 
@@ -21,7 +24,18 @@ class Map:
         self.gridSize = gridSize
         self.graphik = graphik
         self.tickCounter = tickCounter
-        self.spawnRoom = self.generateNewRoom(0, 0)
+        self.roomFactory = RoomFactory(self.gridSize, self.graphik, self.tickCounter)
+        
+        # load in spawn room from file if it exists
+        roomJsonReaderWriter = RoomJsonReaderWriter(self.gridSize, self.graphik, self.tickCounter)
+        path = "data/rooms/room_0_0.json"
+        if (os.path.exists(path)):
+            print("Loading spawn room from file")
+            self.spawnRoom = roomJsonReaderWriter.loadRoom(path)
+        else:
+            print("Generating new spawn room")
+            self.spawnRoom = self.generateNewRoom(0, 0)
+        self.rooms.append(self.spawnRoom)
     
     def getRooms(self):
         return self.rooms
@@ -30,89 +44,40 @@ class Map:
         for room in self.getRooms():
             if room.getX() == x and room.getY() == y:
                 return room
+    
+        # attempt to load room if file exists, otherwise generate new room
+        nextRoomPath = "data/rooms/room_" + str(x) + "_" + str(y) + ".json"
+        if os.path.exists(nextRoomPath):
+            roomJsonReaderWriter = RoomJsonReaderWriter(self.gridSize, self.graphik, self.tickCounter)
+            room = roomJsonReaderWriter.loadRoom(nextRoomPath)
+            self.addRoom(room)
+            return room
+        
         return -1
     
     def getSpawnRoom(self):
         return self.spawnRoom
 
-    def getLocation(self, entity: Entity, room: Room):
+    def getLocationOfEntity(self, entity: Entity, room: Room):
         locationID = entity.getLocationID()
         grid = room.getGrid()
         return grid.getLocation(locationID)
 
     def generateNewRoom(self, x, y):
-        newRoomColor = ((random.randrange(200, 210), random.randrange(130, 140), random.randrange(60, 70)))
-        newRoom = Room(("(" + str(x) + ", " + str(y) + ")"), self.gridSize, newRoomColor, x, y, self.graphik)
-
-        # generate grass
-        self.spawnGrass(newRoom)
-
-        # generate food
-        maxTrees = ceil(self.gridSize/3)
-        for i in range(0, maxTrees):
-            self.spawnTree(newRoom)
-
-        # generate rocks
-        self.spawnRocks(newRoom)
-
-        # generate chickens
-        self.spawnChickens(newRoom)
-
-        # generate bears
-        self.spawnBears(newRoom)
-
+        # 50% chance to generate last room type
+        newRoom = None
+        if random.randrange(1, 101) > 50:
+            newRoom = self.roomFactory.createRoom(self.roomFactory.lastRoomTypeCreated, x, y)
+        else:
+            newRoom = self.roomFactory.createRandomRoom(x, y)
         self.rooms.append(newRoom)
+
+        # save room to file
+        roomJsonReaderWriter = RoomJsonReaderWriter(self.gridSize, self.graphik, self.tickCounter)
+        path = "data/rooms/room_" + str(x) + "_" + str(y) + ".json"
+        roomJsonReaderWriter.saveRoom(newRoom, path)
+
         return newRoom
-
-    def spawnGrass(self, room: Room):
-        for locationId in room.getGrid().getLocations():
-            location = room.getGrid().getLocation(locationId)
-            if random.randrange(1, 101) > 5: # 95% chance
-                room.addEntityToLocation(Grass(), location)
     
-    def spawnRocks(self, room: Room):
-        for locationId in room.getGrid().getLocations():
-            location = room.getGrid().getLocation(locationId)
-            if random.randrange(1, 101) == 1: # 1% chance
-                room.addEntityToLocation(Rock(), location)
-
-    def spawnTree(self, room: Room):
-        wood = Wood()
-        room.addEntity(wood)
-
-        location = self.getLocation(wood, room)
-
-        locationsToSpawnApples = []
-        locationsToSpawnApples.append(room.grid.getUp(location))
-        locationsToSpawnApples.append(room.grid.getLeft(location))
-        locationsToSpawnApples.append(room.grid.getDown(location))
-        locationsToSpawnApples.append(room.grid.getRight(location))
-        
-        # spawn leaves and apples around the tree
-        for appleSpawnLocation in locationsToSpawnApples:
-            if appleSpawnLocation == -1 or self.locationContainsEntityType(appleSpawnLocation, Wood):
-                continue
-            room.addEntityToLocation(Leaves(), appleSpawnLocation)
-            if random.randrange(0, 2) == 0:
-                room.addEntityToLocation(Apple(), appleSpawnLocation)
-    
-    def spawnChickens(self, room: Room):
-        for i in range(0, 5):
-            if random.randrange(1, 101) > 75: # 25% chance
-                newChicken = Chicken(self.tickCounter.getTick())
-                room.addEntity(newChicken)
-                room.addLivingEntity(newChicken)
-    
-    def spawnBears(self, room: Room):
-        for i in range(0, 2):
-            if random.randrange(1, 101) > 90: # 10% chance
-                newBear = Bear(self.tickCounter.getTick())
-                room.addEntity(newBear)
-                room.addLivingEntity(newBear)
-
-    def locationContainsEntityType(self, location, entityType):
-        for entityId in location.getEntities():
-            entity = location.getEntity(entityId)
-            if isinstance(entity, entityType):
-                return True
-        return False
+    def addRoom(self, room):
+        self.rooms.append(room)

@@ -1,2 +1,4 @@
 *.pyc
 screenshot*.png
+data/*.json
+data/rooms/*.json

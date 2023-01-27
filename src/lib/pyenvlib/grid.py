@@ -81,7 +81,7 @@ class Grid(object):
     
     # Adds an entity to a specified location in this grid.
     def addEntityToLocation(self, entity: Entity, location):
-        entity.setGridID(self.getID)
+        entity.setGridID(self.getID())
         
         self.locations[location.getID()].addEntity(entity)
     

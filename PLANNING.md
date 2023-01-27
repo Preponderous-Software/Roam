@@ -4,21 +4,28 @@ This document is a work in progress. It is a place to collect ideas and plan out
 ## Overview
 Roam is a 2D survival game where the player explores a procedurally-generated world and interacts with their surroundings.
 
-## Premise
-The player is a survivor of a nuclear war. One of few who managed to get off-planet before the radiation killed everyone. The player is stranded on an unknown planet and must survive by gathering resources and building a base.
-
 ## Mechanics
 ### Energy
-Energy decreases when the player moves and replenishes when the player eats food.
+Energy will decrease when the player moves and will replenish when the player eats food.
 
 ### Map Generation
-The map is generated as the player explores.
+The map will be generated as the player explores.
 
 ### Inventory
-The player has an inventory that can hold items. The player can cycle through the inventory with the `e` and `q` keys and can open/close the inventory with the `i` key.
+The player will have an inventory that can hold items. The player can open/close the inventory with the `i` key.
 
-### Crafting
-The player can craft items using the items in their inventory.
+### Crafting (unimplemented)
+The player will be able to craft items using the items in their inventory.
 
 ### Food
-The player can eat food to replenish energy. Food can be found in the world or grown by the player.
+The player will be able to eat food to replenish energy. Food will be able to be found in the world or grown by the player.
+
+## Room Types
+- Grass
+- Forest
+- Jungle
+- Mountain
+
+## Mobs
+- Chicken
+- Bear
