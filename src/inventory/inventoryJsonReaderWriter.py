@@ -4,6 +4,7 @@ from uuid import UUID
 
 import jsonschema
 from entity.apple import Apple
+from entity.banana import Banana
 from entity.coalOre import CoalOre
 from entity.food import Food
 from entity.grass import Grass
@@ -113,6 +114,10 @@ class InventoryJsonReaderWriter:
                     chicken = Chicken(entity['tickCreated'])
                     chicken.setID(UUID(entity['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(chicken)
+                elif entityClass == "Banana":
+                    banana = Banana()
+                    banana.setID(UUID(entity['entityId']))
+                    inventory.placeIntoFirstAvailableInventorySlot(banana)
                 else:
-                    print("Unknown entity class: " + entity['entityClass'])
+                    raise Exception("Unknown entity class: " + entity['entityClass'])
         return inventory
