@@ -8,6 +8,7 @@ import jsonschema
 import pygame
 from entity.apple import Apple
 from config.config import Config
+from entity.banana import Banana
 from entity.coalOre import CoalOre
 from entity.ironOre import IronOre
 from entity.jungleWood import JungleWood
@@ -168,7 +169,7 @@ class WorldScreen:
     def changeRooms(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
 
-        if abs(x) > self.config.worldBorder or abs(y) > self.config.worldBorder:
+        if self.config.worldBorder != 0 and (abs(x) > self.config.worldBorder or abs(y) > self.config.worldBorder):
             self.status.set("reached world border")
             return
 
@@ -277,7 +278,7 @@ class WorldScreen:
             # search for food to eat
             for entityId in list(newLocation.getEntities().keys()):
                 entity = newLocation.getEntity(entityId)
-                if isinstance(entity, Food):
+                if self.player.canEat(entity):
                     newLocation.removeEntity(entity)
                     self.player.addEnergy(entity.getEnergy())
                     
@@ -296,7 +297,7 @@ class WorldScreen:
         self.player.setTickLastMoved(self.tickCounter.getTick())
     
     def canBePickedUp(self, entity):
-        itemTypes = [OakWood, JungleWood, Leaves, Grass, Apple, Stone, CoalOre, IronOre, Chicken, Bear]
+        itemTypes = [OakWood, JungleWood, Leaves, Grass, Apple, Stone, CoalOre, IronOre, Chicken, Bear, Banana]
         for itemType in itemTypes:
             if isinstance(entity, itemType):
                 return True
@@ -537,7 +538,7 @@ class WorldScreen:
             if itemSlot.isEmpty():
                 continue
             item = itemSlot.getContents()[0]
-            if isinstance(item, Food):
+            if self.player.canEat(item):
                 self.player.addEnergy(item.getEnergy())
                 self.player.getInventory().removeByItem(item)
                 self.stats.incrementFoodEaten()

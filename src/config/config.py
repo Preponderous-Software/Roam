@@ -19,7 +19,7 @@ class Config:
         self.playerInteractionDistanceLimit = 5
         self.ticksPerSecond = 30
         self.gridSize = 16 # TODO: allow player to set in config menu
-        self.worldBorder = 16 # TODO: allow player to set in config menu
+        self.worldBorder = 0 # 0 = no border
 
         # dynamic (can be changed in game)
         self.debug = False
