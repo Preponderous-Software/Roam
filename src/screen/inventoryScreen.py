@@ -113,10 +113,14 @@ class InventoryScreen:
             itemWidth = backgroundWidth/itemsPerRow - 2*margin
             itemHeight = backgroundHeight/itemsPerRow - 2*margin
 
-            # if mouse click was inside inventory slot, select that inventory slot
+            # if mouse click was inside inventory slot
             if pos[0] > itemX and pos[0] < itemX + itemWidth and pos[1] > itemY and pos[1] < itemY + itemHeight:
                 index = row*itemsPerRow + column
-                self.inventory.setSelectedInventorySlotIndex(index)
+                
+                # select that inventory slot if right mouse button was clicked
+                if pygame.mouse.get_pressed()[2]:
+                    self.inventory.setSelectedInventorySlotIndex(index)
+                    return
 
                 # move item from inventory slot to cursor slot
                 inventorySlotContents = inventorySlot.getContents()
