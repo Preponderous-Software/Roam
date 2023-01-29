@@ -690,12 +690,15 @@ class WorldScreen:
         jsonschema.validate(jsonPlayerLocation, playerLocationSchema)
         
         path = "data/playerLocation.json"
+        print("Saving player location to " + path)
         json.dump(jsonPlayerLocation, open(path, "w"), indent=4)
     
     def loadPlayerLocationFromFile(self):
         path = "data/playerLocation.json"
         if not os.path.exists(path):
             return
+
+        print("Loading player location from " + path)
         jsonPlayerLocation = json.load(open(path))
         
         # validate
@@ -719,12 +722,15 @@ class WorldScreen:
         jsonschema.validate(jsonPlayerAttributes, playerAttributesSchema)
         
         path = "data/playerAttributes.json"
+        print("Saving player attributes to " + path)
         json.dump(jsonPlayerAttributes, open(path, "w"), indent=4)
     
     def loadPlayerAttributesFromFile(self):
         path = "data/playerAttributes.json"
         if not os.path.exists(path):
             return
+
+        print("Loading player attributes from " + path)
         jsonPlayerAttributes = json.load(open(path))
         
         # validate
@@ -736,11 +742,11 @@ class WorldScreen:
     
     def savePlayerInventoryToFile(self):
         inventoryJsonReaderWriter = InventoryJsonReaderWriter()
-        inventoryJsonReaderWriter.saveInventory(self.player.getInventory())
+        inventoryJsonReaderWriter.saveInventory(self.player.getInventory(), "data/playerInventory.json")
 
     def loadPlayerInventoryFromFile(self):
         inventoryJsonReaderWriter = InventoryJsonReaderWriter()
-        inventory = inventoryJsonReaderWriter.loadInventory()
+        inventory = inventoryJsonReaderWriter.loadInventory("data/playerInventory.json")
         if inventory is not None:
             self.player.setInventory(inventory)
 
