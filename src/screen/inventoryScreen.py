@@ -1,6 +1,7 @@
 import datetime
 from config.config import Config
 from inventory.inventory import Inventory
+from inventory.inventorySlot import InventorySlot
 from lib.graphik.src.graphik import Graphik
 from screen.screenType import ScreenType
 from ui.status import Status
@@ -15,6 +16,7 @@ class InventoryScreen:
         self.inventory = inventory
         self.nextScreen = ScreenType.WORLD_SCREEN
         self.changeScreen = False
+        self.cursorSlot = InventorySlot()
     
     # @source https://stackoverflow.com/questions/63342477/how-to-take-screenshot-of-entire-display-pygame
     def captureScreen(self, name, pos, size): # (pygame Surface, String, tuple, tuple)
@@ -115,11 +117,27 @@ class InventoryScreen:
             if pos[0] > itemX and pos[0] < itemX + itemWidth and pos[1] > itemY and pos[1] < itemY + itemHeight:
                 index = row*itemsPerRow + column
                 self.inventory.setSelectedInventorySlotIndex(index)
+
+                # move item from inventory slot to cursor slot
+                inventorySlotContents = inventorySlot.getContents()
+                cursorSlotContents = self.cursorSlot.getContents()
+                inventorySlot.setContents(cursorSlotContents)
+                self.cursorSlot.setContents(inventorySlotContents)
+                
             
             column += 1
             if column == itemsPerRow:
                 column = 0
                 row += 1
+    
+    def drawCursorSlot(self):
+        if self.cursorSlot.isEmpty():
+            return
+        
+        item = self.cursorSlot.getContents()[0]
+        image = item.getImage()
+        scaledImage = pygame.transform.scale(image, (50, 50))
+        self.graphik.gameDisplay.blit(scaledImage, pygame.mouse.get_pos())
 
     def run(self):
         while not self.changeScreen:
@@ -135,7 +153,14 @@ class InventoryScreen:
             self.graphik.getGameDisplay().fill((0, 0, 0))
             self.drawPlayerInventory()
             self.drawBackButton()
+            self.drawCursorSlot()
             pygame.display.update()
+        
+        # empty cursor slot when exiting inventory screen
+        if not self.cursorSlot.isEmpty():
+            for item in self.cursorSlot.getContents():
+                self.inventory.placeIntoFirstAvailableInventorySlot(item)
+            self.cursorSlot.setContents([])
             
         self.changeScreen = False
         return self.nextScreen
