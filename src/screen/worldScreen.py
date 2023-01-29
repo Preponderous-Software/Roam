@@ -52,10 +52,6 @@ class WorldScreen:
     
     def initialize(self):
         self.map = Map(self.config.gridSize, self.graphik, self.tickCounter)
-        self.currentRoom = self.map.getRoom(0, 0)
-        if self.currentRoom == -1:
-            self.currentRoom = self.map.generateNewRoom(0, 0)
-        self.initializeLocationWidthAndHeight()
         
         # load player location if possible
         if (os.path.exists("data/playerLocation.json")):
@@ -79,6 +75,8 @@ class WorldScreen:
         # load player inventory if possible
         if (os.path.exists("data/playerInventory.json")):
             self.loadPlayerInventoryFromFile()
+        
+        self.initializeLocationWidthAndHeight()
             
         self.status.set("entered the world")
         self.energyBar = EnergyBar(self.graphik, self.player)
