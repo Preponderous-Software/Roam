@@ -48,7 +48,6 @@ class Roam:
         self.worldScreen.initialize()
 
     def quitApplication(self):
-        self.savePlayerInventory()
         pygame.quit()
         quit()
     
