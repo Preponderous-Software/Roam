@@ -38,8 +38,6 @@ class Roam:
         self.configScreen = ConfigScreen(self.graphik, self.config, self.status)
         self.currentScreen = self.mainMenuScreen
 
-        self.load()
-
     def initializeGameDisplay(self):
         if self.config.fullscreen:
             return pygame.display.set_mode((self.config.displayWidth, self.config.displayHeight), pygame.FULLSCREEN)
@@ -49,24 +47,13 @@ class Roam:
     def initializeWorldScreen(self):
         self.worldScreen.initialize()
 
-    def save(self):
-        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
-        inventoryJsonReaderWriter.saveInventory(self.player.getInventory())
-
-    def load(self):
-        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
-        inventory = inventoryJsonReaderWriter.loadInventory()
-        if inventory is not None:
-            self.player.setInventory(inventory)
-
     def quitApplication(self):
-        self.save()
+        self.savePlayerInventory()
         pygame.quit()
         quit()
     
     def run(self):
         while True:
-            self.save()
             result = self.currentScreen.run()
             if result == ScreenType.MAIN_MENU_SCREEN:
                 return "restart"

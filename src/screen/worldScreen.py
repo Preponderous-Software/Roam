@@ -15,6 +15,7 @@ from entity.jungleWood import JungleWood
 from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from entity.living.livingEntity import LivingEntity
+from inventory.inventoryJsonReaderWriter import InventoryJsonReaderWriter
 from screen.screenType import ScreenType
 from stats.stats import Stats
 from ui.energyBar import EnergyBar
@@ -51,7 +52,9 @@ class WorldScreen:
     
     def initialize(self):
         self.map = Map(self.config.gridSize, self.graphik, self.tickCounter)
-        self.currentRoom = self.map.getSpawnRoom()
+        self.currentRoom = self.map.getRoom(0, 0)
+        if self.currentRoom == -1:
+            self.currentRoom = self.map.generateNewRoom(0, 0)
         self.initializeLocationWidthAndHeight()
         
         # load player location if possible
@@ -72,6 +75,10 @@ class WorldScreen:
         # load tick if possible
         if (os.path.exists("data/tick.json")):
             self.tickCounter.load()
+        
+        # load player inventory if possible
+        if (os.path.exists("data/playerInventory.json")):
+            self.loadPlayerInventoryFromFile()
             
         self.status.set("entered the world")
         self.energyBar = EnergyBar(self.graphik, self.player)
@@ -725,6 +732,16 @@ class WorldScreen:
         
         energy = jsonPlayerAttributes["energy"]
         self.player.setEnergy(energy)
+    
+    def savePlayerInventoryToFile(self):
+        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
+        inventoryJsonReaderWriter.saveInventory(self.player.getInventory())
+
+    def loadPlayerInventoryFromFile(self):
+        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
+        inventory = inventoryJsonReaderWriter.loadInventory()
+        if inventory is not None:
+            self.player.setInventory(inventory)
 
     def run(self):
         while not self.changeScreen:
@@ -770,6 +787,7 @@ class WorldScreen:
         self.saveCurrentRoomToFile()
         self.savePlayerLocationToFile()
         self.savePlayerAttributesToFile()
+        self.savePlayerInventoryToFile()
         self.stats.save()
         self.tickCounter.save()
         

@@ -25,17 +25,6 @@ class Map:
         self.graphik = graphik
         self.tickCounter = tickCounter
         self.roomFactory = RoomFactory(self.gridSize, self.graphik, self.tickCounter)
-        
-        # load in spawn room from file if it exists
-        roomJsonReaderWriter = RoomJsonReaderWriter(self.gridSize, self.graphik, self.tickCounter)
-        path = "data/rooms/room_0_0.json"
-        if (os.path.exists(path)):
-            print("Loading spawn room from file")
-            self.spawnRoom = roomJsonReaderWriter.loadRoom(path)
-        else:
-            print("Generating new spawn room")
-            self.spawnRoom = self.generateNewRoom(0, 0)
-        self.rooms.append(self.spawnRoom)
     
     def getRooms(self):
         return self.rooms
@@ -54,9 +43,6 @@ class Map:
             return room
         
         return -1
-    
-    def getSpawnRoom(self):
-        return self.spawnRoom
 
     def getLocationOfEntity(self, entity: Entity, room: Room):
         locationID = entity.getLocationID()
@@ -71,11 +57,6 @@ class Map:
         else:
             newRoom = self.roomFactory.createRandomRoom(x, y)
         self.rooms.append(newRoom)
-
-        # save room to file
-        roomJsonReaderWriter = RoomJsonReaderWriter(self.gridSize, self.graphik, self.tickCounter)
-        path = "data/rooms/room_" + str(x) + "_" + str(y) + ".json"
-        roomJsonReaderWriter.saveRoom(newRoom, path)
 
         return newRoom
     
