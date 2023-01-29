@@ -57,6 +57,9 @@ class WorldScreen:
         if (os.path.exists("data/playerLocation.json")):
             self.loadPlayerLocationFromFile()
         else:
+            self.currentRoom = self.map.getRoom(0, 0)
+            if self.currentRoom == -1:
+                self.currentRoom = self.map.generateNewRoom(0, 0)
             self.currentRoom.addEntity(self.player)
             self.stats.incrementRoomsExplored()
         
@@ -521,7 +524,7 @@ class WorldScreen:
         
         self.saveCurrentRoomToFile()
         
-        self.currentRoom = self.map.getSpawnRoom()
+        self.currentRoom = self.map.getRoom(0, 0)
         self.player.energy = self.player.targetEnergy
         self.status.set("respawned")
         self.player.setTickCreated(self.tickCounter.getTick())
