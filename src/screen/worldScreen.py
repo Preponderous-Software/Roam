@@ -84,7 +84,7 @@ class WorldScreen:
     def printStatsToConsole(self):
         print("=== Stats ===")
         print("Rooms Explored: " + str(self.stats.getRoomsExplored()))
-        print("Apples eaten: " + str(self.stats.getFoodEaten()))
+        print("Food eaten: " + str(self.stats.getFoodEaten()))
         print("Number of deaths: " + str(self.stats.getNumberOfDeaths()))
         print("")
         print("Score: " + str(self.stats.getScore()))
