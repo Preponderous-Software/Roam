@@ -103,11 +103,12 @@ class RoomFactory():
     def createMountainRoom(self, x, y):
         newRoom = self.createEmptyRoom((random.randrange(100, 110), random.randrange(100, 110), random.randrange(100, 110)), x, y)
         
+        # generate ore
+        self.spawnSomeOre(newRoom)
+        
         # generate rocks
         self.fillWithRocks(newRoom)
         
-        # generate coal
-        self.spawnSomeOre(newRoom)
         return newRoom
 
     # spawn methods
