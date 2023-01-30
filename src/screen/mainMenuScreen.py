@@ -1,3 +1,4 @@
+import os
 import pygame
 from config.config import Config
 
@@ -48,6 +49,15 @@ class MainMenuScreen:
         ypos = ypos + height + margin
         self.graphik.drawButton(xpos, ypos, width, height, backgroundColor, (0,0,0), 30, "quit", self.quitApplication)
 
+    def drawVersion(self):
+        if os.path.isfile("version.txt"):
+            with open("version.txt", "r") as file:
+                version = file.read()
+                
+                # display centered at bottom of screen
+                self.graphik.drawText(version, self.graphik.getGameDisplay().get_size()[0]/2, self.graphik.getGameDisplay().get_size()[1] - 10, 16, (255, 255, 255))
+        
+
     def handleKeyDownEvent(self, key):
         self.switchToWorldScreen()
 
@@ -64,6 +74,7 @@ class MainMenuScreen:
             self.graphik.getGameDisplay().fill((0, 0, 0))
             self.drawText()
             self.drawMenuButtons()
+            self.drawVersion()
             pygame.display.update()
         self.initializeWorldScreen()
         self.changeScreen = False
