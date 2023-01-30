@@ -520,7 +520,7 @@ class WorldScreen:
         self.player.getInventory().clear()
 
         self.currentRoom.removeEntity(self.player)
-        self.map.getSpawnRoom().addEntity(self.player)
+        self.map.getRoom(0, 0).addEntity(self.player)
         
         self.saveCurrentRoomToFile()
         
