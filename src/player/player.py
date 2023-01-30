@@ -1,4 +1,6 @@
 from entity.apple import Apple
+from entity.banana import Banana
+from entity.living.chicken import Chicken
 from entity.living.livingEntity import LivingEntity
 from inventory.inventory import Inventory
 
@@ -7,7 +9,7 @@ from inventory.inventory import Inventory
 # @since August 8th, 2022
 class Player(LivingEntity):
     def __init__(self, tickCreated):
-        LivingEntity.__init__(self, "Player", "assets/player_down.png", 100, [Apple], tickCreated)
+        LivingEntity.__init__(self, "Player", "assets/player_down.png", 100, [Apple, Banana, Chicken], tickCreated)
         self.direction = -1 # -1 when not moving
         self.lastDirection = -1
         self.inventory = Inventory()

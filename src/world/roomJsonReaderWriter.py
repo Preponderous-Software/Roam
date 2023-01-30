@@ -5,6 +5,7 @@ from uuid import UUID
 import jsonschema
 from config.config import Config
 from entity.apple import Apple
+from entity.banana import Banana
 from entity.coalOre import CoalOre
 from entity.food import Food
 from entity.grass import Grass
@@ -183,6 +184,9 @@ class RoomJsonReaderWriter:
             entity.setID(UUID(entityJson['id']))
         elif entityClass == "Chicken":
             entity = Chicken(entityJson['tickCreated'])
+            entity.setID(UUID(entityJson['id']))
+        elif entityClass == "Banana":
+            entity = Banana()
             entity.setID(UUID(entityJson['id']))
         elif entityClass == "Player":
             pass

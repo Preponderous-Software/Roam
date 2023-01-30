@@ -16,16 +16,27 @@ class LivingEntity(DrawableEntity):
         return self.energy
 
     def setEnergy(self, energy):
-        self.energy = energy
+        if energy < 0:
+            self.energy = 0
+        elif energy > 100:
+            self.energy = 100
+        else:
+            self.energy = energy
 
     def addEnergy(self, amount):
-        self.energy += amount
+        if self.energy + amount > 100:
+            self.energy = 100
+        else:
+            self.energy += amount
     
     def removeEnergy(self, amount):
-        self.energy -= amount
+        if self.energy - amount < 0:
+            self.energy = 0
+        else:
+            self.energy -= amount
 
     def needsEnergy(self):
-        return self.energy < self.targetEnergy
+        return self.energy < self.targetEnergy * 0.75
     
     def getTargetEnergy(self):
         return self.targetEnergy

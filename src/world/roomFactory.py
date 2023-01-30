@@ -1,6 +1,7 @@
 from math import ceil
 import random
 from entity.apple import Apple
+from entity.banana import Banana
 from entity.coalOre import CoalOre
 from entity.grass import Grass
 from entity.ironOre import IronOre
@@ -102,11 +103,12 @@ class RoomFactory():
     def createMountainRoom(self, x, y):
         newRoom = self.createEmptyRoom((random.randrange(100, 110), random.randrange(100, 110), random.randrange(100, 110)), x, y)
         
+        # generate ore
+        self.spawnSomeOre(newRoom)
+        
         # generate rocks
         self.fillWithRocks(newRoom)
         
-        # generate coal
-        self.spawnSomeOre(newRoom)
         return newRoom
 
     # spawn methods
@@ -175,6 +177,13 @@ class RoomFactory():
                 continue
             room.addEntityToLocation(Leaves(), leavesSpawnLocation)
             room.addEntityToLocation(Leaves(), leavesSpawnLocation)
+        
+        # spawn bananas around the tree
+        for bananaSpawnLocation in locationsToSpawnLeaves:
+            if bananaSpawnLocation == -1 or self.locationContainsEntityType(bananaSpawnLocation, JungleWood):
+                continue
+            if random.randrange(0, 2) == 0:
+                room.addEntityToLocation(Banana(), bananaSpawnLocation)
     
     def spawnChickens(self, room: Room):
         for i in range(0, 5):

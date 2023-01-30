@@ -8,12 +8,14 @@ import jsonschema
 import pygame
 from entity.apple import Apple
 from config.config import Config
+from entity.banana import Banana
 from entity.coalOre import CoalOre
 from entity.ironOre import IronOre
 from entity.jungleWood import JungleWood
 from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from entity.living.livingEntity import LivingEntity
+from inventory.inventoryJsonReaderWriter import InventoryJsonReaderWriter
 from screen.screenType import ScreenType
 from stats.stats import Stats
 from ui.energyBar import EnergyBar
@@ -50,14 +52,16 @@ class WorldScreen:
     
     def initialize(self):
         self.map = Map(self.config.gridSize, self.graphik, self.tickCounter)
-        self.currentRoom = self.map.getSpawnRoom()
-        self.initializeLocationWidthAndHeight()
         
         # load player location if possible
         if (os.path.exists("data/playerLocation.json")):
             self.loadPlayerLocationFromFile()
         else:
+            self.currentRoom = self.map.getRoom(0, 0)
+            if self.currentRoom == -1:
+                self.currentRoom = self.map.generateNewRoom(0, 0)
             self.currentRoom.addEntity(self.player)
+            self.stats.incrementRoomsExplored()
         
         # load player attributes if possible
         if (os.path.exists("data/playerAttributes.json")):
@@ -70,6 +74,12 @@ class WorldScreen:
         # load tick if possible
         if (os.path.exists("data/tick.json")):
             self.tickCounter.load()
+        
+        # load player inventory if possible
+        if (os.path.exists("data/playerInventory.json")):
+            self.loadPlayerInventoryFromFile()
+        
+        self.initializeLocationWidthAndHeight()
             
         self.status.set("entered the world")
         self.energyBar = EnergyBar(self.graphik, self.player)
@@ -82,7 +92,7 @@ class WorldScreen:
     def printStatsToConsole(self):
         print("=== Stats ===")
         print("Rooms Explored: " + str(self.stats.getRoomsExplored()))
-        print("Apples eaten: " + str(self.stats.getFoodEaten()))
+        print("Food eaten: " + str(self.stats.getFoodEaten()))
         print("Number of deaths: " + str(self.stats.getNumberOfDeaths()))
         print("")
         print("Score: " + str(self.stats.getScore()))
@@ -167,7 +177,7 @@ class WorldScreen:
     def changeRooms(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
 
-        if abs(x) > self.config.worldBorder or abs(y) > self.config.worldBorder:
+        if self.config.worldBorder != 0 and (abs(x) > self.config.worldBorder or abs(y) > self.config.worldBorder):
             self.status.set("reached world border")
             return
 
@@ -272,22 +282,19 @@ class WorldScreen:
                 self.player.kill()
                 return
         
-        if self.player.getEnergy() < self.player.getTargetEnergy() * 0.95:
+        if self.player.needsEnergy():
             # search for food to eat
             for entityId in list(newLocation.getEntities().keys()):
                 entity = newLocation.getEntity(entityId)
-                if isinstance(entity, Food):
+                if self.player.canEat(entity):
                     newLocation.removeEntity(entity)
                     self.player.addEnergy(entity.getEnergy())
                     
-                    if isinstance(entity, Apple):
-                        self.stats.incrementFoodEaten()
+                    self.stats.incrementFoodEaten()
     
                     self.status.set("ate '" + entity.getName() + "'")
                     
-                    scoreIncrease = int(self.tickCounter.getTick() * int(self.stats.foodEaten) * 0.10)
-                    newScore = self.stats.getScore() + scoreIncrease
-                    self.stats.setScore(newScore)
+                    self.stats.incrementScore()
 
         # move player
         location.removeEntity(self.player)
@@ -298,7 +305,7 @@ class WorldScreen:
         self.player.setTickLastMoved(self.tickCounter.getTick())
     
     def canBePickedUp(self, entity):
-        itemTypes = [OakWood, JungleWood, Leaves, Grass, Apple, Stone, CoalOre, IronOre, Chicken, Bear]
+        itemTypes = [OakWood, JungleWood, Leaves, Grass, Apple, Stone, CoalOre, IronOre, Chicken, Bear, Banana]
         for itemType in itemTypes:
             if isinstance(entity, itemType):
                 return True
@@ -513,11 +520,11 @@ class WorldScreen:
         self.player.getInventory().clear()
 
         self.currentRoom.removeEntity(self.player)
-        self.map.getSpawnRoom().addEntity(self.player)
+        self.map.getRoom(0, 0).addEntity(self.player)
         
         self.saveCurrentRoomToFile()
         
-        self.currentRoom = self.map.getSpawnRoom()
+        self.currentRoom = self.map.getRoom(0, 0)
         self.player.energy = self.player.targetEnergy
         self.status.set("respawned")
         self.player.setTickCreated(self.tickCounter.getTick())
@@ -539,16 +546,14 @@ class WorldScreen:
             if itemSlot.isEmpty():
                 continue
             item = itemSlot.getContents()[0]
-            if isinstance(item, Food):
+            if self.player.canEat(item):
                 self.player.addEnergy(item.getEnergy())
                 self.player.getInventory().removeByItem(item)
                 self.stats.incrementFoodEaten()
                 
                 self.status.set("ate " + item.getName() + " from inventory")
                 
-                scoreIncrease = int(self.tickCounter.getTick() * int(self.stats.foodEaten) * 0.10)
-                newScore = self.stats.getScore() + scoreIncrease
-                self.stats.setScore(newScore)
+                self.stats.incrementScore()
                 return
     
     def handlePlayerActions(self):
@@ -685,12 +690,15 @@ class WorldScreen:
         jsonschema.validate(jsonPlayerLocation, playerLocationSchema)
         
         path = "data/playerLocation.json"
+        print("Saving player location to " + path)
         json.dump(jsonPlayerLocation, open(path, "w"), indent=4)
     
     def loadPlayerLocationFromFile(self):
         path = "data/playerLocation.json"
         if not os.path.exists(path):
             return
+
+        print("Loading player location from " + path)
         jsonPlayerLocation = json.load(open(path))
         
         # validate
@@ -714,12 +722,15 @@ class WorldScreen:
         jsonschema.validate(jsonPlayerAttributes, playerAttributesSchema)
         
         path = "data/playerAttributes.json"
+        print("Saving player attributes to " + path)
         json.dump(jsonPlayerAttributes, open(path, "w"), indent=4)
     
     def loadPlayerAttributesFromFile(self):
         path = "data/playerAttributes.json"
         if not os.path.exists(path):
             return
+
+        print("Loading player attributes from " + path)
         jsonPlayerAttributes = json.load(open(path))
         
         # validate
@@ -728,6 +739,16 @@ class WorldScreen:
         
         energy = jsonPlayerAttributes["energy"]
         self.player.setEnergy(energy)
+    
+    def savePlayerInventoryToFile(self):
+        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
+        inventoryJsonReaderWriter.saveInventory(self.player.getInventory(), "data/playerInventory.json")
+
+    def loadPlayerInventoryFromFile(self):
+        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
+        inventory = inventoryJsonReaderWriter.loadInventory("data/playerInventory.json")
+        if inventory is not None:
+            self.player.setInventory(inventory)
 
     def run(self):
         while not self.changeScreen:
@@ -773,6 +794,7 @@ class WorldScreen:
         self.saveCurrentRoomToFile()
         self.savePlayerLocationToFile()
         self.savePlayerAttributesToFile()
+        self.savePlayerInventoryToFile()
         self.stats.save()
         self.tickCounter.save()
         

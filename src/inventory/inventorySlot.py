@@ -5,6 +5,9 @@ class InventorySlot:
     
     def getContents(self):
         return self.contents
+
+    def setContents(self, contents):
+        self.contents = contents
     
     def getNumItems(self):
         return len(self.contents)

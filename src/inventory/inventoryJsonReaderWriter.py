@@ -4,6 +4,7 @@ from uuid import UUID
 
 import jsonschema
 from entity.apple import Apple
+from entity.banana import Banana
 from entity.coalOre import CoalOre
 from entity.food import Food
 from entity.grass import Grass
@@ -20,8 +21,8 @@ from inventory.inventory import Inventory
 
 class InventoryJsonReaderWriter:
 
-    def saveInventory(self, inventory: Inventory):
-        print("Saving inventory...")
+    def saveInventory(self, inventory: Inventory, path):
+        print("Saving inventory to " + path)
         toReturn = {}
         toReturn['inventorySlots'] = []
         slotIndex = 0
@@ -60,15 +61,15 @@ class InventoryJsonReaderWriter:
             os.makedirs('data')
 
         # print the JSON to file
-        with open('data/inventory.json', 'w') as f:
+        with open(path, 'w') as f:
             json.dump(toReturn, f, indent=4)
 
-    def loadInventory(self):
-        print("Loading inventory...")
+    def loadInventory(self, path):
+        print("Loading inventory from " + path)
         inventory = Inventory()
-        if not os.path.exists('data/inventory.json'):
+        if not os.path.exists(path):
             return inventory
-        with open('data/inventory.json') as f:
+        with open(path) as f:
             inventoryJson = json.load(f)
         for slot in inventoryJson['inventorySlots']:
             for entity in slot['slotContents']:
@@ -113,6 +114,10 @@ class InventoryJsonReaderWriter:
                     chicken = Chicken(entity['tickCreated'])
                     chicken.setID(UUID(entity['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(chicken)
+                elif entityClass == "Banana":
+                    banana = Banana()
+                    banana.setID(UUID(entity['entityId']))
+                    inventory.placeIntoFirstAvailableInventorySlot(banana)
                 else:
-                    print("Unknown entity class: " + entity['entityClass'])
+                    raise Exception("Unknown entity class: " + entity['entityClass'])
         return inventory
