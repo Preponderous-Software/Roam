@@ -19,6 +19,9 @@ new_image = Image.new("RGB", (combinedImageSize, combinedImageSize))
 # save the new image
 new_image.save("combined.png")
 
+numPasted = 0
+numOutOfBounds = 0
+
 # Loop through all the room images
 for room_image in room_images:
     # Open the room image
@@ -35,7 +38,19 @@ for room_image in room_images:
     y = int(room_number[1])
     
     # Paste the room image onto the new image at the correct coordinates
-    new_image.paste(image, (int(combinedImageSize/2) + x * roomSize - int(roomSize/2), int(combinedImageSize/2) + y * roomSize - int(roomSize/2)))
+    picX = int(combinedImageSize/2) + x * roomSize - int(roomSize/2)
+    picY = int(combinedImageSize/2) + y * roomSize - int(roomSize/2)
+    if picX >= 0 and picY >= 0 and picX < combinedImageSize and picY < combinedImageSize:
+        new_image.paste(image, (picX, picY))
+        numPasted += 1
+    else:
+        numOutOfBounds += 1
+    
+print("Images pasted: " + str(numPasted))
+print("Images out of bounds: " + str(numOutOfBounds))
+
+print("Percent of map filled: " + str(int(numPasted / (num_rooms * 2 + 1) ** 2 * 100)) + "%")
 
 # Save the new image
 new_image.save("combined.png")
+print("Saved combined.png")
