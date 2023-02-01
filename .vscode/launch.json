@@ -11,6 +11,14 @@
             "program": "src/roam.py",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Combine Room Images",
+            "type": "python",
+            "request": "launch",
+            "program": "combine_room_images.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }

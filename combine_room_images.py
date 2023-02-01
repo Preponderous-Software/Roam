@@ -59,7 +59,7 @@ for room_image in room_images:
 print("Images pasted: " + str(numPasted))
 print("Images out of bounds: " + str(numOutOfBounds))
 
-print("Percent of map filled: " + str(int(numPasted / (num_rooms * 2 + 1) ** 2 * 100)) + "%")
+print("Percent of map updated: " + str(int(numPasted / (num_rooms * 2 + 1) ** 2 * 100)) + "%")
 
 # Save the new image
 new_image.save("combined.png")
