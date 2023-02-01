@@ -200,6 +200,7 @@ class WorldScreen:
                 x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
                 self.currentRoom = self.map.generateNewRoom(x, y)
                 self.status.set("new area discovered")
+                self.stats.incrementScore()
                 self.stats.incrementRoomsExplored()
         else:
             self.currentRoom = room
