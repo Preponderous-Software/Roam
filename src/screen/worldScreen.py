@@ -581,9 +581,32 @@ class WorldScreen:
     def switchToInventoryScreen(self):
         self.nextScreen = ScreenType.INVENTORY_SCREEN
         self.changeScreen = True
+    
+    def isCurrentRoomSavedAsPNG(self):
+        path = "roompngs/" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".png"
+        return os.path.isfile(path)
+    
+    def saveCurrentRoomAsPNG(self):
+        if not os.path.exists("roompngs"):
+            os.makedirs("roompngs")
+        path = "roompngs/" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".png"
+        self.captureScreen(path, (0, 0), (self.graphik.getGameDisplay().get_width(), self.graphik.getGameDisplay().get_height()))
 
     def draw(self):
         self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
+
+        if self.config.captureRooms:
+            # remove player
+            locationOfPlayer = self.currentRoom.getGrid().getLocation(self.player.getLocationID())
+            self.currentRoom.removeEntity(self.player)
+            self.currentRoom.draw(self.locationWidth, self.locationHeight)
+
+            # save room as png
+            self.saveCurrentRoomAsPNG()
+            
+            # add player back
+            self.currentRoom.addEntityToLocation(self.player, locationOfPlayer)
+        
         self.currentRoom.draw(self.locationWidth, self.locationHeight)
         self.status.draw()
         self.energyBar.draw()

@@ -2,3 +2,5 @@
 screenshot*.png
 data/*.json
 data/rooms/*.json
+roompngs/*.png
+combined.png
