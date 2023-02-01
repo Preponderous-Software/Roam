@@ -12,9 +12,15 @@ num_rooms = 5
 # define room size
 roomSize = 100
 
-# Create a new image to hold all the room images
-combinedImageSize = (num_rooms * 2 + 1) * roomSize
-new_image = Image.new("RGB", (combinedImageSize, combinedImageSize))
+if not os.path.exists("combined.png"):
+    # Create a new image to hold all the room images
+    combinedImageSize = (num_rooms * 2 + 1) * roomSize
+    new_image = Image.new("RGB", (combinedImageSize, combinedImageSize))
+    print("Created new image")
+else:
+    new_image = Image.open("combined.png")
+    combinedImageSize = new_image.size[0]
+    print("Loaded existing image")
 
 # save the new image
 new_image.save("combined.png")
@@ -45,6 +51,10 @@ for room_image in room_images:
         numPasted += 1
     else:
         numOutOfBounds += 1
+
+# clear roompngs folder
+for room_image in room_images:
+    os.remove("roompngs/" + room_image)
     
 print("Images pasted: " + str(numPasted))
 print("Images out of bounds: " + str(numOutOfBounds))

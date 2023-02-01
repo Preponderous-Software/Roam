@@ -595,7 +595,7 @@ class WorldScreen:
     def draw(self):
         self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
 
-        if self.config.captureRooms:
+        if self.config.captureRooms and not self.isCurrentRoomSavedAsPNG():
             # remove player
             locationOfPlayer = self.currentRoom.getGrid().getLocation(self.player.getLocationID())
             self.currentRoom.removeEntity(self.player)
