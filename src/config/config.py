@@ -20,9 +20,9 @@ class Config:
         self.ticksPerSecond = 30
         self.gridSize = 16 # TODO: allow player to set in config menu
         self.worldBorder = 0 # 0 = no border
-        self.captureRooms = False
 
         # dynamic (can be changed in game)
         self.debug = False
         self.fullscreen = False
         self.autoEatFoodInInventory = True
+        self.captureRooms = False

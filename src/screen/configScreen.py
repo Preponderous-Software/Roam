@@ -39,6 +39,10 @@ class ConfigScreen:
         self.config.autoEatFoodInInventory = not self.config.autoEatFoodInInventory
         sleep(0.1)
     
+    def toggleCaptureRooms(self):
+        self.config.captureRooms = not self.config.captureRooms
+        sleep(0.1)
+    
     def drawMenuButtons(self):
         # draw buttons in red or green depending on config option value
         # config options to include: debug, fullscreen, autoEatInInventory
@@ -57,6 +61,9 @@ class ConfigScreen:
         ypos = ypos + height + margin
         color = (0,255,0) if self.config.autoEatFoodInInventory else (255,0,0)
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), color, 30, "auto eat in inventory", self.toggleAutoEatFoodInInventory)
+        ypos = ypos + height + margin
+        color = (0,255,0) if self.config.captureRooms else (255,0,0)
+        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), color, 30, "capture rooms", self.toggleCaptureRooms)
 
         self.drawBackButton()
 
