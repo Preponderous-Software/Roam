@@ -78,6 +78,8 @@ class Room(Environment):
 
             entity = self.livingEntities[entityId]
             locationId = entity.getLocationID()
+            if locationId == -1:
+                continue
             location = self.getGrid().getLocation(locationId)
             newLocation = self.getRandomAdjacentLocation(location)
 
@@ -112,6 +114,8 @@ class Room(Environment):
             if entity.getAge(tick) < minAgeToReproduce:
                 continue
             locationId = entity.getLocationID()
+            if locationId == -1:
+                continue
             location = self.getGrid().getLocation(locationId)
             for targetEntityId in list(location.getEntities().keys()):
                 targetEntity = location.getEntity(targetEntityId)
@@ -174,3 +178,6 @@ class Room(Environment):
     
     def getLivingEntities(self):
         return self.livingEntities
+
+    def setLivingEntities(self, livingEntities):
+        self.livingEntities = livingEntities
