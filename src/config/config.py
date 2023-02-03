@@ -25,4 +25,4 @@ class Config:
         self.debug = False
         self.fullscreen = False
         self.autoEatFoodInInventory = True
-        self.captureRooms = False
+        self.generateMapImage = True

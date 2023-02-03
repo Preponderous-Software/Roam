@@ -5,6 +5,6 @@ rm -f data/rooms/*.json
 # clear png files in roompngs directory
 rm -f roompngs/*.png
 
-# rename existing combined.png
+# rename existing mapImage.png
 date=$(date +%Y%m%d%H%M%S)
-mv combined.png combined_$date.png
+mv mapImage.png mapImage_$date.png

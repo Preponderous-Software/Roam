@@ -5,3 +5,5 @@ data/rooms/*.json
 roompngs/*.png
 combined.png
 combined_*.png
+mapImage.png
+mapImage_*.png

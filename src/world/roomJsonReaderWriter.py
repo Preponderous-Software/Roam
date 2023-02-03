@@ -109,6 +109,8 @@ class RoomJsonReaderWriter:
         elif isinstance(entity, LivingEntity):
             entityJson["energy"] = entity.getEnergy()
             entityJson["tickCreated"] = entity.getTickCreated()
+            entityJson["tickLastReproduced"] = entity.getTickLastReproduced()
+            entityJson["imagePath"] = entity.getImagePath()
         return entityJson
     
     # generate room methods
@@ -200,6 +202,12 @@ class RoomJsonReaderWriter:
             return None
         else:
             raise Exception("Unknown entity class: " + entityJson['entityClass'])
+
+        if isinstance(entity, LivingEntity):
+            entity.setEnergy(entityJson['energy'])
+            entity.setTickCreated(entityJson['tickCreated'])
+            entity.setTickLastReproduced(entityJson['tickLastReproduced'])
+            entity.setImagePath(entityJson['imagePath'])
 
         entity.setEnvironmentID(UUID(entityJson['environmentId']))
         entity.setGridID(UUID(entityJson['gridId']))

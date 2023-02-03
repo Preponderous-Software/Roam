@@ -16,6 +16,7 @@ from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from entity.living.livingEntity import LivingEntity
 from inventory.inventoryJsonReaderWriter import InventoryJsonReaderWriter
+from mapimage.mapImageUpdater import MapImageUpdater
 from screen.screenType import ScreenType
 from stats.stats import Stats
 from ui.energyBar import EnergyBar
@@ -49,6 +50,7 @@ class WorldScreen:
         self.nextScreen = ScreenType.OPTIONS_SCREEN
         self.changeScreen = False
         self.roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
+        self.mapImageUpdater = MapImageUpdater(self.tickCounter)
     
     def initialize(self):
         self.map = Map(self.config.gridSize, self.graphik, self.tickCounter)
@@ -595,7 +597,7 @@ class WorldScreen:
     def draw(self):
         self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
 
-        if self.config.captureRooms and not self.isCurrentRoomSavedAsPNG():
+        if self.config.generateMapImage and not self.isCurrentRoomSavedAsPNG():
             # remove player
             locationOfPlayer = self.currentRoom.getGrid().getLocation(self.player.getLocationID())
             self.currentRoom.removeEntity(self.player)
@@ -814,6 +816,9 @@ class WorldScreen:
             if self.player.isDead():
                 time.sleep(3)
                 self.respawnPlayer()
+            
+            if self.config.generateMapImage:
+                self.mapImageUpdater.updateIfCooldownOver()
         
         self.saveCurrentRoomToFile()
         self.savePlayerLocationToFile()
@@ -821,6 +826,9 @@ class WorldScreen:
         self.savePlayerInventoryToFile()
         self.stats.save()
         self.tickCounter.save()
+
+        if self.config.generateMapImage:
+            self.mapImageUpdater.updateMapImage()
         
         self.changeScreen = False
         return self.nextScreen

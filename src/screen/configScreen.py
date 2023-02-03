@@ -40,7 +40,7 @@ class ConfigScreen:
         sleep(0.1)
     
     def toggleCaptureRooms(self):
-        self.config.captureRooms = not self.config.captureRooms
+        self.config.generateMapImage = not self.config.generateMapImage
         sleep(0.1)
     
     def drawMenuButtons(self):
@@ -62,8 +62,8 @@ class ConfigScreen:
         color = (0,255,0) if self.config.autoEatFoodInInventory else (255,0,0)
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), color, 30, "auto eat in inventory", self.toggleAutoEatFoodInInventory)
         ypos = ypos + height + margin
-        color = (0,255,0) if self.config.captureRooms else (255,0,0)
-        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), color, 30, "capture rooms", self.toggleCaptureRooms)
+        color = (0,255,0) if self.config.generateMapImage else (255,0,0)
+        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), color, 30, "generate map image", self.toggleCaptureRooms)
 
         self.drawBackButton()
 
