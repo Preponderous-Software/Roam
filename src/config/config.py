@@ -10,8 +10,6 @@ class Config:
         self.displayHeight = pygame.display.Info().current_h * 0.90
         self.black = (0,0,0)
         self.white = (255,255,255)
-        self.ticksPerSecond = 30
-        self.tickSpeed = 1/self.ticksPerSecond
         self.playerMovementEnergyCost = 0.2
         self.playerInteractionEnergyCost= 0.05
         self.runSpeedFactor = 2
@@ -22,7 +20,7 @@ class Config:
         self.worldBorder = 0 # 0 = no border
 
         # dynamic (can be changed in game)
-        self.debug = False
+        self.debug = True
         self.fullscreen = False
         self.autoEatFoodInInventory = True
         self.generateMapImage = True

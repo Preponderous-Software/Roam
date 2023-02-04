@@ -1,4 +1,5 @@
 import json
+import time
 
 import jsonschema
 
@@ -6,12 +7,31 @@ import jsonschema
 class TickCounter:
     def __init__(self):
         self.tick = 0
+        self.measuredTicksPerSecond = 0
+        self.lastTimestamp = time.time()
+        self.highestMeasuredTicksPerSecond = 0
     
     def getTick(self):
         return self.tick
     
     def incrementTick(self):
         self.tick += 1
+        self.updateMeasuredTicksPerSecond()
+    
+    def updateMeasuredTicksPerSecond(self):
+        currentTimestamp = time.time()
+        timeElapsed = currentTimestamp - self.lastTimestamp
+        self.lastTimestamp = currentTimestamp
+        self.measuredTicksPerSecond = 1 / timeElapsed
+
+        if self.measuredTicksPerSecond > self.highestMeasuredTicksPerSecond:
+            self.highestMeasuredTicksPerSecond = self.measuredTicksPerSecond
+    
+    def getMeasuredTicksPerSecond(self):
+        return self.measuredTicksPerSecond
+    
+    def getHighestMeasuredTicksPerSecond(self):
+        return self.highestMeasuredTicksPerSecond
     
     def save(self):
         jsonTick = {}
