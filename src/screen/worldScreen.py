@@ -612,10 +612,6 @@ class WorldScreen:
         self.currentRoom.draw(self.locationWidth, self.locationHeight)
         self.status.draw()
         self.energyBar.draw()
-
-        # draw room coordinates in top left corner
-        coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY() * -1) + ")"
-        self.graphik.drawText(coordinatesText, 30, 20, 20, (255,255,255))
           
         itemPreviewXPos = self.graphik.getGameDisplay().get_width()/2 - 50*5 - 50/2
         itemPreviewYPos = self.graphik.getGameDisplay().get_height() - 50*3
@@ -656,8 +652,23 @@ class WorldScreen:
             
             itemPreviewXPos += 50 + 5
         
-        # display tick count in top right corner
-        self.graphik.drawText("tick: " + str(self.tickCounter.getTick()), self.graphik.getGameDisplay().get_width() - 100, 20, 20, (255,255,255))
+        if self.config.debug:
+            # display tick count in top right corner
+            tickValue = self.tickCounter.getTick()
+            measuredTicksPerSecond = self.tickCounter.getMeasuredTicksPerSecond()
+            xpos = self.graphik.getGameDisplay().get_width() - 100
+            ypos = 20
+            self.graphik.drawText("tick: " + str(tickValue) + " (" + str(int(measuredTicksPerSecond)) + " mtps)", xpos, ypos, 20, (255,255,255))
+
+            # display max measured ticks per second in top right corner
+            highestmtps = self.tickCounter.getHighestMeasuredTicksPerSecond()
+            xpos = self.graphik.getGameDisplay().get_width() - 100
+            ypos = 40
+            self.graphik.drawText("max mtps: " + str(int(highestmtps)), xpos, ypos, 20, (255,255,255))
+
+            # draw room coordinates in top left corner
+            coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY() * -1) + ")"
+            self.graphik.drawText(coordinatesText, 30, 20, 20, (255,255,255))
         
         pygame.display.update()
 
@@ -809,9 +820,7 @@ class WorldScreen:
             self.draw()
             
             pygame.display.update()
-
-            time.sleep(self.config.tickSpeed)
-            self.tickCounter.incrementTick()
+            self.tickCounter.incrementTick() # TODO: implement vsync
             
             if self.player.isDead():
                 time.sleep(3)
