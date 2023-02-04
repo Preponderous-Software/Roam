@@ -18,6 +18,7 @@ class Config:
         self.ticksPerSecond = 30
         self.gridSize = 16 # TODO: allow player to set in config menu
         self.worldBorder = 0 # 0 = no border
+        self.pathToSaveDirectory = "saves/defaultsavefile"
 
         # dynamic (can be changed in game)
         self.debug = True

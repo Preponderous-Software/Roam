@@ -23,12 +23,12 @@ class Roam:
         pygame.display.set_caption("Roam")
         # pygame.display.set_icon(pygame.image.load('src/media/icon.PNG'))
         self.running = True
-        self.tickCounter = TickCounter()
         self.config = config
+        self.tickCounter = TickCounter(self.config)
         self.gameDisplay = self.initializeGameDisplay()
         self.graphik = Graphik(self.gameDisplay)
         self.status = Status(self.graphik, self.tickCounter)
-        self.stats = Stats()
+        self.stats = Stats(self.config)
         self.player = Player(self.tickCounter.getTick())
         self.worldScreen = WorldScreen(self.graphik, self.config, self.status, self.tickCounter, self.stats, self.player)
         self.optionsScreen = OptionsScreen(self.graphik, self.config, self.status)

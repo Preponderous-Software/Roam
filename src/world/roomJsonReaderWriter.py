@@ -27,10 +27,11 @@ from world.room import Room
 from world.tickCounter import TickCounter
 
 class RoomJsonReaderWriter:
-    def __init__(self, gridSize, graphik: Graphik, tickCounter: TickCounter):
+    def __init__(self, gridSize, graphik: Graphik, tickCounter: TickCounter, config: Config):
         self.gridSize = gridSize
         self.graphik = graphik
         self.tickCounter = tickCounter
+        self.config = config
         self.roomSchema = json.load(open("schemas/room.json"))
         self.livingEntities = dict()
 
@@ -38,8 +39,8 @@ class RoomJsonReaderWriter:
     def saveRoom(self, room, path):
         print("Saving room to " + path)
         roomJson = self.generateJsonForRoom(room)
-        if not os.path.exists("data/rooms"):
-            os.makedirs("data/rooms")
+        if not os.path.exists(self.config.pathToSaveDirectory + "/rooms"):
+            os.makedirs(self.config.pathToSaveDirectory + "/rooms")
         with open(path, 'w') as outfile:
             json.dump(roomJson, outfile, indent=4)
 

@@ -6,13 +6,14 @@ from PIL import Image
 # @author Daniel McCoy Stephenson
 # @since February 2nd, 2023
 class MapImageGenerator:
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.numRoomsInEachDirection = 5
         self.roomSizeInPixels = 100
         self.mapImageSizeInPixels = (self.numRoomsInEachDirection * 2 + 1) * self.roomSizeInPixels
 
-        self.roomImagesDirectoryPath = "roompngs"
-        self.mapImagePath = "mapImage.png"
+        self.roomImagesDirectoryPath = self.config.pathToSaveDirectory + "/roompngs"
+        self.mapImagePath = self.config.pathToSaveDirectory + "/mapImage.png"
 
         if self.mapImageExists():
             self.mapImage = self.getExistingMapImage()

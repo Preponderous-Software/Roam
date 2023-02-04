@@ -5,7 +5,8 @@ import jsonschema
 
 
 class TickCounter:
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.tick = 0
         self.measuredTicksPerSecond = 0
         self.lastTimestamp = time.time()
@@ -41,11 +42,11 @@ class TickCounter:
         tickSchema = json.load(open("schemas/tick.json"))
         jsonschema.validate(jsonTick, tickSchema)
         
-        path = "data/tick.json"
+        path = self.config.pathToSaveDirectory + "/tick.json"
         json.dump(jsonTick, open(path, "w"), indent=4)
     
     def load(self):
-        path = "data/tick.json"
+        path = self.config.pathToSaveDirectory + "/tick.json"
         jsonTick = json.load(open(path))
         
         # validate
