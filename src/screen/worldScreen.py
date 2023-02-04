@@ -484,6 +484,9 @@ class WorldScreen:
             self.changeSelectedInventorySlot(8)
         elif key == pygame.K_0:
             self.changeSelectedInventorySlot(9)
+        elif key == pygame.K_F3:
+            # toggle debug mode
+            self.config.debug = not self.config.debug
 
     def handleKeyUpEvent(self, key):
         if (key == pygame.K_w or key == pygame.K_UP) and self.player.getDirection() == 0:
@@ -549,7 +552,7 @@ class WorldScreen:
             if itemSlot.isEmpty():
                 continue
             item = itemSlot.getContents()[0]
-            if self.player.canEat(item):
+            if self.player.canEat(item) and item.getEnergy() > 0:
                 self.player.addEnergy(item.getEnergy())
                 self.player.getInventory().removeByItem(item)
                 self.stats.incrementFoodEaten()
@@ -710,8 +713,11 @@ class WorldScreen:
         for entityId in location.getEntities():
             entity = location.getEntity(entityId)
             if isinstance(entity, LivingEntity):
-                # set status to age of entity
-                self.status.set(entity.getName() + " (age: " + str(entity.getAge(self.tickCounter.getTick())) + " ticks)")
+                statusString = entity.getName()
+                if self.config.debug:
+                # include energy and age
+                    statusString += " (e=" + str(entity.getEnergy()) + "/" + str(entity.getTargetEnergy()) + ", a=" + str(entity.getAge(self.tickCounter.getTick())) + ")"
+                self.status.set(statusString)
 
     def savePlayerLocationToFile(self):
         jsonPlayerLocation = {}

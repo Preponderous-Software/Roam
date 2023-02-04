@@ -41,6 +41,8 @@ class InventoryJsonReaderWriter:
                 if (isinstance(entity, LivingEntity)):
                     toAppend['energy'] = entity.getEnergy()
                     toAppend['tickCreated'] = entity.getTickCreated()
+                    toAppend['tickLastReproduced'] = entity.getTickLastReproduced()
+                    toAppend['imagePath'] = entity.getImagePath()
                 slotContents.append(toAppend)
             toReturn['inventorySlots'].append({
                 'slotIndex': slotIndex,
@@ -72,52 +74,58 @@ class InventoryJsonReaderWriter:
         with open(path) as f:
             inventoryJson = json.load(f)
         for slot in inventoryJson['inventorySlots']:
-            for entity in slot['slotContents']:
-                entityClass = entity['entityClass']
+            for entityJson in slot['slotContents']:
+                entityClass = entityJson['entityClass']
                 if entityClass == "Apple":
                     apple = Apple()
-                    apple.setID(UUID(entity['entityId']))
+                    apple.setID(UUID(entityJson['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(apple)
                 elif entityClass == "CoalOre":
                     coalOre = CoalOre()
-                    coalOre.setID(UUID(entity['entityId']))
+                    coalOre.setID(UUID(entityJson['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(coalOre)
                 elif entityClass == 'Grass':
                     grass = Grass()
-                    grass.setID(UUID(entity['entityId']))
+                    grass.setID(UUID(entityJson['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(grass)
                 elif entityClass == "IronOre":
                     ironOre = IronOre()
-                    ironOre.setID(UUID(entity['entityId']))
+                    ironOre.setID(UUID(entityJson['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(ironOre)
                 elif entityClass == 'JungleWood':
                     jungleWood = JungleWood()
-                    jungleWood.setID(UUID(entity['entityId']))
+                    jungleWood.setID(UUID(entityJson['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(jungleWood)
                 elif entityClass == "Leaves":
                     leaves = Leaves()
-                    leaves.setID(UUID(entity['entityId']))
+                    leaves.setID(UUID(entityJson['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(leaves)
                 elif entityClass == 'OakWood':
                     oakWood = OakWood()
-                    oakWood.setID(UUID(entity['entityId']))
+                    oakWood.setID(UUID(entityJson['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(oakWood)
                 elif entityClass == "Stone":
                     stone = Stone()
-                    stone.setID(UUID(entity['entityId']))
+                    stone.setID(UUID(entityJson['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(stone)
                 elif entityClass == "Bear":
-                    bear = Bear(entity['tickCreated'])
-                    bear.setID(UUID(entity['entityId']))
+                    bear = Bear(entityJson['tickCreated'])
+                    bear.setID(UUID(entityJson['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(bear)
+                    bear.setEnergy(entityJson['energy'])
+                    bear.setTickLastReproduced(entityJson['tickLastReproduced'])
+                    bear.setImagePath(entityJson['imagePath'])
                 elif entityClass == "Chicken":
-                    chicken = Chicken(entity['tickCreated'])
-                    chicken.setID(UUID(entity['entityId']))
+                    chicken = Chicken(entityJson['tickCreated'])
+                    chicken.setID(UUID(entityJson['entityId']))
+                    chicken.setEnergy(entityJson['energy'])
+                    chicken.setTickLastReproduced(entityJson['tickLastReproduced'])
+                    chicken.setImagePath(entityJson['imagePath'])
                     inventory.placeIntoFirstAvailableInventorySlot(chicken)
                 elif entityClass == "Banana":
                     banana = Banana()
-                    banana.setID(UUID(entity['entityId']))
+                    banana.setID(UUID(entityJson['entityId']))
                     inventory.placeIntoFirstAvailableInventorySlot(banana)
                 else:
-                    raise Exception("Unknown entity class: " + entity['entityClass'])
+                    raise Exception("Unknown entity class: " + entityJson['entityClass'])
         return inventory

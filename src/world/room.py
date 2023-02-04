@@ -94,19 +94,21 @@ class Room(Environment):
             # decrease energy
             entity.removeEnergy(1)
 
-            # search for food
-            for targetEntityId in list(newLocation.getEntities().keys()):
-                if targetEntityId == entity.getID():
-                    continue
-                targetEntity = newLocation.getEntity(targetEntityId)
-                if entity.canEat(targetEntity):
-                    if isinstance(targetEntity, LivingEntity) and targetEntity.getEnergy() > 0:
-                        targetEntity.kill()
-                        entity.addEnergy(targetEntity.getEnergy())
-                    else:
-                        self.removeEntity(targetEntity)
-                        entity.addEnergy(10)
-                    break
+            # if entity needs energy
+            if entity.needsEnergy():
+                # search for food
+                for targetEntityId in list(newLocation.getEntities().keys()):
+                    if targetEntityId == entity.getID():
+                        continue
+                    targetEntity = newLocation.getEntity(targetEntityId)
+                    if entity.canEat(targetEntity):
+                        if isinstance(targetEntity, LivingEntity) and targetEntity.getEnergy() > 0:
+                            targetEntity.kill()
+                            entity.addEnergy(targetEntity.getEnergy())
+                        else:
+                            self.removeEntity(targetEntity)
+                            entity.addEnergy(10)
+                        break
             
     def reproduceLivingEntities(self, tick):
         entityLocationMappings = []
@@ -151,8 +153,9 @@ class Room(Environment):
                 if random.randrange(1, 101) > 1: # 1% chance
                     continue
 
-                # decrease energy
-                entity.removeEnergy(1)
+                # decrease energy by half
+                entity.removeEnergy(entity.getEnergy()/2)
+                targetEntity.removeEnergy(targetEntity.getEnergy()/2)
 
                 newEntity = None
                 if isinstance(entity, Bear):
@@ -170,6 +173,9 @@ class Room(Environment):
                     if isinstance(entity, Bear):
                         entity.setImagePath("assets/bearOnReproductionCooldown.png")
                         targetEntity.setImagePath("assets/bearOnReproductionCooldown.png")
+                
+                # set new entity's energy to 10% of average of parent's energy
+                newEntity.setEnergy((entity.getEnergy() + targetEntity.getEnergy())/2 * 0.1)
                 
         for entityLocationMapping in entityLocationMappings:
             entity = entityLocationMapping[0]
