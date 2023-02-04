@@ -20,6 +20,8 @@ from inventory.inventory import Inventory
 
 
 class InventoryJsonReaderWriter:
+    def __init__(self, config):
+        self.config = config
 
     def saveInventory(self, inventory: Inventory, path):
         print("Saving inventory to " + path)
@@ -58,9 +60,9 @@ class InventoryJsonReaderWriter:
         except jsonschema.exceptions.ValidationError as e:
             print(e)
 
-        # create data directory if it doesn't exist
-        if not os.path.exists('data'):
-            os.makedirs('data')
+        # create save directory if it doesn't exist
+        if not os.path.exists(self.config.pathToSaveDirectory):
+            os.makedirs(self.config.pathToSaveDirectory)
 
         # print the JSON to file
         with open(path, 'w') as f:

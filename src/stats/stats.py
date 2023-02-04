@@ -5,7 +5,8 @@ import jsonschema
 
 
 class Stats:
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.score = 0
         self.roomsExplored = 0
         self.foodEaten = 0
@@ -59,11 +60,11 @@ class Stats:
         statsSchema = json.load(open("schemas/stats.json"))
         jsonschema.validate(jsonStats, statsSchema)
         
-        path = "data/stats.json"
+        path = self.config.pathToSaveDirectory + "/stats.json"
         json.dump(jsonStats, open(path, "w"), indent=4)
     
     def load(self):
-        path = "data/stats.json"
+        path = self.config.pathToSaveDirectory + "/stats.json"
         if not os.path.exists(path):
             return
         jsonStats = json.load(open(path))

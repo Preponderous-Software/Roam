@@ -1,9 +1,6 @@
 *.pyc
 screenshot*.png
-data/*.json
-data/rooms/*.json
-roompngs/*.png
-combined.png
-combined_*.png
-mapImage.png
-mapImage_*.png
+saves/*/*.json
+saves/*/rooms/*.json
+saves/*/roompngs/*.png
+saves/*/mapImage.png

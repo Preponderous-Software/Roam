@@ -5,9 +5,10 @@ from world.tickCounter import TickCounter
 # @author Daniel McCoy Stephenson
 # @since February 2nd, 2023
 class MapImageUpdater:
-    def __init__(self, tickCounter: TickCounter):
+    def __init__(self, tickCounter: TickCounter, config):
         self.tickCounter = tickCounter
-        self.mapImageGenerator = MapImageGenerator()
+        self.config = config
+        self.mapImageGenerator = MapImageGenerator(self.config)
         self.tickLastUpdated = self.tickCounter.getTick()
         self.updateCooldownInTicks = 300
     

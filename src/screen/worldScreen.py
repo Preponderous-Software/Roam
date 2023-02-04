@@ -49,14 +49,14 @@ class WorldScreen:
         self.showInventory = False
         self.nextScreen = ScreenType.OPTIONS_SCREEN
         self.changeScreen = False
-        self.roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
-        self.mapImageUpdater = MapImageUpdater(self.tickCounter)
+        self.roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter, self.config)
+        self.mapImageUpdater = MapImageUpdater(self.tickCounter, self.config)
     
     def initialize(self):
-        self.map = Map(self.config.gridSize, self.graphik, self.tickCounter)
+        self.map = Map(self.config.gridSize, self.graphik, self.tickCounter, self.config)
         
         # load player location if possible
-        if (os.path.exists("data/playerLocation.json")):
+        if (os.path.exists(self.config.pathToSaveDirectory + "/playerLocation.json")):
             self.loadPlayerLocationFromFile()
         else:
             self.currentRoom = self.map.getRoom(0, 0)
@@ -66,19 +66,19 @@ class WorldScreen:
             self.stats.incrementRoomsExplored()
         
         # load player attributes if possible
-        if (os.path.exists("data/playerAttributes.json")):
+        if (os.path.exists(self.config.pathToSaveDirectory + "/playerAttributes.json")):
             self.loadPlayerAttributesFromFile()
         
         # load stats if possible
-        if (os.path.exists("data/stats.json")):
+        if (os.path.exists(self.config.pathToSaveDirectory + "/stats.json")):
             self.stats.load()
         
         # load tick if possible
-        if (os.path.exists("data/tick.json")):
+        if (os.path.exists(self.config.pathToSaveDirectory + "/tick.json")):
             self.tickCounter.load()
         
         # load player inventory if possible
-        if (os.path.exists("data/playerInventory.json")):
+        if (os.path.exists(self.config.pathToSaveDirectory + "/playerInventory.json")):
             self.loadPlayerInventoryFromFile()
         
         self.initializeLocationWidthAndHeight()
@@ -173,7 +173,7 @@ class WorldScreen:
         return (location.getX() == 0 and location.getY() == 0) or (location.getX() == self.config.gridSize - 1 and location.getY() == 0) or (location.getX() == 0 and location.getY() == self.config.gridSize - 1) or (location.getX() == self.config.gridSize - 1 and location.getY() == self.config.gridSize - 1)
     
     def saveCurrentRoomToFile(self):
-        currentRoomPath = "data/rooms/room_" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".json"
+        currentRoomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".json"
         self.roomJsonReaderWriter.saveRoom(self.currentRoom, currentRoomPath)
     
     def changeRooms(self):
@@ -191,7 +191,7 @@ class WorldScreen:
         room = self.map.getRoom(x, y)
         if room == -1:
             # attempt to load room if file exists, otherwise generate new room
-            nextRoomPath = "data/rooms/room_" + str(x) + "_" + str(y) + ".json"
+            nextRoomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(x) + "_" + str(y) + ".json"
             if os.path.exists(nextRoomPath):
                 roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
                 room = roomJsonReaderWriter.loadRoom(nextRoomPath)
@@ -588,13 +588,13 @@ class WorldScreen:
         self.changeScreen = True
     
     def isCurrentRoomSavedAsPNG(self):
-        path = "roompngs/" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".png"
+        path = self.config.pathToSaveDirectory + "/roompngs/" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".png"
         return os.path.isfile(path)
     
     def saveCurrentRoomAsPNG(self):
-        if not os.path.exists("roompngs"):
-            os.makedirs("roompngs")
-        path = "roompngs/" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".png"
+        if not os.path.exists(self.config.pathToSaveDirectory + "/roompngs"):
+            os.makedirs(self.config.pathToSaveDirectory + "/roompngs")
+        path = self.config.pathToSaveDirectory + "/roompngs/" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".png"
         self.captureScreen(path, (0, 0), (self.graphik.getGameDisplay().get_width(), self.graphik.getGameDisplay().get_height()))
 
     def draw(self):
@@ -732,12 +732,12 @@ class WorldScreen:
         playerLocationSchema = json.load(open("schemas/playerLocation.json"))
         jsonschema.validate(jsonPlayerLocation, playerLocationSchema)
         
-        path = "data/playerLocation.json"
+        path = self.config.pathToSaveDirectory + "/playerLocation.json"
         print("Saving player location to " + path)
         json.dump(jsonPlayerLocation, open(path, "w"), indent=4)
     
     def loadPlayerLocationFromFile(self):
-        path = "data/playerLocation.json"
+        path = self.config.pathToSaveDirectory + "/playerLocation.json"
         if not os.path.exists(path):
             return
 
@@ -764,12 +764,12 @@ class WorldScreen:
         playerAttributesSchema = json.load(open("schemas/playerAttributes.json"))
         jsonschema.validate(jsonPlayerAttributes, playerAttributesSchema)
         
-        path = "data/playerAttributes.json"
+        path = self.config.pathToSaveDirectory + "/playerAttributes.json"
         print("Saving player attributes to " + path)
         json.dump(jsonPlayerAttributes, open(path, "w"), indent=4)
     
     def loadPlayerAttributesFromFile(self):
-        path = "data/playerAttributes.json"
+        path = self.config.pathToSaveDirectory + "/playerAttributes.json"
         if not os.path.exists(path):
             return
 
@@ -784,12 +784,12 @@ class WorldScreen:
         self.player.setEnergy(energy)
     
     def savePlayerInventoryToFile(self):
-        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
-        inventoryJsonReaderWriter.saveInventory(self.player.getInventory(), "data/playerInventory.json")
+        inventoryJsonReaderWriter = InventoryJsonReaderWriter(self.config)
+        inventoryJsonReaderWriter.saveInventory(self.player.getInventory(), self.config.pathToSaveDirectory + "/playerInventory.json")
 
     def loadPlayerInventoryFromFile(self):
-        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
-        inventory = inventoryJsonReaderWriter.loadInventory("data/playerInventory.json")
+        inventoryJsonReaderWriter = InventoryJsonReaderWriter(self.config)
+        inventory = inventoryJsonReaderWriter.loadInventory(self.config.pathToSaveDirectory + "/playerInventory.json")
         if inventory is not None:
             self.player.setInventory(inventory)
 
@@ -835,6 +835,10 @@ class WorldScreen:
             
             if self.config.generateMapImage:
                 self.mapImageUpdater.updateIfCooldownOver()
+
+        # create save directory if it doesn't exist
+        if not os.path.exists(self.config.pathToSaveDirectory):
+            os.makedirs(self.config.pathToSaveDirectory)
         
         self.saveCurrentRoomToFile()
         self.savePlayerLocationToFile()

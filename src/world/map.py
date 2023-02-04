@@ -19,11 +19,12 @@ from world.room import Room
 # @author Daniel McCoy Stephenson
 # @since August 15th, 2022
 class Map:
-    def __init__(self, gridSize, graphik: Graphik, tickCounter: TickCounter):
+    def __init__(self, gridSize, graphik: Graphik, tickCounter: TickCounter, config):
         self.rooms = []
         self.gridSize = gridSize
         self.graphik = graphik
         self.tickCounter = tickCounter
+        self.config = config
         self.roomFactory = RoomFactory(self.gridSize, self.graphik, self.tickCounter)
     
     def getRooms(self):
@@ -35,9 +36,9 @@ class Map:
                 return room
     
         # attempt to load room if file exists, otherwise generate new room
-        nextRoomPath = "data/rooms/room_" + str(x) + "_" + str(y) + ".json"
+        nextRoomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(x) + "_" + str(y) + ".json"
         if os.path.exists(nextRoomPath):
-            roomJsonReaderWriter = RoomJsonReaderWriter(self.gridSize, self.graphik, self.tickCounter)
+            roomJsonReaderWriter = RoomJsonReaderWriter(self.gridSize, self.graphik, self.tickCounter, self.config)
             room = roomJsonReaderWriter.loadRoom(nextRoomPath)
             self.addRoom(room)
             return room
