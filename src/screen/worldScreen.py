@@ -792,7 +792,8 @@ class WorldScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.printStatsToConsole()
-                    return ScreenType.NONE
+                    self.nextScreen = ScreenType.NONE
+                    self.changeScreen = True
                 elif event.type == pygame.KEYDOWN:
                     self.handleKeyDownEvent(event.key)
                 elif event.type == pygame.KEYUP:

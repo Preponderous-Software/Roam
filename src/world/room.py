@@ -91,6 +91,9 @@ class Room(Environment):
             newLocation.addEntity(entity)
             entity.setLocationID(newLocation.getID())
 
+            # decrease energy
+            entity.removeEnergy(1)
+
             # search for food
             for targetEntityId in list(newLocation.getEntities().keys()):
                 if targetEntityId == entity.getID():
@@ -128,6 +131,9 @@ class Room(Environment):
                 # check if target entity is the same type as the entity
                 if isinstance(targetEntity, type(entity)) == False:
                     continue
+                # check if target entity has enough energy
+                if targetEntity.needsEnergy():
+                    continue
                 # check if target entity is old enough to reproduce
                 if targetEntity.getAge(tick) < minAgeToReproduce:
                     continue
@@ -144,6 +150,9 @@ class Room(Environment):
                 # throw dice
                 if random.randrange(1, 101) > 1: # 1% chance
                     continue
+
+                # decrease energy
+                entity.removeEnergy(1)
 
                 newEntity = None
                 if isinstance(entity, Bear):

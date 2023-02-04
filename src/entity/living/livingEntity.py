@@ -36,7 +36,7 @@ class LivingEntity(DrawableEntity):
             self.energy -= amount
 
     def needsEnergy(self):
-        return self.energy < self.targetEnergy * 0.75
+        return self.energy < self.targetEnergy * 0.50
     
     def getTargetEnergy(self):
         return self.targetEnergy
