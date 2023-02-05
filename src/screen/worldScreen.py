@@ -901,13 +901,12 @@ class WorldScreen:
                         nextRoomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(x) + "_" + str(y) + ".json"
                         if os.path.exists(nextRoomPath):
                             roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
-                            room = roomJsonReaderWriter.loadRoom(nextRoomPath)
-                            self.map.addRoom(room)
-                            self.currentRoom = room
+                            newRoom = roomJsonReaderWriter.loadRoom(nextRoomPath)
+                            self.map.addRoom(newRoom)
                             self.status.set("area loaded")
                         else:
                             x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
-                            self.currentRoom = self.map.generateNewRoom(x, y)
+                            newRoom = self.map.generateNewRoom(x, y)
                             self.status.set("new area discovered")
                             self.stats.incrementScore()
                             self.stats.incrementRoomsExplored()
