@@ -20,10 +20,10 @@ from world.tickCounter import TickCounter
 class Roam:
     def __init__(self, config: Config):
         pygame.init()
-        pygame.display.set_caption("Roam")
-        # pygame.display.set_icon(pygame.image.load('src/media/icon.PNG'))
+        pygame.display.set_icon(pygame.image.load("assets/player_down.png"))
         self.running = True
         self.config = config
+        pygame.display.set_caption("Roam" + " (" + config.pathToSaveDirectory + ")")
         self.tickCounter = TickCounter(self.config)
         self.gameDisplay = self.initializeGameDisplay()
         self.graphik = Graphik(self.gameDisplay)
