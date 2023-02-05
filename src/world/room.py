@@ -70,7 +70,8 @@ class Room(Environment):
         ticksPerSecond = self.config.ticksPerSecond
         return tickToCheck + ticksPerSecond/entity.getSpeed() < self.tick
     
-    def moveLivingEntities(self, tick):
+    def moveLivingEntities(self, tick) -> list[LivingEntity]:
+        entitiesToMoveToNewRoom = []
         for entityId in self.livingEntities:
             # 1% chance to skip
             if random.randrange(1, 101) > 1:
@@ -83,7 +84,11 @@ class Room(Environment):
             location = self.getGrid().getLocation(locationId)
             newLocation = self.getRandomAdjacentLocation(location)
 
-            if newLocation == -1 or self.locationContainsSolidEntity(newLocation):
+            if newLocation == -1:
+                entitiesToMoveToNewRoom.append(entity)
+                continue
+            
+            if self.locationContainsSolidEntity(newLocation):
                 continue
             
             # move entity
@@ -109,6 +114,7 @@ class Room(Environment):
                             self.removeEntity(targetEntity)
                             entity.addEnergy(10)
                         break
+        return entitiesToMoveToNewRoom
             
     def reproduceLivingEntities(self, tick):
         entityLocationMappings = []

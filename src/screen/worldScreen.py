@@ -2,6 +2,7 @@ import datetime
 import json
 from math import ceil
 import os
+import random
 import time
 from uuid import UUID
 import jsonschema
@@ -27,6 +28,7 @@ from lib.pyenvlib.grid import Grid
 from entity.stone import Stone
 from entity.leaves import Leaves
 from lib.pyenvlib.location import Location
+from world.room import Room
 from world.roomFactory import RoomFactory
 from world.roomJsonReaderWriter import RoomJsonReaderWriter
 from world.tickCounter import TickCounter
@@ -169,12 +171,42 @@ class WorldScreen:
                 y -= 1
         return x, y
     
+    def getCoordinatesForNewRoomBasedOnLivingEntityLocation(self, livingEntity):
+        # get location of living entity in current room
+        locationId = livingEntity.getLocationID()
+        location = self.currentRoom.getGrid().getLocation(locationId)
+        locationX = location.getX()
+        locationY = location.getY()
+        
+        # get coordinates of new room based on location of living entity
+        x = self.currentRoom.getX()
+        y = self.currentRoom.getY()
+        if self.ifCorner(location):
+            raise Exception("corner movement not implemented yet")
+        else:
+            if location.getX() == self.config.gridSize - 1:
+                # we are on the right side of this room
+                x += 1
+            elif location.getX() == 0:
+                # we are on the left side of this room
+                x -= 1
+            elif location.getY() == self.config.gridSize - 1:
+                # we are at the bottom of this room
+                y += 1
+            elif location.getY() == 0:
+                # we are at the top of this room
+                y -= 1
+        return x, y
+    
     def ifCorner(self, location: Location):
         return (location.getX() == 0 and location.getY() == 0) or (location.getX() == self.config.gridSize - 1 and location.getY() == 0) or (location.getX() == 0 and location.getY() == self.config.gridSize - 1) or (location.getX() == self.config.gridSize - 1 and location.getY() == self.config.gridSize - 1)
     
     def saveCurrentRoomToFile(self):
-        currentRoomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".json"
-        self.roomJsonReaderWriter.saveRoom(self.currentRoom, currentRoomPath)
+        self.saveRoomToFile(self.currentRoom)
+    
+    def saveRoomToFile(self, room: Room):
+        roomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(room.getX()) + "_" + str(room.getY()) + ".json"
+        self.roomJsonReaderWriter.saveRoom(room, roomPath)
     
     def changeRooms(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
@@ -795,6 +827,40 @@ class WorldScreen:
         inventory = inventoryJsonReaderWriter.loadInventory(self.config.pathToSaveDirectory + "/playerInventory.json")
         if inventory is not None:
             self.player.setInventory(inventory)
+    
+    def getNewLocationCoordinatesForLivingEntityBasedOnLocation(self, currentLocation):
+        newLocationX = None
+        newLocationY = None
+        
+        # get current location coordinates
+        currentLocationX = currentLocation.getX()
+        currentLocationY = currentLocation.getY()
+        
+        # if corner
+        if self.ifCorner(currentLocation):
+            raise Exception("corner movement not supported yet")
+        else:
+            # if left
+            if currentLocationX == 0:
+                newLocationX = self.currentRoom.getGrid().getRows() - 1
+                newLocationY = currentLocationY
+            # if right
+            elif currentLocationX == self.currentRoom.getGrid().getRows() - 1:
+                newLocationX = 0
+                newLocationY = currentLocationY
+            # if top
+            elif currentLocationY == 0:
+                newLocationX = currentLocationX
+                newLocationY = self.currentRoom.getGrid().getRows() - 1
+            # if bottom
+            elif currentLocationY == self.currentRoom.getGrid().getRows() - 1:
+                newLocationX = currentLocationX
+                newLocationY = 0
+            # if middle
+            else:
+                # throw error
+                raise Exception("Living entity is not on the edge of the room")
+        return newLocationX, newLocationY
 
     def run(self):
         while not self.changeScreen:
@@ -819,7 +885,60 @@ class WorldScreen:
                     self.handleMouseWheelEvent(event)
             
             # move living entities
-            self.currentRoom.moveLivingEntities(self.tickCounter.getTick())
+            entitiesToMoveToNewRooms = self.currentRoom.moveLivingEntities(self.tickCounter.getTick())
+            if len(entitiesToMoveToNewRooms) > 0:
+                for entityToMove in entitiesToMoveToNewRooms:
+                    # get new room
+                    try:
+                        newRoomX, newRoomY = self.getCoordinatesForNewRoomBasedOnLivingEntityLocation(entityToMove)
+                    except Exception as e:
+                        if self.config.debug:
+                            print("Error: " + str(e))
+                        continue
+                    newRoom = self.map.getRoom(newRoomX, newRoomY)
+                    if newRoom == -1:
+                        # attempt to load room if file exists, otherwise generate new room
+                        nextRoomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(x) + "_" + str(y) + ".json"
+                        if os.path.exists(nextRoomPath):
+                            roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
+                            room = roomJsonReaderWriter.loadRoom(nextRoomPath)
+                            self.map.addRoom(room)
+                            self.currentRoom = room
+                            self.status.set("area loaded")
+                        else:
+                            x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
+                            self.currentRoom = self.map.generateNewRoom(x, y)
+                            self.status.set("new area discovered")
+                            self.stats.incrementScore()
+                            self.stats.incrementRoomsExplored()
+                    
+                    # get new location
+                    currentLocationId = entityToMove.getLocationID()
+                    currentLocation = self.currentRoom.getGrid().getLocation(currentLocationId)
+                    try:
+                        newLocationX, newLocationY = self.getNewLocationCoordinatesForLivingEntityBasedOnLocation(currentLocation)
+                    except Exception as e:
+                        if self.config.debug:
+                            print("Error: " + str(e))
+                        continue
+                    newLocation = newRoom.getGrid().getLocationByCoordinates(newLocationX, newLocationY)
+                    
+                    if newLocation == -1:
+                        print("Error: could not find new location for entity " + entityToMove.getName())
+                        continue
+                    
+                    # remove entity from current room
+                    self.currentRoom.removeEntity(entityToMove)
+                    self.currentRoom.removeLivingEntity(entityToMove)
+                    
+                    # add entity to new room
+                    newRoom.addEntityToLocation(entityToMove, newLocation)  
+                    newRoom.addLivingEntity(entityToMove)
+                    
+                    # save new room
+                    self.saveRoomToFile(newRoom)
+                                    
+                
             self.currentRoom.reproduceLivingEntities(self.tickCounter.getTick())
 
             self.handleMouseOver()
