@@ -16,7 +16,7 @@ class Config:
         self.energyDepletionRate = 0.01
         self.playerInteractionDistanceLimit = 5
         self.ticksPerSecond = 30
-        self.gridSize = 16 # TODO: allow player to set in config menu
+        self.gridSize = 17
         self.worldBorder = 0 # 0 = no border
         self.pathToSaveDirectory = "saves/defaultsavefile"
 
