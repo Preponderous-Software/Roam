@@ -70,7 +70,7 @@ class Room(Environment):
         ticksPerSecond = self.config.ticksPerSecond
         return tickToCheck + ticksPerSecond/entity.getSpeed() < self.tick
     
-    def moveLivingEntities(self, tick) -> list[LivingEntity]:
+    def moveLivingEntities(self, tick) -> list:
         entitiesToMoveToNewRoom = []
         for entityId in self.livingEntities:
             # 1% chance to skip
