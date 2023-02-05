@@ -1,5 +1,5 @@
 *.pyc
-screenshot*.png
+screenshots/*.png
 saves/*/*.json
 saves/*/rooms/*.json
 saves/*/roompngs/*.png

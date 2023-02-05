@@ -1,4 +1,5 @@
 import datetime
+import os
 from config.config import Config
 from inventory.inventory import Inventory
 from inventory.inventorySlot import InventorySlot
@@ -37,8 +38,11 @@ class InventoryScreen:
         if key == pygame.K_i or key == pygame.K_ESCAPE:
             self.switchToWorldScreen()
         elif key == pygame.K_PRINTSCREEN:
+            screenshotsFolder = "screenshots"
+            if not os.path.exists(screenshotsFolder):
+                os.makedirs(screenshotsFolder)
             x, y = self.graphik.getGameDisplay().get_size()
-            self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
+            self.captureScreen(screenshotsFolder + "/screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
         elif key == pygame.K_1:
             self.swapCursorSlotWithInventorySlotByIndex(0)
         elif key == pygame.K_2:

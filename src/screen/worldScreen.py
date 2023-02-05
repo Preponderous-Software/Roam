@@ -451,8 +451,11 @@ class WorldScreen:
             if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
                 self.movePlayer(self.player.direction)
         elif key == pygame.K_PRINTSCREEN:
+            screenshotsFolder = "screenshots"
+            if not os.path.exists(screenshotsFolder):
+                os.makedirs(screenshotsFolder)
             x, y = self.graphik.getGameDisplay().get_size()
-            self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
+            self.captureScreen(screenshotsFolder + "/screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
             self.status.set("screenshot saved")
         elif key == pygame.K_LSHIFT:
             self.player.setMovementSpeed(self.player.getMovementSpeed()*self.config.runSpeedFactor)
