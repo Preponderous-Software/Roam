@@ -609,7 +609,7 @@ class WorldScreen:
         if self.player.needsEnergy() and self.config.autoEatFoodInInventory:
             self.eatFoodInInventory()
     
-    def removeEnergyAndCheckForDeath(self):
+    def removeEnergyAndCheckForPlayerDeath(self):
         self.player.removeEnergy(self.config.energyDepletionRate)
         if self.player.getEnergy() < self.player.getTargetEnergy() * 0.10:
             self.status.set("low on energy!")
@@ -861,6 +861,18 @@ class WorldScreen:
                 # throw error
                 raise Exception("Living entity is not on the edge of the room")
         return newLocationX, newLocationY
+    
+    def checkForLivingEntityDeaths(self):
+        toRemove = []
+        for livingEntityId in self.currentRoom.getLivingEntities():
+            livingEntity = self.currentRoom.getEntity(livingEntityId)
+            if livingEntity.getEnergy() == 0:
+                toRemove.append(livingEntityId)
+        
+        for livingEntityId in toRemove:
+            livingEntity = self.currentRoom.getEntity(livingEntityId)
+            self.currentRoom.removeEntity(livingEntity)
+            self.currentRoom.removeLivingEntity(livingEntity)
 
     def run(self):
         while not self.changeScreen:
@@ -943,7 +955,8 @@ class WorldScreen:
             self.handleMouseOver()
 
             self.handlePlayerActions()
-            self.removeEnergyAndCheckForDeath()
+            self.removeEnergyAndCheckForPlayerDeath()
+            self.checkForLivingEntityDeaths()
             self.status.checkForExpiration(self.tickCounter.getTick())
             self.draw()
             
