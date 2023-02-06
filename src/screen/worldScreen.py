@@ -873,6 +873,8 @@ class WorldScreen:
             livingEntity = self.currentRoom.getEntity(livingEntityId)
             self.currentRoom.removeEntity(livingEntity)
             self.currentRoom.removeLivingEntity(livingEntity)
+            if self.config.debug:
+                print("Removed " + livingEntity.getName() + " from room " + self.currentRoom.getName() + " because it had 0 energy")
 
     def run(self):
         while not self.changeScreen:
@@ -956,7 +958,8 @@ class WorldScreen:
 
             self.handlePlayerActions()
             self.removeEnergyAndCheckForPlayerDeath()
-            self.checkForLivingEntityDeaths()
+            if self.config.removeDeadEntities:
+                self.checkForLivingEntityDeaths()
             self.status.checkForExpiration(self.tickCounter.getTick())
             self.draw()
             
