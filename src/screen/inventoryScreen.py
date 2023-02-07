@@ -1,4 +1,5 @@
 import datetime
+import os
 from config.config import Config
 from inventory.inventory import Inventory
 from inventory.inventorySlot import InventorySlot
@@ -24,12 +25,44 @@ class InventoryScreen:
         image.blit(self.graphik.getGameDisplay(), (0,0), (pos, size))  # Blit portion of the display to the image
         pygame.image.save(image, name)  # Save the image to the disk**
     
+    def swapCursorSlotWithInventorySlotByIndex(self, index):
+        if self.cursorSlot.isEmpty():
+            self.cursorSlot.setContents(self.inventory.getInventorySlots()[index].getContents())
+            self.inventory.getInventorySlots()[index].setContents([])
+        else:
+            temp = self.inventory.getInventorySlots()[index].getContents()
+            self.inventory.getInventorySlots()[index].setContents(self.cursorSlot.getContents())
+            self.cursorSlot.setContents(temp)
+
     def handleKeyDownEvent(self, key):
         if key == pygame.K_i or key == pygame.K_ESCAPE:
             self.switchToWorldScreen()
         elif key == pygame.K_PRINTSCREEN:
+            screenshotsFolder = "screenshots"
+            if not os.path.exists(screenshotsFolder):
+                os.makedirs(screenshotsFolder)
             x, y = self.graphik.getGameDisplay().get_size()
-            self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
+            self.captureScreen(screenshotsFolder + "/screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
+        elif key == pygame.K_1:
+            self.swapCursorSlotWithInventorySlotByIndex(0)
+        elif key == pygame.K_2:
+            self.swapCursorSlotWithInventorySlotByIndex(1)
+        elif key == pygame.K_3:
+            self.swapCursorSlotWithInventorySlotByIndex(2)
+        elif key == pygame.K_4:
+            self.swapCursorSlotWithInventorySlotByIndex(3)
+        elif key == pygame.K_5:
+            self.swapCursorSlotWithInventorySlotByIndex(4)
+        elif key == pygame.K_6:
+            self.swapCursorSlotWithInventorySlotByIndex(5)
+        elif key == pygame.K_7:
+            self.swapCursorSlotWithInventorySlotByIndex(6)
+        elif key == pygame.K_8:
+            self.swapCursorSlotWithInventorySlotByIndex(7)
+        elif key == pygame.K_9:
+            self.swapCursorSlotWithInventorySlotByIndex(8)
+        elif key == pygame.K_0:
+            self.swapCursorSlotWithInventorySlotByIndex(9)
         
     def switchToWorldScreen(self):
         self.nextScreen = ScreenType.WORLD_SCREEN

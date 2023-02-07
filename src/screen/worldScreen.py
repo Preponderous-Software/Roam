@@ -2,6 +2,7 @@ import datetime
 import json
 from math import ceil
 import os
+import random
 import time
 from uuid import UUID
 import jsonschema
@@ -16,6 +17,7 @@ from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from entity.living.livingEntity import LivingEntity
 from inventory.inventoryJsonReaderWriter import InventoryJsonReaderWriter
+from mapimage.mapImageUpdater import MapImageUpdater
 from screen.screenType import ScreenType
 from stats.stats import Stats
 from ui.energyBar import EnergyBar
@@ -26,6 +28,7 @@ from lib.pyenvlib.grid import Grid
 from entity.stone import Stone
 from entity.leaves import Leaves
 from lib.pyenvlib.location import Location
+from world.room import Room
 from world.roomFactory import RoomFactory
 from world.roomJsonReaderWriter import RoomJsonReaderWriter
 from world.tickCounter import TickCounter
@@ -48,13 +51,14 @@ class WorldScreen:
         self.showInventory = False
         self.nextScreen = ScreenType.OPTIONS_SCREEN
         self.changeScreen = False
-        self.roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
+        self.roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter, self.config)
+        self.mapImageUpdater = MapImageUpdater(self.tickCounter, self.config)
     
     def initialize(self):
-        self.map = Map(self.config.gridSize, self.graphik, self.tickCounter)
+        self.map = Map(self.config.gridSize, self.graphik, self.tickCounter, self.config)
         
         # load player location if possible
-        if (os.path.exists("data/playerLocation.json")):
+        if (os.path.exists(self.config.pathToSaveDirectory + "/playerLocation.json")):
             self.loadPlayerLocationFromFile()
         else:
             self.currentRoom = self.map.getRoom(0, 0)
@@ -64,19 +68,19 @@ class WorldScreen:
             self.stats.incrementRoomsExplored()
         
         # load player attributes if possible
-        if (os.path.exists("data/playerAttributes.json")):
+        if (os.path.exists(self.config.pathToSaveDirectory + "/playerAttributes.json")):
             self.loadPlayerAttributesFromFile()
         
         # load stats if possible
-        if (os.path.exists("data/stats.json")):
+        if (os.path.exists(self.config.pathToSaveDirectory + "/stats.json")):
             self.stats.load()
         
         # load tick if possible
-        if (os.path.exists("data/tick.json")):
+        if (os.path.exists(self.config.pathToSaveDirectory + "/tick.json")):
             self.tickCounter.load()
         
         # load player inventory if possible
-        if (os.path.exists("data/playerInventory.json")):
+        if (os.path.exists(self.config.pathToSaveDirectory + "/playerInventory.json")):
             self.loadPlayerInventoryFromFile()
         
         self.initializeLocationWidthAndHeight()
@@ -167,12 +171,42 @@ class WorldScreen:
                 y -= 1
         return x, y
     
+    def getCoordinatesForNewRoomBasedOnLivingEntityLocation(self, livingEntity):
+        # get location of living entity in current room
+        locationId = livingEntity.getLocationID()
+        location = self.currentRoom.getGrid().getLocation(locationId)
+        locationX = location.getX()
+        locationY = location.getY()
+        
+        # get coordinates of new room based on location of living entity
+        x = self.currentRoom.getX()
+        y = self.currentRoom.getY()
+        if self.ifCorner(location):
+            raise Exception("corner movement not implemented yet")
+        else:
+            if location.getX() == self.config.gridSize - 1:
+                # we are on the right side of this room
+                x += 1
+            elif location.getX() == 0:
+                # we are on the left side of this room
+                x -= 1
+            elif location.getY() == self.config.gridSize - 1:
+                # we are at the bottom of this room
+                y += 1
+            elif location.getY() == 0:
+                # we are at the top of this room
+                y -= 1
+        return x, y
+    
     def ifCorner(self, location: Location):
         return (location.getX() == 0 and location.getY() == 0) or (location.getX() == self.config.gridSize - 1 and location.getY() == 0) or (location.getX() == 0 and location.getY() == self.config.gridSize - 1) or (location.getX() == self.config.gridSize - 1 and location.getY() == self.config.gridSize - 1)
     
     def saveCurrentRoomToFile(self):
-        currentRoomPath = "data/rooms/room_" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".json"
-        self.roomJsonReaderWriter.saveRoom(self.currentRoom, currentRoomPath)
+        self.saveRoomToFile(self.currentRoom)
+    
+    def saveRoomToFile(self, room: Room):
+        roomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(room.getX()) + "_" + str(room.getY()) + ".json"
+        self.roomJsonReaderWriter.saveRoom(room, roomPath)
     
     def changeRooms(self):
         x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
@@ -189,7 +223,7 @@ class WorldScreen:
         room = self.map.getRoom(x, y)
         if room == -1:
             # attempt to load room if file exists, otherwise generate new room
-            nextRoomPath = "data/rooms/room_" + str(x) + "_" + str(y) + ".json"
+            nextRoomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(x) + "_" + str(y) + ".json"
             if os.path.exists(nextRoomPath):
                 roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
                 room = roomJsonReaderWriter.loadRoom(nextRoomPath)
@@ -200,6 +234,7 @@ class WorldScreen:
                 x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
                 self.currentRoom = self.map.generateNewRoom(x, y)
                 self.status.set("new area discovered")
+                self.stats.incrementScore()
                 self.stats.incrementRoomsExplored()
         else:
             self.currentRoom = room
@@ -448,8 +483,11 @@ class WorldScreen:
             if self.checkPlayerMovementCooldown(self.player.getTickLastMoved()):
                 self.movePlayer(self.player.direction)
         elif key == pygame.K_PRINTSCREEN:
+            screenshotsFolder = "screenshots"
+            if not os.path.exists(screenshotsFolder):
+                os.makedirs(screenshotsFolder)
             x, y = self.graphik.getGameDisplay().get_size()
-            self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
+            self.captureScreen(screenshotsFolder + "/screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
             self.status.set("screenshot saved")
         elif key == pygame.K_LSHIFT:
             self.player.setMovementSpeed(self.player.getMovementSpeed()*self.config.runSpeedFactor)
@@ -481,6 +519,9 @@ class WorldScreen:
             self.changeSelectedInventorySlot(8)
         elif key == pygame.K_0:
             self.changeSelectedInventorySlot(9)
+        elif key == pygame.K_F3:
+            # toggle debug mode
+            self.config.debug = not self.config.debug
 
     def handleKeyUpEvent(self, key):
         if (key == pygame.K_w or key == pygame.K_UP) and self.player.getDirection() == 0:
@@ -546,7 +587,7 @@ class WorldScreen:
             if itemSlot.isEmpty():
                 continue
             item = itemSlot.getContents()[0]
-            if self.player.canEat(item):
+            if self.player.canEat(item) and item.getEnergy() > 0:
                 self.player.addEnergy(item.getEnergy())
                 self.player.getInventory().removeByItem(item)
                 self.stats.incrementFoodEaten()
@@ -568,7 +609,7 @@ class WorldScreen:
         if self.player.needsEnergy() and self.config.autoEatFoodInInventory:
             self.eatFoodInInventory()
     
-    def removeEnergyAndCheckForDeath(self):
+    def removeEnergyAndCheckForPlayerDeath(self):
         self.player.removeEnergy(self.config.energyDepletionRate)
         if self.player.getEnergy() < self.player.getTargetEnergy() * 0.10:
             self.status.set("low on energy!")
@@ -580,16 +621,35 @@ class WorldScreen:
     def switchToInventoryScreen(self):
         self.nextScreen = ScreenType.INVENTORY_SCREEN
         self.changeScreen = True
+    
+    def isCurrentRoomSavedAsPNG(self):
+        path = self.config.pathToSaveDirectory + "/roompngs/" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".png"
+        return os.path.isfile(path)
+    
+    def saveCurrentRoomAsPNG(self):
+        if not os.path.exists(self.config.pathToSaveDirectory + "/roompngs"):
+            os.makedirs(self.config.pathToSaveDirectory + "/roompngs")
+        path = self.config.pathToSaveDirectory + "/roompngs/" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".png"
+        self.captureScreen(path, (0, 0), (self.graphik.getGameDisplay().get_width(), self.graphik.getGameDisplay().get_height()))
 
     def draw(self):
         self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
+
+        if self.config.generateMapImage and not self.isCurrentRoomSavedAsPNG():
+            # remove player
+            locationOfPlayer = self.currentRoom.getGrid().getLocation(self.player.getLocationID())
+            self.currentRoom.removeEntity(self.player)
+            self.currentRoom.draw(self.locationWidth, self.locationHeight)
+
+            # save room as png
+            self.saveCurrentRoomAsPNG()
+            
+            # add player back
+            self.currentRoom.addEntityToLocation(self.player, locationOfPlayer)
+        
         self.currentRoom.draw(self.locationWidth, self.locationHeight)
         self.status.draw()
         self.energyBar.draw()
-
-        # draw room coordinates in top left corner
-        coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY() * -1) + ")"
-        self.graphik.drawText(coordinatesText, 30, 20, 20, (255,255,255))
           
         itemPreviewXPos = self.graphik.getGameDisplay().get_width()/2 - 50*5 - 50/2
         itemPreviewYPos = self.graphik.getGameDisplay().get_height() - 50*3
@@ -630,8 +690,23 @@ class WorldScreen:
             
             itemPreviewXPos += 50 + 5
         
-        # display tick count in top right corner
-        self.graphik.drawText("tick: " + str(self.tickCounter.getTick()), self.graphik.getGameDisplay().get_width() - 100, 20, 20, (255,255,255))
+        if self.config.debug:
+            # display tick count in top right corner
+            tickValue = self.tickCounter.getTick()
+            measuredTicksPerSecond = self.tickCounter.getMeasuredTicksPerSecond()
+            xpos = self.graphik.getGameDisplay().get_width() - 100
+            ypos = 20
+            self.graphik.drawText("tick: " + str(tickValue) + " (" + str(int(measuredTicksPerSecond)) + " mtps)", xpos, ypos, 20, (255,255,255))
+
+            # display max measured ticks per second in top right corner
+            highestmtps = self.tickCounter.getHighestMeasuredTicksPerSecond()
+            xpos = self.graphik.getGameDisplay().get_width() - 100
+            ypos = 40
+            self.graphik.drawText("max mtps: " + str(int(highestmtps)), xpos, ypos, 20, (255,255,255))
+
+            # draw room coordinates in top left corner
+            coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY() * -1) + ")"
+            self.graphik.drawText(coordinatesText, 30, 20, 20, (255,255,255))
         
         pygame.display.update()
 
@@ -673,8 +748,11 @@ class WorldScreen:
         for entityId in location.getEntities():
             entity = location.getEntity(entityId)
             if isinstance(entity, LivingEntity):
-                # set status to age of entity
-                self.status.set(entity.getName() + " (age: " + str(entity.getAge(self.tickCounter.getTick())) + " ticks)")
+                statusString = entity.getName()
+                if self.config.debug:
+                # include energy and age
+                    statusString += " (e=" + str(entity.getEnergy()) + "/" + str(entity.getTargetEnergy()) + ", a=" + str(entity.getAge(self.tickCounter.getTick())) + ")"
+                self.status.set(statusString)
 
     def savePlayerLocationToFile(self):
         jsonPlayerLocation = {}
@@ -689,12 +767,12 @@ class WorldScreen:
         playerLocationSchema = json.load(open("schemas/playerLocation.json"))
         jsonschema.validate(jsonPlayerLocation, playerLocationSchema)
         
-        path = "data/playerLocation.json"
+        path = self.config.pathToSaveDirectory + "/playerLocation.json"
         print("Saving player location to " + path)
         json.dump(jsonPlayerLocation, open(path, "w"), indent=4)
     
     def loadPlayerLocationFromFile(self):
-        path = "data/playerLocation.json"
+        path = self.config.pathToSaveDirectory + "/playerLocation.json"
         if not os.path.exists(path):
             return
 
@@ -721,12 +799,12 @@ class WorldScreen:
         playerAttributesSchema = json.load(open("schemas/playerAttributes.json"))
         jsonschema.validate(jsonPlayerAttributes, playerAttributesSchema)
         
-        path = "data/playerAttributes.json"
+        path = self.config.pathToSaveDirectory + "/playerAttributes.json"
         print("Saving player attributes to " + path)
         json.dump(jsonPlayerAttributes, open(path, "w"), indent=4)
     
     def loadPlayerAttributesFromFile(self):
-        path = "data/playerAttributes.json"
+        path = self.config.pathToSaveDirectory + "/playerAttributes.json"
         if not os.path.exists(path):
             return
 
@@ -741,21 +819,70 @@ class WorldScreen:
         self.player.setEnergy(energy)
     
     def savePlayerInventoryToFile(self):
-        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
-        inventoryJsonReaderWriter.saveInventory(self.player.getInventory(), "data/playerInventory.json")
+        inventoryJsonReaderWriter = InventoryJsonReaderWriter(self.config)
+        inventoryJsonReaderWriter.saveInventory(self.player.getInventory(), self.config.pathToSaveDirectory + "/playerInventory.json")
 
     def loadPlayerInventoryFromFile(self):
-        inventoryJsonReaderWriter = InventoryJsonReaderWriter()
-        inventory = inventoryJsonReaderWriter.loadInventory("data/playerInventory.json")
+        inventoryJsonReaderWriter = InventoryJsonReaderWriter(self.config)
+        inventory = inventoryJsonReaderWriter.loadInventory(self.config.pathToSaveDirectory + "/playerInventory.json")
         if inventory is not None:
             self.player.setInventory(inventory)
+    
+    def getNewLocationCoordinatesForLivingEntityBasedOnLocation(self, currentLocation):
+        newLocationX = None
+        newLocationY = None
+        
+        # get current location coordinates
+        currentLocationX = currentLocation.getX()
+        currentLocationY = currentLocation.getY()
+        
+        # if corner
+        if self.ifCorner(currentLocation):
+            raise Exception("corner movement not supported yet")
+        else:
+            # if left
+            if currentLocationX == 0:
+                newLocationX = self.currentRoom.getGrid().getRows() - 1
+                newLocationY = currentLocationY
+            # if right
+            elif currentLocationX == self.currentRoom.getGrid().getRows() - 1:
+                newLocationX = 0
+                newLocationY = currentLocationY
+            # if top
+            elif currentLocationY == 0:
+                newLocationX = currentLocationX
+                newLocationY = self.currentRoom.getGrid().getRows() - 1
+            # if bottom
+            elif currentLocationY == self.currentRoom.getGrid().getRows() - 1:
+                newLocationX = currentLocationX
+                newLocationY = 0
+            # if middle
+            else:
+                # throw error
+                raise Exception("Living entity is not on the edge of the room")
+        return newLocationX, newLocationY
+    
+    def checkForLivingEntityDeaths(self):
+        toRemove = []
+        for livingEntityId in self.currentRoom.getLivingEntities():
+            livingEntity = self.currentRoom.getEntity(livingEntityId)
+            if livingEntity.getEnergy() == 0:
+                toRemove.append(livingEntityId)
+        
+        for livingEntityId in toRemove:
+            livingEntity = self.currentRoom.getEntity(livingEntityId)
+            self.currentRoom.removeEntity(livingEntity)
+            self.currentRoom.removeLivingEntity(livingEntity)
+            if self.config.debug:
+                print("Removed " + livingEntity.getName() + " from room " + self.currentRoom.getName() + " because it had 0 energy")
 
     def run(self):
         while not self.changeScreen:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.printStatsToConsole()
-                    return ScreenType.NONE
+                    self.nextScreen = ScreenType.NONE
+                    self.changeScreen = True
                 elif event.type == pygame.KEYDOWN:
                     self.handleKeyDownEvent(event.key)
                 elif event.type == pygame.KEYUP:
@@ -772,24 +899,83 @@ class WorldScreen:
                     self.handleMouseWheelEvent(event)
             
             # move living entities
-            self.currentRoom.moveLivingEntities(self.tickCounter.getTick())
+            entitiesToMoveToNewRooms = self.currentRoom.moveLivingEntities(self.tickCounter.getTick())
+            if len(entitiesToMoveToNewRooms) > 0:
+                for entityToMove in entitiesToMoveToNewRooms:
+                    # get new room
+                    try:
+                        newRoomX, newRoomY = self.getCoordinatesForNewRoomBasedOnLivingEntityLocation(entityToMove)
+                    except Exception as e:
+                        if self.config.debug:
+                            print("Error: " + str(e))
+                        continue
+                    newRoom = self.map.getRoom(newRoomX, newRoomY)
+                    if newRoom == -1:
+                        # attempt to load room if file exists, otherwise generate new room
+                        nextRoomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(x) + "_" + str(y) + ".json"
+                        if os.path.exists(nextRoomPath):
+                            roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
+                            newRoom = roomJsonReaderWriter.loadRoom(nextRoomPath)
+                            self.map.addRoom(newRoom)
+                            self.status.set("area loaded")
+                        else:
+                            x, y = self.getCoordinatesForNewRoomBasedOnPlayerLocationAndDirection()
+                            newRoom = self.map.generateNewRoom(x, y)
+                            self.status.set("new area discovered")
+                            self.stats.incrementScore()
+                            self.stats.incrementRoomsExplored()
+                    
+                    # get new location
+                    currentLocationId = entityToMove.getLocationID()
+                    currentLocation = self.currentRoom.getGrid().getLocation(currentLocationId)
+                    try:
+                        newLocationX, newLocationY = self.getNewLocationCoordinatesForLivingEntityBasedOnLocation(currentLocation)
+                    except Exception as e:
+                        if self.config.debug:
+                            print("Error: " + str(e))
+                        continue
+                    newLocation = newRoom.getGrid().getLocationByCoordinates(newLocationX, newLocationY)
+                    
+                    if newLocation == -1:
+                        print("Error: could not find new location for entity " + entityToMove.getName())
+                        continue
+                    
+                    # remove entity from current room
+                    self.currentRoom.removeEntity(entityToMove)
+                    self.currentRoom.removeLivingEntity(entityToMove)
+                    
+                    # add entity to new room
+                    newRoom.addEntityToLocation(entityToMove, newLocation)  
+                    newRoom.addLivingEntity(entityToMove)
+                    
+                    # save new room
+                    self.saveRoomToFile(newRoom)
+                                    
+                
             self.currentRoom.reproduceLivingEntities(self.tickCounter.getTick())
 
             self.handleMouseOver()
 
             self.handlePlayerActions()
-            self.removeEnergyAndCheckForDeath()
+            self.removeEnergyAndCheckForPlayerDeath()
+            if self.config.removeDeadEntities:
+                self.checkForLivingEntityDeaths()
             self.status.checkForExpiration(self.tickCounter.getTick())
             self.draw()
             
             pygame.display.update()
-
-            time.sleep(self.config.tickSpeed)
-            self.tickCounter.incrementTick()
+            self.tickCounter.incrementTick() # TODO: implement vsync
             
             if self.player.isDead():
                 time.sleep(3)
                 self.respawnPlayer()
+            
+            if self.config.generateMapImage:
+                self.mapImageUpdater.updateIfCooldownOver()
+
+        # create save directory if it doesn't exist
+        if not os.path.exists(self.config.pathToSaveDirectory):
+            os.makedirs(self.config.pathToSaveDirectory)
         
         self.saveCurrentRoomToFile()
         self.savePlayerLocationToFile()
@@ -797,6 +983,9 @@ class WorldScreen:
         self.savePlayerInventoryToFile()
         self.stats.save()
         self.tickCounter.save()
+
+        if self.config.generateMapImage:
+            self.mapImageUpdater.updateMapImage()
         
         self.changeScreen = False
         return self.nextScreen

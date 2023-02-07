@@ -1,17 +1,38 @@
 import json
+import time
 
 import jsonschema
 
 
 class TickCounter:
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
         self.tick = 0
+        self.measuredTicksPerSecond = 0
+        self.lastTimestamp = time.time()
+        self.highestMeasuredTicksPerSecond = 0
     
     def getTick(self):
         return self.tick
     
     def incrementTick(self):
         self.tick += 1
+        self.updateMeasuredTicksPerSecond()
+    
+    def updateMeasuredTicksPerSecond(self):
+        currentTimestamp = time.time()
+        timeElapsed = currentTimestamp - self.lastTimestamp
+        self.lastTimestamp = currentTimestamp
+        self.measuredTicksPerSecond = 1 / timeElapsed
+
+        if self.measuredTicksPerSecond > self.highestMeasuredTicksPerSecond:
+            self.highestMeasuredTicksPerSecond = self.measuredTicksPerSecond
+    
+    def getMeasuredTicksPerSecond(self):
+        return self.measuredTicksPerSecond
+    
+    def getHighestMeasuredTicksPerSecond(self):
+        return self.highestMeasuredTicksPerSecond
     
     def save(self):
         jsonTick = {}
@@ -21,11 +42,11 @@ class TickCounter:
         tickSchema = json.load(open("schemas/tick.json"))
         jsonschema.validate(jsonTick, tickSchema)
         
-        path = "data/tick.json"
+        path = self.config.pathToSaveDirectory + "/tick.json"
         json.dump(jsonTick, open(path, "w"), indent=4)
     
     def load(self):
-        path = "data/tick.json"
+        path = self.config.pathToSaveDirectory + "/tick.json"
         jsonTick = json.load(open(path))
         
         # validate

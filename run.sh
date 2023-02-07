@@ -15,4 +15,4 @@ pip install -r requirements.txt --quiet
 
 # start program
 echo "Starting program"
-python src/roam.py
+python src/roam.py > output.txt

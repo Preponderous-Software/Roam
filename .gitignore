@@ -1,4 +1,7 @@
 *.pyc
-screenshot*.png
-data/*.json
-data/rooms/*.json
+screenshots/*.png
+saves/*/*.json
+saves/*/rooms/*.json
+saves/*/roompngs/*.png
+saves/*/mapImage.png
+output.txt

@@ -16,7 +16,7 @@
                                 "entityClass": {"type": "string"},
                                 "name": {"type": "string"},
                                 "assetPath": {"type": "string"},
-                                "energy": {"type": "integer"}
+                                "energy": {"type": "number"}
                             },
                             "required": ["entityId", "entityClass", "name", "assetPath"]
                         }

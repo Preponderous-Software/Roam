@@ -1,7 +1,6 @@
 import pygame
 from config.config import Config
 from player.player import Player
-from inventory.inventoryJsonReaderWriter import InventoryJsonReaderWriter
 from lib.graphik.src.graphik import Graphik
 from screen.configScreen import ConfigScreen
 from screen.inventoryScreen import InventoryScreen
@@ -20,15 +19,15 @@ from world.tickCounter import TickCounter
 class Roam:
     def __init__(self, config: Config):
         pygame.init()
-        pygame.display.set_caption("Roam")
-        # pygame.display.set_icon(pygame.image.load('src/media/icon.PNG'))
+        pygame.display.set_icon(pygame.image.load("assets/player_down.png"))
         self.running = True
-        self.tickCounter = TickCounter()
         self.config = config
+        pygame.display.set_caption("Roam" + " (" + config.pathToSaveDirectory + ")")
+        self.tickCounter = TickCounter(self.config)
         self.gameDisplay = self.initializeGameDisplay()
         self.graphik = Graphik(self.gameDisplay)
         self.status = Status(self.graphik, self.tickCounter)
-        self.stats = Stats()
+        self.stats = Stats(self.config)
         self.player = Player(self.tickCounter.getTick())
         self.worldScreen = WorldScreen(self.graphik, self.config, self.status, self.tickCounter, self.stats, self.player)
         self.optionsScreen = OptionsScreen(self.graphik, self.config, self.status)

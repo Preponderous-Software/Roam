@@ -1,4 +1,5 @@
 import datetime
+import os
 from config.config import Config
 from lib.graphik.src.graphik import Graphik
 from screen.screenType import ScreenType
@@ -26,8 +27,11 @@ class StatsScreen:
         if key == pygame.K_ESCAPE:
             self.switchToOptionsScreen()
         elif key == pygame.K_PRINTSCREEN:
+            screenshotsFolder = "screenshots"
+            if not os.path.exists(screenshotsFolder):
+                os.makedirs(screenshotsFolder)
             x, y = self.graphik.getGameDisplay().get_size()
-            self.captureScreen("screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
+            self.captureScreen(screenshotsFolder + "/screenshot-" + str(datetime.datetime.now()).replace(" ", "-").replace(":", ".") +".png", (0,0), (x,y))
         
     def switchToOptionsScreen(self):
         self.nextScreen = ScreenType.OPTIONS_SCREEN

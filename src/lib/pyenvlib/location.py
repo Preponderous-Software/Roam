@@ -57,7 +57,7 @@ class Location(object):
     # Returns an entity in this location matching the given ID.
     def getEntity(self, id):
         if not id in self.entities:
-            print("Warning: An entity was not present when attempting to retrieve it from a location.")
+            # print("Warning: An entity was not present when attempting to retrieve it from a location.")
             return None
         return self.entities[id]
     

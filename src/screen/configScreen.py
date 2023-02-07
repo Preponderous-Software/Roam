@@ -39,6 +39,14 @@ class ConfigScreen:
         self.config.autoEatFoodInInventory = not self.config.autoEatFoodInInventory
         sleep(0.1)
     
+    def toggleGenerateMapImage(self):
+        self.config.generateMapImage = not self.config.generateMapImage
+        sleep(0.1)
+    
+    def toggleRemoveDeadEntities(self):
+        self.config.removeDeadEntities = not self.config.removeDeadEntities
+        sleep(0.1)
+    
     def drawMenuButtons(self):
         # draw buttons in red or green depending on config option value
         # config options to include: debug, fullscreen, autoEatInInventory
@@ -57,6 +65,12 @@ class ConfigScreen:
         ypos = ypos + height + margin
         color = (0,255,0) if self.config.autoEatFoodInInventory else (255,0,0)
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), color, 30, "auto eat in inventory", self.toggleAutoEatFoodInInventory)
+        ypos = ypos + height + margin
+        color = (0,255,0) if self.config.generateMapImage else (255,0,0)
+        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), color, 30, "generate map image", self.toggleGenerateMapImage)
+        ypos = ypos + height + margin
+        color = (0,255,0) if self.config.removeDeadEntities else (255,0,0)
+        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), color, 30, "remove dead entities", self.toggleRemoveDeadEntities)
 
         self.drawBackButton()
 

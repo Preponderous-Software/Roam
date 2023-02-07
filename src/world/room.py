@@ -70,7 +70,8 @@ class Room(Environment):
         ticksPerSecond = self.config.ticksPerSecond
         return tickToCheck + ticksPerSecond/entity.getSpeed() < self.tick
     
-    def moveLivingEntities(self, tick):
+    def moveLivingEntities(self, tick) -> list:
+        entitiesToMoveToNewRoom = []
         for entityId in self.livingEntities:
             # 1% chance to skip
             if random.randrange(1, 101) > 1:
@@ -78,10 +79,20 @@ class Room(Environment):
 
             entity = self.livingEntities[entityId]
             locationId = entity.getLocationID()
-            location = self.getGrid().getLocation(locationId)
+            if locationId == -1:
+                continue
+            try:
+                location = self.getGrid().getLocation(locationId)
+            except:
+                print("ERROR: Location not found when trying to move entity. Entity ID: " + str(entity.getID()) + ", Location ID: " + str(locationId))
+                continue
             newLocation = self.getRandomAdjacentLocation(location)
 
-            if newLocation == -1 or self.locationContainsSolidEntity(newLocation):
+            if newLocation == -1:
+                entitiesToMoveToNewRoom.append(entity)
+                continue
+            
+            if self.locationContainsSolidEntity(newLocation):
                 continue
             
             # move entity
@@ -89,19 +100,25 @@ class Room(Environment):
             newLocation.addEntity(entity)
             entity.setLocationID(newLocation.getID())
 
-            # search for food
-            for targetEntityId in list(newLocation.getEntities().keys()):
-                if targetEntityId == entity.getID():
-                    continue
-                targetEntity = newLocation.getEntity(targetEntityId)
-                if entity.canEat(targetEntity):
-                    if isinstance(targetEntity, LivingEntity) and targetEntity.getEnergy() > 0:
-                        targetEntity.kill()
-                        entity.addEnergy(targetEntity.getEnergy())
-                    else:
-                        self.removeEntity(targetEntity)
-                        entity.addEnergy(10)
-                    break
+            # decrease energy
+            entity.removeEnergy(1)
+
+            # if entity needs energy
+            if entity.needsEnergy():
+                # search for food
+                for targetEntityId in list(newLocation.getEntities().keys()):
+                    if targetEntityId == entity.getID():
+                        continue
+                    targetEntity = newLocation.getEntity(targetEntityId)
+                    if entity.canEat(targetEntity):
+                        if isinstance(targetEntity, LivingEntity) and targetEntity.getEnergy() > 0:
+                            targetEntity.kill()
+                            entity.addEnergy(targetEntity.getEnergy())
+                        else:
+                            self.removeEntity(targetEntity)
+                            entity.addEnergy(10)
+                        break
+        return entitiesToMoveToNewRoom
             
     def reproduceLivingEntities(self, tick):
         entityLocationMappings = []
@@ -112,7 +129,13 @@ class Room(Environment):
             if entity.getAge(tick) < minAgeToReproduce:
                 continue
             locationId = entity.getLocationID()
-            location = self.getGrid().getLocation(locationId)
+            if locationId == -1:
+                continue
+            try:
+                location = self.getGrid().getLocation(locationId)
+            except:
+                print("ERROR: Location not found when trying to reproduce entity. Entity ID: " + str(entity.getID()) + ", Location ID: " + str(locationId))
+                continue
             for targetEntityId in list(location.getEntities().keys()):
                 targetEntity = location.getEntity(targetEntityId)
                 # check if target entity is a living entity
@@ -123,6 +146,9 @@ class Room(Environment):
                     continue
                 # check if target entity is the same type as the entity
                 if isinstance(targetEntity, type(entity)) == False:
+                    continue
+                # check if target entity has enough energy
+                if targetEntity.needsEnergy():
                     continue
                 # check if target entity is old enough to reproduce
                 if targetEntity.getAge(tick) < minAgeToReproduce:
@@ -141,6 +167,10 @@ class Room(Environment):
                 if random.randrange(1, 101) > 1: # 1% chance
                     continue
 
+                # decrease energy by half
+                entity.removeEnergy(entity.getEnergy()/2)
+                targetEntity.removeEnergy(targetEntity.getEnergy()/2)
+
                 newEntity = None
                 if isinstance(entity, Bear):
                     newEntity = Bear(tick)
@@ -158,6 +188,9 @@ class Room(Environment):
                         entity.setImagePath("assets/bearOnReproductionCooldown.png")
                         targetEntity.setImagePath("assets/bearOnReproductionCooldown.png")
                 
+                # set new entity's energy to 10% of average of parent's energy
+                newEntity.setEnergy((entity.getEnergy() + targetEntity.getEnergy())/2 * 0.1)
+                
         for entityLocationMapping in entityLocationMappings:
             entity = entityLocationMapping[0]
             location = entityLocationMapping[1]
@@ -174,3 +207,6 @@ class Room(Environment):
     
     def getLivingEntities(self):
         return self.livingEntities
+
+    def setLivingEntities(self, livingEntities):
+        self.livingEntities = livingEntities

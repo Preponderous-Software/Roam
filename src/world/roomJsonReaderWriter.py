@@ -27,18 +27,20 @@ from world.room import Room
 from world.tickCounter import TickCounter
 
 class RoomJsonReaderWriter:
-    def __init__(self, gridSize, graphik: Graphik, tickCounter: TickCounter):
+    def __init__(self, gridSize, graphik: Graphik, tickCounter: TickCounter, config: Config):
         self.gridSize = gridSize
         self.graphik = graphik
         self.tickCounter = tickCounter
+        self.config = config
         self.roomSchema = json.load(open("schemas/room.json"))
+        self.livingEntities = dict()
 
     # save and load methods
     def saveRoom(self, room, path):
         print("Saving room to " + path)
         roomJson = self.generateJsonForRoom(room)
-        if not os.path.exists("data/rooms"):
-            os.makedirs("data/rooms")
+        if not os.path.exists(self.config.pathToSaveDirectory + "/rooms"):
+            os.makedirs(self.config.pathToSaveDirectory + "/rooms")
         with open(path, 'w') as outfile:
             json.dump(roomJson, outfile, indent=4)
 
@@ -108,6 +110,8 @@ class RoomJsonReaderWriter:
         elif isinstance(entity, LivingEntity):
             entityJson["energy"] = entity.getEnergy()
             entityJson["tickCreated"] = entity.getTickCreated()
+            entityJson["tickLastReproduced"] = entity.getTickLastReproduced()
+            entityJson["imagePath"] = entity.getImagePath()
         return entityJson
     
     # generate room methods
@@ -120,6 +124,10 @@ class RoomJsonReaderWriter:
         room.setID(roomJson["id"])
         # room.setCreationDate(roomJson["creationDate"])
         room.setGrid(self.generateGridFromJson(roomJson["grid"]))
+
+        # add living entities
+        room.setLivingEntities(self.livingEntities)
+        self.livingEntities = dict()
         return room
 
     def generateGridFromJson(self, gridJson):
@@ -150,6 +158,9 @@ class RoomJsonReaderWriter:
             if (entity == None):
                 continue
             entities[entity.getID()] = entity
+
+            if isinstance(entity, LivingEntity):
+                self.livingEntities[entity.getID()] = entity
         return entities
 
     def generateEntityFromJson(self, entityJson):
@@ -189,7 +200,19 @@ class RoomJsonReaderWriter:
             entity = Banana()
             entity.setID(UUID(entityJson['id']))
         elif entityClass == "Player":
-            pass
+            return None
         else:
             raise Exception("Unknown entity class: " + entityJson['entityClass'])
+
+        if isinstance(entity, LivingEntity):
+            entity.setEnergy(entityJson['energy'])
+            entity.setTickCreated(entityJson['tickCreated'])
+            entity.setTickLastReproduced(entityJson['tickLastReproduced'])
+            entity.setImagePath(entityJson['imagePath'])
+
+        entity.setEnvironmentID(UUID(entityJson['environmentId']))
+        entity.setGridID(UUID(entityJson['gridId']))
+        entity.setLocationID(entityJson['locationId'])
+        entity.setName(entityJson['name'])
+        # entity.setCreationDate(entityJson['creationDate'])
         return entity
