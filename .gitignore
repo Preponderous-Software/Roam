@@ -4,3 +4,4 @@ saves/*/*.json
 saves/*/rooms/*.json
 saves/*/roompngs/*.png
 saves/*/mapImage.png
+output.txt

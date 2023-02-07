@@ -81,7 +81,11 @@ class Room(Environment):
             locationId = entity.getLocationID()
             if locationId == -1:
                 continue
-            location = self.getGrid().getLocation(locationId)
+            try:
+                location = self.getGrid().getLocation(locationId)
+            except:
+                print("ERROR: Location not found when trying to move entity. Entity ID: " + str(entity.getID()) + ", Location ID: " + str(locationId))
+                continue
             newLocation = self.getRandomAdjacentLocation(location)
 
             if newLocation == -1:
@@ -127,7 +131,11 @@ class Room(Environment):
             locationId = entity.getLocationID()
             if locationId == -1:
                 continue
-            location = self.getGrid().getLocation(locationId)
+            try:
+                location = self.getGrid().getLocation(locationId)
+            except:
+                print("ERROR: Location not found when trying to reproduce entity. Entity ID: " + str(entity.getID()) + ", Location ID: " + str(locationId))
+                continue
             for targetEntityId in list(location.getEntities().keys()):
                 targetEntity = location.getEntity(targetEntityId)
                 # check if target entity is a living entity
