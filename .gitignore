@@ -6,3 +6,4 @@ saves/*/roompngs/*.png
 saves/*/mapImage.png
 output.txt
 .coverage
+tests/stats/*.json
