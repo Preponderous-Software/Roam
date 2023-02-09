@@ -41,6 +41,9 @@ class LivingEntity(DrawableEntity):
     def getTargetEnergy(self):
         return self.targetEnergy
 
+    def setTargetEnergy(self, targetEnergy):
+        self.targetEnergy = targetEnergy
+
     def canEat(self, entity):
         for entityType in self.edibleEntityTypes:
             if type(entity) is entityType:
