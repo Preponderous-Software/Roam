@@ -1,4 +1,4 @@
-# run pytest with coverage and generate html report
+# /bin/bash
 # Usage: ./test.sh
 
-coverage report -m pytest --verbose -vv
+pytest --verbose -vv
