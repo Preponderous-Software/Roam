@@ -5,16 +5,19 @@ getLatest() {
     # get the latest version of the code
     echo "Pulling latest version of code from GitHub"
     git pull
+    echo ""
 }
 
 printBranchStatus() {
     # print the current branch
     echo "Current branch: $(git branch --show-current)"
+    echo ""
 }
 
 printVersion() {
     # print the current version
     echo "Current version: $(cat version.txt)"
+    echo ""
 }
 
 checkDependencies() {
@@ -32,6 +35,14 @@ checkDependencies() {
     fi
     pip install pygame --pre --quiet
     pip install -r requirements.txt --quiet
+    echo ""
+}
+
+runTests() {
+    # run tests
+    echo "Running tests"
+    python -m pytest
+    echo ""
 }
 
 startProgram() {
@@ -45,4 +56,5 @@ getLatest
 printBranchStatus
 printVersion
 checkDependencies
+runTests
 startProgram
