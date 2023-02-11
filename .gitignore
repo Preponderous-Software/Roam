@@ -7,3 +7,4 @@ saves/*/mapImage.png
 output.txt
 .coverage
 tests/stats/*.json
+cov.xml
