@@ -26,3 +26,4 @@ class Config:
         self.autoEatFoodInInventory = True
         self.generateMapImage = True
         self.removeDeadEntities = True
+        self.showMiniMap = True
