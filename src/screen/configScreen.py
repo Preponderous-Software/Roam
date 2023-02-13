@@ -46,6 +46,10 @@ class ConfigScreen:
     def toggleRemoveDeadEntities(self):
         self.config.removeDeadEntities = not self.config.removeDeadEntities
         sleep(0.1)
+
+    def toggleShowMiniMap(self):
+        self.config.showMiniMap = not self.config.showMiniMap
+        sleep(0.1)
     
     def drawMenuButtons(self):
         # draw buttons in red or green depending on config option value
@@ -71,6 +75,9 @@ class ConfigScreen:
         ypos = ypos + height + margin
         color = (0,255,0) if self.config.removeDeadEntities else (255,0,0)
         self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), color, 30, "remove dead entities", self.toggleRemoveDeadEntities)
+        ypos = ypos + height + margin
+        color = (0,255,0) if self.config.showMiniMap else (255,0,0)
+        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), color, 30, "show minimap", self.toggleShowMiniMap)
 
         self.drawBackButton()
 

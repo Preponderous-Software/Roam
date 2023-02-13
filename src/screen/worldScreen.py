@@ -53,6 +53,9 @@ class WorldScreen:
         self.changeScreen = False
         self.roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter, self.config)
         self.mapImageUpdater = MapImageUpdater(self.tickCounter, self.config)
+        self.minimapScaleFactor = 0.10
+        self.minimapX = 5
+        self.minimapY = 5
     
     def initialize(self):
         self.map = Map(self.config.gridSize, self.graphik, self.tickCounter, self.config)
@@ -217,8 +220,6 @@ class WorldScreen:
 
         playerLocation = self.getLocationOfPlayer()
         self.currentRoom.removeEntity(self.player)
-
-        self.saveCurrentRoomToFile()
         
         room = self.map.getRoom(x, y)
         if room == -1:
@@ -305,6 +306,7 @@ class WorldScreen:
         if newLocation == -1:
             # we're at a border
             self.changeRooms()
+            self.save()
             return
 
         if self.locationContainsSolidEntity(newLocation):
@@ -522,6 +524,17 @@ class WorldScreen:
         elif key == pygame.K_F3:
             # toggle debug mode
             self.config.debug = not self.config.debug
+        elif key == pygame.K_m:
+            # toggle minimap
+            self.config.showMiniMap = not self.config.showMiniMap
+        elif key == pygame.K_EQUALS:
+            # increase minimap scale factor
+            if self.minimapScaleFactor < 1.0:
+                self.minimapScaleFactor += 0.1
+        elif key == pygame.K_MINUS:
+            # decrease minimap scale factor
+            if self.minimapScaleFactor > 0:
+                self.minimapScaleFactor -= 0.1
 
     def handleKeyUpEvent(self, key):
         if (key == pygame.K_w or key == pygame.K_UP) and self.player.getDirection() == 0:
@@ -563,7 +576,7 @@ class WorldScreen:
         self.currentRoom.removeEntity(self.player)
         self.map.getRoom(0, 0).addEntity(self.player)
         
-        self.saveCurrentRoomToFile()
+        self.save()
         
         self.currentRoom = self.map.getRoom(0, 0)
         self.player.energy = self.player.targetEnergy
@@ -629,23 +642,41 @@ class WorldScreen:
     def saveCurrentRoomAsPNG(self):
         if not os.path.exists(self.config.pathToSaveDirectory + "/roompngs"):
             os.makedirs(self.config.pathToSaveDirectory + "/roompngs")
+        
+        # remove player
+        locationOfPlayer = self.currentRoom.getGrid().getLocation(self.player.getLocationID())
+        self.currentRoom.removeEntity(self.player)
+        self.currentRoom.draw(self.locationWidth, self.locationHeight)
+
         path = self.config.pathToSaveDirectory + "/roompngs/" + str(self.currentRoom.getX()) + "_" + str(self.currentRoom.getY()) + ".png"
         self.captureScreen(path, (0, 0), (self.graphik.getGameDisplay().get_width(), self.graphik.getGameDisplay().get_height()))
+
+        # add player back
+        self.currentRoom.addEntityToLocation(self.player, locationOfPlayer)
+
+    def drawMiniMap(self):
+        # if map image doesn't exist, return
+        if not os.path.isfile(self.config.pathToSaveDirectory + "/mapImage.png"):
+            return
+        
+        # get mapImage.png for current save
+        mapImage = pygame.image.load(self.config.pathToSaveDirectory + "/mapImage.png")
+
+        # scale with respect to size of display
+        mapImage = pygame.transform.scale(mapImage, (self.graphik.getGameDisplay().get_width() * self.minimapScaleFactor, self.graphik.getGameDisplay().get_height() * self.minimapScaleFactor))
+
+        # draw rectangle
+        backgroundColor = (200, 200, 200)
+        self.graphik.drawRectangle(self.minimapX, self.minimapY, mapImage.get_width() + 20, mapImage.get_height() + 20, backgroundColor)
+
+        # blit in top left corner with 10px padding
+        self.graphik.getGameDisplay().blit(mapImage, (self.minimapX + 10, self.minimapY + 10))
 
     def draw(self):
         self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
 
         if self.config.generateMapImage and not self.isCurrentRoomSavedAsPNG():
-            # remove player
-            locationOfPlayer = self.currentRoom.getGrid().getLocation(self.player.getLocationID())
-            self.currentRoom.removeEntity(self.player)
-            self.currentRoom.draw(self.locationWidth, self.locationHeight)
-
-            # save room as png
             self.saveCurrentRoomAsPNG()
-            
-            # add player back
-            self.currentRoom.addEntityToLocation(self.player, locationOfPlayer)
         
         self.currentRoom.draw(self.locationWidth, self.locationHeight)
         self.status.draw()
@@ -706,7 +737,14 @@ class WorldScreen:
 
             # draw room coordinates in top left corner
             coordinatesText = "(" + str(self.currentRoom.getX()) + ", " + str(self.currentRoom.getY() * -1) + ")"
-            self.graphik.drawText(coordinatesText, 30, 20, 20, (255,255,255))
+            ypos = 20
+            if self.config.showMiniMap:
+                # move to bottom left
+                ypos = self.graphik.getGameDisplay().get_height() - 40
+            self.graphik.drawText(coordinatesText, 30, ypos, 20, (255,255,255))
+        
+        if self.config.generateMapImage and self.config.showMiniMap and self.minimapScaleFactor > 0:
+            self.drawMiniMap()
         
         pygame.display.update()
 
@@ -876,6 +914,19 @@ class WorldScreen:
             if self.config.debug:
                 print("Removed " + livingEntity.getName() + " from room " + self.currentRoom.getName() + " because it had 0 energy")
 
+    def save(self):
+        self.saveCurrentRoomToFile()
+        self.savePlayerLocationToFile()
+        self.savePlayerAttributesToFile()
+        self.savePlayerInventoryToFile()
+        self.stats.save()
+        self.tickCounter.save()
+
+        if self.config.generateMapImage:
+            if not self.isCurrentRoomSavedAsPNG():
+                self.saveCurrentRoomAsPNG()
+            self.mapImageUpdater.updateMapImage()
+
     def run(self):
         while not self.changeScreen:
             for event in pygame.event.get():
@@ -912,7 +963,7 @@ class WorldScreen:
                     newRoom = self.map.getRoom(newRoomX, newRoomY)
                     if newRoom == -1:
                         # attempt to load room if file exists, otherwise generate new room
-                        nextRoomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(x) + "_" + str(y) + ".json"
+                        nextRoomPath = self.config.pathToSaveDirectory + "/rooms/room_" + str(newRoomX) + "_" + str(newRoomY) + ".json"
                         if os.path.exists(nextRoomPath):
                             roomJsonReaderWriter = RoomJsonReaderWriter(self.config.gridSize, self.graphik, self.tickCounter)
                             newRoom = roomJsonReaderWriter.loadRoom(nextRoomPath)
@@ -977,15 +1028,7 @@ class WorldScreen:
         if not os.path.exists(self.config.pathToSaveDirectory):
             os.makedirs(self.config.pathToSaveDirectory)
         
-        self.saveCurrentRoomToFile()
-        self.savePlayerLocationToFile()
-        self.savePlayerAttributesToFile()
-        self.savePlayerInventoryToFile()
-        self.stats.save()
-        self.tickCounter.save()
-
-        if self.config.generateMapImage:
-            self.mapImageUpdater.updateMapImage()
+        self.save()
         
         self.changeScreen = False
         return self.nextScreen
