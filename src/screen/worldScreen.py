@@ -675,7 +675,7 @@ class WorldScreen:
     def draw(self):
         self.graphik.getGameDisplay().fill(self.currentRoom.getBackgroundColor())
 
-        if self.config.generateMapImage and not self.isCurrentRoomSavedAsPNG():
+        if self.config.showMiniMap and not self.isCurrentRoomSavedAsPNG():
             self.saveCurrentRoomAsPNG()
         
         self.currentRoom.draw(self.locationWidth, self.locationHeight)
@@ -743,7 +743,7 @@ class WorldScreen:
                 ypos = self.graphik.getGameDisplay().get_height() - 40
             self.graphik.drawText(coordinatesText, 30, ypos, 20, (255,255,255))
         
-        if self.config.generateMapImage and self.config.showMiniMap and self.minimapScaleFactor > 0:
+        if self.config.showMiniMap and self.minimapScaleFactor > 0:
             self.drawMiniMap()
         
         pygame.display.update()
@@ -922,7 +922,7 @@ class WorldScreen:
         self.stats.save()
         self.tickCounter.save()
 
-        if self.config.generateMapImage:
+        if self.config.showMiniMap:
             if not self.isCurrentRoomSavedAsPNG():
                 self.saveCurrentRoomAsPNG()
             self.mapImageUpdater.updateMapImage()
@@ -1021,7 +1021,7 @@ class WorldScreen:
                 time.sleep(3)
                 self.respawnPlayer()
             
-            if self.config.generateMapImage:
+            if self.config.showMiniMap:
                 self.mapImageUpdater.updateIfCooldownOver()
 
         # create save directory if it doesn't exist

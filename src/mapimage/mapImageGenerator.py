@@ -8,6 +8,7 @@ from PIL import Image
 class MapImageGenerator:
     def __init__(self, config):
         self.config = config
+        
         self.numRoomsInEachDirection = 5
         self.roomSizeInPixels = 100
         self.mapImageSizeInPixels = (self.numRoomsInEachDirection * 2 + 1) * self.roomSizeInPixels
@@ -37,11 +38,13 @@ class MapImageGenerator:
         return os.path.exists(self.mapImagePath)
 
     def getExistingMapImage(self):
-        print("Loading existing map image")
+        if (self.config.debug):
+            print("Loading existing map image")
         return Image.open(self.mapImagePath)
 
     def createNewMapImage(self):
-        print("Creating new map image")
+        if (self.config.debug):
+            print("Creating new map image")
         return Image.new("RGB", (self.mapImageSizeInPixels, self.mapImageSizeInPixels), "white")
 
     def getRoomImages(self):
@@ -76,6 +79,7 @@ class MapImageGenerator:
             else:
                 numOutOfBounds += 1
         
-        print("Images pasted: " + str(numPasted))
-        print("Images out of bounds: " + str(numOutOfBounds))
-        print("Percent of map updated: " + str(int(numPasted / (self.numRoomsInEachDirection * 2 + 1) ** 2 * 100)) + "%")
+        if (self.config.debug):
+            print("Images pasted: " + str(numPasted))
+            print("Images out of bounds: " + str(numOutOfBounds))
+            print("Percent of map updated: " + str(int(numPasted / (self.numRoomsInEachDirection * 2 + 1) ** 2 * 100)) + "%")

@@ -20,6 +20,10 @@ class TickCounter:
         self.updateMeasuredTicksPerSecond()
     
     def updateMeasuredTicksPerSecond(self):
+        millisecondsSinceLastTick = (time.time() - self.lastTimestamp) * 1000
+        warningThreshold = 500
+        if millisecondsSinceLastTick > warningThreshold:
+            print("WARNING: Tick took " + str(int(millisecondsSinceLastTick)) + " milliseconds to complete. (tick=" + str(self.tick) + ")")
         currentTimestamp = time.time()
         timeElapsed = currentTimestamp - self.lastTimestamp
         self.lastTimestamp = currentTimestamp
