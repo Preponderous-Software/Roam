@@ -159,9 +159,9 @@ class Room(Environment):
 
                 # reset image
                 if isinstance(entity, Chicken):
-                    entity.setImagePath("assets/chicken.png")
+                    entity.setImagePath("assets/images/chicken.png")
                 elif isinstance(entity, Bear):
-                    entity.setImagePath("assets/bear.png")
+                    entity.setImagePath("assets/images/bear.png")
 
                 # throw dice
                 if random.randrange(1, 101) > 1: # 1% chance
@@ -182,11 +182,11 @@ class Room(Environment):
                     entity.setTickLastReproduced(tick)
                     targetEntity.setTickLastReproduced(tick)
                     if isinstance(entity, Chicken):
-                        entity.setImagePath("assets/chickenOnReproductionCooldown.png")
-                        targetEntity.setImagePath("assets/chickenOnReproductionCooldown.png")
+                        entity.setImagePath("assets/images/chickenOnReproductionCooldown.png")
+                        targetEntity.setImagePath("assets/images/chickenOnReproductionCooldown.png")
                     if isinstance(entity, Bear):
-                        entity.setImagePath("assets/bearOnReproductionCooldown.png")
-                        targetEntity.setImagePath("assets/bearOnReproductionCooldown.png")
+                        entity.setImagePath("assets/images/bearOnReproductionCooldown.png")
+                        targetEntity.setImagePath("assets/images/bearOnReproductionCooldown.png")
                 
                 # set new entity's energy to 10% of average of parent's energy
                 newEntity.setEnergy((entity.getEnergy() + targetEntity.getEnergy())/2 * 0.1)
