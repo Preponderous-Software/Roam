@@ -34,7 +34,7 @@ def test_set_direction_up():
     # check
     assert(playerInstance.getDirection() == 0)
     assert(playerInstance.getLastDirection() == -1)
-    assert(playerInstance.imagePath == "assets/player_up.png")
+    assert(playerInstance.imagePath == "assets/images/player_up.png")
 
 def test_set_direction_left():
     # prepare
@@ -46,7 +46,7 @@ def test_set_direction_left():
     # check
     assert(playerInstance.getDirection() == 1)
     assert(playerInstance.getLastDirection() == -1)
-    assert(playerInstance.imagePath == "assets/player_left.png")
+    assert(playerInstance.imagePath == "assets/images/player_left.png")
 
 def test_set_direction_down():
     # prepare
@@ -58,7 +58,7 @@ def test_set_direction_down():
     # check
     assert(playerInstance.getDirection() == 2)
     assert(playerInstance.getLastDirection() == -1)
-    assert(playerInstance.imagePath == "assets/player_down.png")
+    assert(playerInstance.imagePath == "assets/images/player_down.png")
 
 def test_set_direction_right():
     # prepare
@@ -70,7 +70,7 @@ def test_set_direction_right():
     # check
     assert(playerInstance.getDirection() == 3)
     assert(playerInstance.getLastDirection() == -1)
-    assert(playerInstance.imagePath == "assets/player_right.png")
+    assert(playerInstance.imagePath == "assets/images/player_right.png")
 
 def test_set_gathering():
     # prepare

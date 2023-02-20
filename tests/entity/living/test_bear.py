@@ -5,5 +5,5 @@ def test_initialization():
     
     assert(bear.name == "Bear")
     assert(bear.getTickCreated() == 0)
-    assert(bear.getImagePath() == "assets/bear.png")
+    assert(bear.getImagePath() == "assets/images/bear.png")
     assert(bear.isSolid() == False)

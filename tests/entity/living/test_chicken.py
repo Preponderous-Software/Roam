@@ -5,7 +5,7 @@ def test_initialization():
     
     assert(chicken.name == "Chicken")
     assert(chicken.getTickCreated() == 0)
-    assert(chicken.getImagePath() == "assets/chicken.png")
+    assert(chicken.getImagePath() == "assets/images/chicken.png")
     assert(chicken.isSolid() == False)
 
 def test_can_eat():
