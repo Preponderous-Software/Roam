@@ -49,16 +49,12 @@ class Inventory:
     def getNumFreeInventorySlots(self):
         count = 0
         for inventorySlot in self.inventorySlots:
-            if inventorySlot.getItem() == None:
+            if inventorySlot.isEmpty():
                 count += 1
         return count
 
     def getNumTakenInventorySlots(self):
-        count = 0
-        for inventorySlot in self.inventorySlots:
-            if inventorySlot.isEmpty() == False:
-                count += 1
-        return count
+        return self.getNumInventorySlots() - self.getNumFreeInventorySlots()
 
     def getNumItems(self):
         count = 0
