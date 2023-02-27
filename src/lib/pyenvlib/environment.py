@@ -16,11 +16,11 @@ class Environment(object):
         self.name = name
         self.grid = Grid(size, size)
         self.creationDate = datetime.datetime.now()
-    
+
     # Returns the ID of this environment.
     def getID(self):
         return self.id
-    
+
     # Returns the name of this environment.
     def getName(self):
         return self.name
@@ -49,16 +49,16 @@ class Environment(object):
     def addEntity(self, entity: Entity):
         entity.setEnvironmentID(self.getID())
         self.grid.addEntity(entity)
-    
+
     # Adds an entity to a particular location in the underlying grid of this environment.
     def addEntityToLocation(self, entity: Entity, location):
         entity.setEnvironmentID(self.getID())
         self.grid.addEntityToLocation(entity, location)
-    
+
     # Removes an entity from the underlying grid.
     def removeEntity(self, entity: Entity):
         self.grid.removeEntity(entity)
-    
+
     # Checks if an entity is present anywhere in the underlying grid.
     def isEntityPresent(self, entity: Entity):
         return self.grid.isEntityPresent(entity)
@@ -78,7 +78,7 @@ class Environment(object):
         print("ID: ", self.getID())
         print("Grid ID: ", self.getGrid().getID())
         print("\n")
-    
+
     # Returns the entity in this environment with the given ID.
     def getEntity(self, id):
         return self.grid.getEntity(id)

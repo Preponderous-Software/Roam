@@ -7,6 +7,6 @@ class JungleWood(DrawableEntity):
     def __init__(self):
         DrawableEntity.__init__(self, "Jungle Wood", "assets/images/jungleWood.png")
         self.solid = True
-    
+
     def isSolid(self):
         return self.solid
