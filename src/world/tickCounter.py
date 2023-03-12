@@ -32,6 +32,8 @@ class TickCounter:
             )
         currentTimestamp = time.time()
         timeElapsed = currentTimestamp - self.lastTimestamp
+        if timeElapsed == 0:
+            return
         self.lastTimestamp = currentTimestamp
         self.measuredTicksPerSecond = 1 / timeElapsed
 
