@@ -8,3 +8,4 @@ output.txt
 .coverage
 tests/stats/*.json
 cov.xml
+tests/*/*.json
