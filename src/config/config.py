@@ -25,4 +25,4 @@ class Config:
         self.fullscreen = False
         self.autoEatFoodInInventory = True
         self.removeDeadEntities = True
-        self.showMiniMap = True
+        self.showMiniMap = False

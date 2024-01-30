@@ -5,7 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Roam",
+            "name": "Roam Server",
+            "type": "python",
+            "request": "launch",
+            "program": "server/roamServer.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Roam Client",
             "type": "python",
             "request": "launch",
             "program": "src/roam.py",
