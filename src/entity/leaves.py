@@ -5,8 +5,8 @@ from entity.drawableEntity import DrawableEntity
 # @since August 8th, 2022
 class Leaves(DrawableEntity):
     def __init__(self):
-        DrawableEntity.__init__(self, "Leaves", "assets/leaves.png")
+        DrawableEntity.__init__(self, "Leaves", "assets/images/leaves.png")
         self.solid = False
-    
+
     def isSolid(self):
         return self.solid

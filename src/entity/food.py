@@ -7,6 +7,6 @@ class Food(DrawableEntity):
     def __init__(self, name, color, energy):
         DrawableEntity.__init__(self, name, color)
         self.energy = energy
-    
+
     def getEnergy(self):
         return self.energy

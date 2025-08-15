@@ -16,11 +16,11 @@ class Entity(object):
         self.environmentID = -1
         self.gridID = -1
         self.locationID = -1
-    
+
     # Returns the ID of this entity.
     def getID(self):
         return self.id
-    
+
     # Returns the name of this entity.
     def getName(self):
         return self.name
@@ -40,7 +40,7 @@ class Entity(object):
     # Returns the ID of the location that this entity is in.
     def getLocationID(self):
         return self.locationID
-    
+
     # Sets the ID of this entity.
     def setID(self, id):
         self.id = id
@@ -52,7 +52,7 @@ class Entity(object):
     # Sets the environment ID for this entity.
     def setEnvironmentID(self, environmentID):
         self.environmentID = environmentID
-    
+
     # Sets the creation timestamp for this entity.
     def setCreationDate(self, creationDate):
         self.creationDate = creationDate
@@ -64,7 +64,7 @@ class Entity(object):
     # Sets the location ID for this entity.
     def setLocationID(self, locationID):
         self.locationID = locationID
-    
+
     # Prints information about this entity to the console.
     def printInfo(self):
         print("--------------")

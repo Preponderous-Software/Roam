@@ -11,7 +11,7 @@ class LivingEntity(DrawableEntity):
         self.targetEnergy = energy
         self.tickCreated = tickCreated
         self.tickLastReproduced = None
-    
+
     def getEnergy(self):
         return self.energy
 
@@ -28,7 +28,7 @@ class LivingEntity(DrawableEntity):
             self.energy = 100
         else:
             self.energy += amount
-    
+
     def removeEnergy(self, amount):
         if self.energy - amount < 0:
             self.energy = 0
@@ -37,30 +37,33 @@ class LivingEntity(DrawableEntity):
 
     def needsEnergy(self):
         return self.energy < self.targetEnergy * 0.50
-    
+
     def getTargetEnergy(self):
         return self.targetEnergy
+
+    def setTargetEnergy(self, targetEnergy):
+        self.targetEnergy = targetEnergy
 
     def canEat(self, entity):
         for entityType in self.edibleEntityTypes:
             if type(entity) is entityType:
                 return True
         return False
-    
+
     def kill(self):
         self.energy = 0
-    
+
     def getTickCreated(self):
         return self.tickCreated
-    
+
     def setTickCreated(self, tick):
         self.tickCreated = tick
-    
+
     def getAge(self, tick):
         return tick - self.tickCreated
-    
+
     def getTickLastReproduced(self):
         return self.tickLastReproduced
-    
+
     def setTickLastReproduced(self, tick):
         self.tickLastReproduced = tick

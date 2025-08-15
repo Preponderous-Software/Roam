@@ -15,19 +15,20 @@ from entity.leaves import Leaves
 from entity.living.bear import Bear
 from entity.living.chicken import Chicken
 from entity.living.livingEntity import LivingEntity
-from player.player import Player
 from entity.oakWood import OakWood
 from entity.stone import Stone
 from lib.graphik.src.graphik import Graphik
-from lib.pyenvlib.entity import Entity
 from lib.pyenvlib.grid import Grid
 from lib.pyenvlib.location import Location
 
 from world.room import Room
 from world.tickCounter import TickCounter
 
+
 class RoomJsonReaderWriter:
-    def __init__(self, gridSize, graphik: Graphik, tickCounter: TickCounter, config: Config):
+    def __init__(
+        self, gridSize, graphik: Graphik, tickCounter: TickCounter, config: Config
+    ):
         self.gridSize = gridSize
         self.graphik = graphik
         self.tickCounter = tickCounter
@@ -41,7 +42,7 @@ class RoomJsonReaderWriter:
         roomJson = self.generateJsonForRoom(room)
         if not os.path.exists(self.config.pathToSaveDirectory + "/rooms"):
             os.makedirs(self.config.pathToSaveDirectory + "/rooms")
-        with open(path, 'w') as outfile:
+        with open(path, "w") as outfile:
             json.dump(roomJson, outfile, indent=4)
 
     def loadRoom(self, path):
@@ -58,14 +59,16 @@ class RoomJsonReaderWriter:
         roomJson["y"] = room.getY()
         roomJson["name"] = room.getName()
         roomJson["id"] = str(room.getID())
-        roomJson["livingEntityIds"] = [str(entityId) for entityId in room.getLivingEntities().keys()]
+        roomJson["livingEntityIds"] = [
+            str(entityId) for entityId in room.getLivingEntities().keys()
+        ]
         roomJson["grid"] = self.generateJsonForGrid(room.getGrid())
         roomJson["creationDate"] = str(room.getCreationDate())
 
         # validate json with schema
         jsonschema.validate(roomJson, self.roomSchema)
         return roomJson
-    
+
     def generateJsonForGrid(self, grid):
         gridJson = {}
         gridJson["id"] = str(grid.getID())
@@ -73,7 +76,7 @@ class RoomJsonReaderWriter:
         gridJson["rows"] = grid.getRows()
         gridJson["locations"] = self.generateJsonForLocations(grid.getLocations())
         return gridJson
-    
+
     def generateJsonForLocations(self, locations):
         locationsJson = []
         for locationId in locations:
@@ -113,14 +116,21 @@ class RoomJsonReaderWriter:
             entityJson["tickLastReproduced"] = entity.getTickLastReproduced()
             entityJson["imagePath"] = entity.getImagePath()
         return entityJson
-    
+
     # generate room methods
     def generateRoomFromJson(self, roomJson):
         rgb = roomJson["backgroundColor"].replace("(", "").replace(")", "").split(",")
         r = int(rgb[0])
         g = int(rgb[1])
         b = int(rgb[2])
-        room = Room(roomJson["name"], self.gridSize, (r, g, b), roomJson["x"], roomJson["y"], self.graphik)
+        room = Room(
+            roomJson["name"],
+            self.gridSize,
+            (r, g, b),
+            roomJson["x"],
+            roomJson["y"],
+            self.graphik,
+        )
         room.setID(roomJson["id"])
         # room.setCreationDate(roomJson["creationDate"])
         room.setGrid(self.generateGridFromJson(roomJson["grid"]))
@@ -155,7 +165,7 @@ class RoomJsonReaderWriter:
         entities = {}
         for entityJson in entitiesJson:
             entity = self.generateEntityFromJson(entityJson)
-            if (entity == None):
+            if entity == None:
                 continue
             entities[entity.getID()] = entity
 
@@ -164,55 +174,55 @@ class RoomJsonReaderWriter:
         return entities
 
     def generateEntityFromJson(self, entityJson):
-        entityClass = entityJson['entityClass']
+        entityClass = entityJson["entityClass"]
         entity = None
         if entityClass == "Apple":
             entity = Apple()
-            entity.setID(UUID(entityJson['id']))
+            entity.setID(UUID(entityJson["id"]))
         elif entityClass == "CoalOre":
             entity = CoalOre()
-            entity.setID(UUID(entityJson['id']))
-        elif entityClass == 'Grass':
+            entity.setID(UUID(entityJson["id"]))
+        elif entityClass == "Grass":
             entity = Grass()
-            entity.setID(UUID(entityJson['id']))
+            entity.setID(UUID(entityJson["id"]))
         elif entityClass == "IronOre":
             entity = IronOre()
-            entity.setID(UUID(entityJson['id']))
-        elif entityClass == 'JungleWood':
+            entity.setID(UUID(entityJson["id"]))
+        elif entityClass == "JungleWood":
             entity = JungleWood()
-            entity.setID(UUID(entityJson['id']))
+            entity.setID(UUID(entityJson["id"]))
         elif entityClass == "Leaves":
             entity = Leaves()
-            entity.setID(UUID(entityJson['id']))
-        elif entityClass == 'OakWood':
+            entity.setID(UUID(entityJson["id"]))
+        elif entityClass == "OakWood":
             entity = OakWood()
-            entity.setID(UUID(entityJson['id']))
+            entity.setID(UUID(entityJson["id"]))
         elif entityClass == "Stone":
             entity = Stone()
-            entity.setID(UUID(entityJson['id']))
+            entity.setID(UUID(entityJson["id"]))
         elif entityClass == "Bear":
-            entity = Bear(entityJson['tickCreated'])
-            entity.setID(UUID(entityJson['id']))
+            entity = Bear(entityJson["tickCreated"])
+            entity.setID(UUID(entityJson["id"]))
         elif entityClass == "Chicken":
-            entity = Chicken(entityJson['tickCreated'])
-            entity.setID(UUID(entityJson['id']))
+            entity = Chicken(entityJson["tickCreated"])
+            entity.setID(UUID(entityJson["id"]))
         elif entityClass == "Banana":
             entity = Banana()
-            entity.setID(UUID(entityJson['id']))
+            entity.setID(UUID(entityJson["id"]))
         elif entityClass == "Player":
             return None
         else:
-            raise Exception("Unknown entity class: " + entityJson['entityClass'])
+            raise Exception("Unknown entity class: " + entityJson["entityClass"])
 
         if isinstance(entity, LivingEntity):
-            entity.setEnergy(entityJson['energy'])
-            entity.setTickCreated(entityJson['tickCreated'])
-            entity.setTickLastReproduced(entityJson['tickLastReproduced'])
-            entity.setImagePath(entityJson['imagePath'])
+            entity.setEnergy(entityJson["energy"])
+            entity.setTickCreated(entityJson["tickCreated"])
+            entity.setTickLastReproduced(entityJson["tickLastReproduced"])
+            entity.setImagePath(entityJson["imagePath"])
 
-        entity.setEnvironmentID(UUID(entityJson['environmentId']))
-        entity.setGridID(UUID(entityJson['gridId']))
-        entity.setLocationID(entityJson['locationId'])
-        entity.setName(entityJson['name'])
+        entity.setEnvironmentID(UUID(entityJson["environmentId"]))
+        entity.setGridID(UUID(entityJson["gridId"]))
+        entity.setLocationID(entityJson["locationId"])
+        entity.setName(entityJson["name"])
         # entity.setCreationDate(entityJson['creationDate'])
         return entity

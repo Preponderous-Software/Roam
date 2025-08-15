@@ -18,20 +18,26 @@ class Room(Environment):
         self.y = y
         self.graphik = graphik
         self.livingEntities = dict()
-    
+
     def getBackgroundColor(self):
         return self.backgroundColor
-    
+
     def getX(self):
         return self.x
-    
+
     def getY(self):
         return self.y
-    
+
     def draw(self, locationWidth, locationHeight):
         for locationId in self.grid.getLocations():
             location = self.grid.getLocation(locationId)
-            self.drawLocation(location, location.getX() * locationWidth - 1, location.getY() * locationHeight - 1, locationWidth + 2, locationHeight + 2)
+            self.drawLocation(
+                location,
+                location.getX() * locationWidth - 1,
+                location.getY() * locationHeight - 1,
+                locationWidth + 2,
+                locationHeight + 2,
+            )
 
     # Draws a location at a specified position.
     def drawLocation(self, location, xPos, yPos, width, height):
@@ -45,31 +51,34 @@ class Room(Environment):
         else:
             # draw background color
             self.graphik.drawRectangle(xPos, yPos, width, height, self.backgroundColor)
-    
+
     def addLivingEntity(self, entity):
         self.livingEntities[entity.getID()] = entity
-    
+
     def removeLivingEntity(self, entity):
         if entity.getID() not in self.livingEntities:
-            print("Entity was not found in living entities list when trying to remove it. Entity ID: " + str(entity.getID()))
+            print(
+                "Entity was not found in living entities list when trying to remove it. Entity ID: "
+                + str(entity.getID())
+            )
             return
         del self.livingEntities[entity.getID()]
-    
+
     def getRandomAdjacentLocation(self, location):
         num = random.randrange(0, 4)
         if num == 0:
             return self.getGrid().getUp(location)
         elif num == 1:
             return self.getGrid().getRight(location)
-        elif num == 2: 
+        elif num == 2:
             return self.getGrid().getDown(location)
         elif num == 3:
             return self.getGrid().getLeft(location)
-    
+
     def checkEntityMovementCooldown(self, tickToCheck, entity):
         ticksPerSecond = self.config.ticksPerSecond
-        return tickToCheck + ticksPerSecond/entity.getSpeed() < self.tick
-    
+        return tickToCheck + ticksPerSecond / entity.getSpeed() < self.tick
+
     def moveLivingEntities(self, tick) -> list:
         entitiesToMoveToNewRoom = []
         for entityId in self.livingEntities:
@@ -84,17 +93,22 @@ class Room(Environment):
             try:
                 location = self.getGrid().getLocation(locationId)
             except:
-                print("ERROR: Location not found when trying to move entity. Entity ID: " + str(entity.getID()) + ", Location ID: " + str(locationId))
+                print(
+                    "ERROR: Location not found when trying to move entity. Entity ID: "
+                    + str(entity.getID())
+                    + ", Location ID: "
+                    + str(locationId)
+                )
                 continue
             newLocation = self.getRandomAdjacentLocation(location)
 
             if newLocation == -1:
                 entitiesToMoveToNewRoom.append(entity)
                 continue
-            
+
             if self.locationContainsSolidEntity(newLocation):
                 continue
-            
+
             # move entity
             location.removeEntity(entity)
             newLocation.addEntity(entity)
@@ -111,7 +125,10 @@ class Room(Environment):
                         continue
                     targetEntity = newLocation.getEntity(targetEntityId)
                     if entity.canEat(targetEntity):
-                        if isinstance(targetEntity, LivingEntity) and targetEntity.getEnergy() > 0:
+                        if (
+                            isinstance(targetEntity, LivingEntity)
+                            and targetEntity.getEnergy() > 0
+                        ):
                             targetEntity.kill()
                             entity.addEnergy(targetEntity.getEnergy())
                         else:
@@ -119,11 +136,11 @@ class Room(Environment):
                             entity.addEnergy(10)
                         break
         return entitiesToMoveToNewRoom
-            
+
     def reproduceLivingEntities(self, tick):
         entityLocationMappings = []
-        minAgeToReproduce = 30 * 60 * 5 # 5 minutes (at 30/ticks per second)
-        reproductionCooldown = minAgeToReproduce/2 # 2.5 minutes
+        minAgeToReproduce = 30 * 60 * 5  # 5 minutes (at 30/ticks per second)
+        reproductionCooldown = minAgeToReproduce / 2  # 2.5 minutes
         for entityId in self.livingEntities:
             entity = self.livingEntities[entityId]
             if entity.getAge(tick) < minAgeToReproduce:
@@ -134,7 +151,12 @@ class Room(Environment):
             try:
                 location = self.getGrid().getLocation(locationId)
             except:
-                print("ERROR: Location not found when trying to reproduce entity. Entity ID: " + str(entity.getID()) + ", Location ID: " + str(locationId))
+                print(
+                    "ERROR: Location not found when trying to reproduce entity. Entity ID: "
+                    + str(entity.getID())
+                    + ", Location ID: "
+                    + str(locationId)
+                )
                 continue
             for targetEntityId in list(location.getEntities().keys()):
                 targetEntity = location.getEntity(targetEntityId)
@@ -154,22 +176,25 @@ class Room(Environment):
                 if targetEntity.getAge(tick) < minAgeToReproduce:
                     continue
                 # check reproduction cooldown
-                if entity.getTickLastReproduced() != None and entity.getTickLastReproduced() + reproductionCooldown > tick:
+                if (
+                    entity.getTickLastReproduced() != None
+                    and entity.getTickLastReproduced() + reproductionCooldown > tick
+                ):
                     continue
 
                 # reset image
                 if isinstance(entity, Chicken):
-                    entity.setImagePath("assets/chicken.png")
+                    entity.setImagePath("assets/images/chicken.png")
                 elif isinstance(entity, Bear):
-                    entity.setImagePath("assets/bear.png")
+                    entity.setImagePath("assets/images/bear.png")
 
                 # throw dice
-                if random.randrange(1, 101) > 1: # 1% chance
+                if random.randrange(1, 101) > 1:  # 1% chance
                     continue
 
                 # decrease energy by half
-                entity.removeEnergy(entity.getEnergy()/2)
-                targetEntity.removeEnergy(targetEntity.getEnergy()/2)
+                entity.removeEnergy(entity.getEnergy() / 2)
+                targetEntity.removeEnergy(targetEntity.getEnergy() / 2)
 
                 newEntity = None
                 if isinstance(entity, Bear):
@@ -182,21 +207,30 @@ class Room(Environment):
                     entity.setTickLastReproduced(tick)
                     targetEntity.setTickLastReproduced(tick)
                     if isinstance(entity, Chicken):
-                        entity.setImagePath("assets/chickenOnReproductionCooldown.png")
-                        targetEntity.setImagePath("assets/chickenOnReproductionCooldown.png")
+                        entity.setImagePath(
+                            "assets/images/chickenOnReproductionCooldown.png"
+                        )
+                        targetEntity.setImagePath(
+                            "assets/images/chickenOnReproductionCooldown.png"
+                        )
                     if isinstance(entity, Bear):
-                        entity.setImagePath("assets/bearOnReproductionCooldown.png")
-                        targetEntity.setImagePath("assets/bearOnReproductionCooldown.png")
-                
+                        entity.setImagePath(
+                            "assets/images/bearOnReproductionCooldown.png"
+                        )
+                        targetEntity.setImagePath(
+                            "assets/images/bearOnReproductionCooldown.png"
+                        )
+
                 # set new entity's energy to 10% of average of parent's energy
-                newEntity.setEnergy((entity.getEnergy() + targetEntity.getEnergy())/2 * 0.1)
-                
+                newEntity.setEnergy(
+                    (entity.getEnergy() + targetEntity.getEnergy()) / 2 * 0.1
+                )
+
         for entityLocationMapping in entityLocationMappings:
             entity = entityLocationMapping[0]
             location = entityLocationMapping[1]
             self.addEntityToLocation(entity, location)
             self.addLivingEntity(entity)
-                
 
     def locationContainsSolidEntity(self, location):
         for entityId in list(location.getEntities().keys()):
@@ -204,7 +238,7 @@ class Room(Environment):
             if entity.isSolid():
                 return True
         return False
-    
+
     def getLivingEntities(self):
         return self.livingEntities
 

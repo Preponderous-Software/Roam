@@ -19,7 +19,7 @@ from world.tickCounter import TickCounter
 class Roam:
     def __init__(self, config: Config):
         pygame.init()
-        pygame.display.set_icon(pygame.image.load("assets/player_down.png"))
+        pygame.display.set_icon(pygame.image.load("assets/images/player_down.png"))
         self.running = True
         self.config = config
         pygame.display.set_caption("Roam" + " (" + config.pathToSaveDirectory + ")")
@@ -29,27 +29,44 @@ class Roam:
         self.status = Status(self.graphik, self.tickCounter)
         self.stats = Stats(self.config)
         self.player = Player(self.tickCounter.getTick())
-        self.worldScreen = WorldScreen(self.graphik, self.config, self.status, self.tickCounter, self.stats, self.player)
+        self.worldScreen = WorldScreen(
+            self.graphik,
+            self.config,
+            self.status,
+            self.tickCounter,
+            self.stats,
+            self.player,
+        )
         self.optionsScreen = OptionsScreen(self.graphik, self.config, self.status)
-        self.mainMenuScreen = MainMenuScreen(self.graphik, self.config, self.initializeWorldScreen)
-        self.statsScreen = StatsScreen(self.graphik, self.config, self.status, self.stats)
-        self.inventoryScreen = InventoryScreen(self.graphik, self.config, self.status, self.player.getInventory())
+        self.mainMenuScreen = MainMenuScreen(
+            self.graphik, self.config, self.initializeWorldScreen
+        )
+        self.statsScreen = StatsScreen(
+            self.graphik, self.config, self.status, self.stats
+        )
+        self.inventoryScreen = InventoryScreen(
+            self.graphik, self.config, self.status, self.player.getInventory()
+        )
         self.configScreen = ConfigScreen(self.graphik, self.config, self.status)
         self.currentScreen = self.mainMenuScreen
 
     def initializeGameDisplay(self):
         if self.config.fullscreen:
-            return pygame.display.set_mode((self.config.displayWidth, self.config.displayHeight), pygame.FULLSCREEN)
+            return pygame.display.set_mode(
+                (self.config.displayWidth, self.config.displayHeight), pygame.FULLSCREEN
+            )
         else:
-            return pygame.display.set_mode((self.config.displayWidth, self.config.displayHeight), pygame.RESIZABLE)
-    
+            return pygame.display.set_mode(
+                (self.config.displayWidth, self.config.displayHeight), pygame.RESIZABLE
+            )
+
     def initializeWorldScreen(self):
         self.worldScreen.initialize()
 
     def quitApplication(self):
         pygame.quit()
         quit()
-    
+
     def run(self):
         while True:
             result = self.currentScreen.run()
@@ -71,6 +88,7 @@ class Roam:
             else:
                 print("unrecognized screen: " + result)
                 self.quitApplication()
+
 
 pygame.init()
 config = Config()
