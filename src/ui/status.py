@@ -13,27 +13,37 @@ class Status:
         self.tickLastSet = -1
         self.durationInTicks = 20
         self.tickCounter = tickCounter
-    
+
     def set(self, text):
         self.text = text
         self.tickLastSet = self.tickCounter.getTick()
-    
+
     def clear(self):
         self.text = -1
-    
+
     def draw(self):
         if self.text == -1:
             return
         x, y = self.graphik.getGameDisplay().get_size()
         width = len(self.text) * 10
         height = self.textSize * 2
-        xpos = x/2 - width/2
-        ypos = y - y/12 - height/2
-        self.graphik.drawButton(xpos, ypos, width, height, (255,255,255), self.textColor, self.textSize, self.text, self.clear)
-    
+        xpos = x / 2 - width / 2
+        ypos = y - y / 12 - height / 2
+        self.graphik.drawButton(
+            xpos,
+            ypos,
+            width,
+            height,
+            (255, 255, 255),
+            self.textColor,
+            self.textSize,
+            self.text,
+            self.clear,
+        )
+
     def getTickLastSet(self):
         return self.tickLastSet
-    
+
     def checkForExpiration(self, currentTick):
         expiryTick = self.tickLastSet + self.durationInTicks
         if currentTick > expiryTick:

@@ -7,7 +7,14 @@ from entity.living.livingEntity import LivingEntity
 # @since July 7th, 2022
 class Chicken(LivingEntity):
     def __init__(self, tickCreated):
-        LivingEntity.__init__(self, "Chicken", "assets/chicken.png", random.randrange(20, 30), [Grass], tickCreated)
+        LivingEntity.__init__(
+            self,
+            "Chicken",
+            "assets/images/chicken.png",
+            random.randrange(20, 30),
+            [Grass],
+            tickCreated,
+        )
         self.solid = False
 
     def isSolid(self):

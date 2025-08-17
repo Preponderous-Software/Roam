@@ -11,9 +11,12 @@ class MapImageUpdater:
         self.mapImageGenerator = MapImageGenerator(self.config)
         self.tickLastUpdated = self.tickCounter.getTick()
         self.updateCooldownInTicks = 300
-    
+
     def updateIfCooldownOver(self):
-        if self.tickCounter.getTick() - self.tickLastUpdated > self.updateCooldownInTicks:
+        if (
+            self.tickCounter.getTick() - self.tickLastUpdated
+            > self.updateCooldownInTicks
+        ):
             self.updateMapImage()
 
     def updateMapImage(self):

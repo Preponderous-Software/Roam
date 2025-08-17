@@ -14,11 +14,11 @@ class MainMenuScreen:
         self.initializeWorldScreen = initializeWorldScreen
         self.nextScreen = ScreenType.WORLD_SCREEN
         self.changeScreen = False
-        
+
     def switchToWorldScreen(self):
         self.nextScreen = ScreenType.WORLD_SCREEN
         self.changeScreen = True
-    
+
     def switchToConfigScreen(self):
         self.nextScreen = ScreenType.CONFIG_SCREEN
         self.changeScreen = True
@@ -26,37 +26,74 @@ class MainMenuScreen:
     def quitApplication(self):
         pygame.quit()
         quit()
-    
+
     def drawText(self):
         x, y = self.graphik.getGameDisplay().get_size()
-        xpos = x/2
-        ypos = y/10
+        xpos = x / 2
+        ypos = y / 10
         self.graphik.drawText("Roam", xpos, ypos, 64, (255, 255, 255))
-        ypos = y/3
-        self.graphik.drawText("press any key to start!", xpos, ypos, 32, (255, 255, 255))
-    
+        ypos = y / 3
+        self.graphik.drawText(
+            "press any key to start!", xpos, ypos, 32, (255, 255, 255)
+        )
+
     def drawMenuButtons(self):
         x, y = self.graphik.getGameDisplay().get_size()
-        width = x/5
-        height = y/10
-        xpos = x/2 - width/2
-        ypos = y/2 - height/2
+        width = x / 5
+        height = y / 10
+        xpos = x / 2 - width / 2
+        ypos = y / 2 - height / 2
         margin = 10
         backgroundColor = (255, 255, 255)
-        self.graphik.drawButton(xpos, ypos, width, height, backgroundColor, (0,0,0), 30, "play", self.switchToWorldScreen)
+        self.graphik.drawButton(
+            xpos,
+            ypos,
+            width,
+            height,
+            backgroundColor,
+            (0, 0, 0),
+            30,
+            "play",
+            self.switchToWorldScreen,
+        )
         ypos = ypos + height + margin
-        self.graphik.drawButton(xpos, ypos, width, height, backgroundColor, (0,0,0), 30, "config", self.switchToConfigScreen)
+        self.graphik.drawButton(
+            xpos,
+            ypos,
+            width,
+            height,
+            backgroundColor,
+            (0, 0, 0),
+            30,
+            "config",
+            self.switchToConfigScreen,
+        )
         ypos = ypos + height + margin
-        self.graphik.drawButton(xpos, ypos, width, height, backgroundColor, (0,0,0), 30, "quit", self.quitApplication)
+        self.graphik.drawButton(
+            xpos,
+            ypos,
+            width,
+            height,
+            backgroundColor,
+            (0, 0, 0),
+            30,
+            "quit",
+            self.quitApplication,
+        )
 
     def drawVersion(self):
         if os.path.isfile("version.txt"):
             with open("version.txt", "r") as file:
                 version = file.read()
-                
+
                 # display centered at bottom of screen
-                self.graphik.drawText(version, self.graphik.getGameDisplay().get_size()[0]/2, self.graphik.getGameDisplay().get_size()[1] - 10, 16, (255, 255, 255))
-        
+                self.graphik.drawText(
+                    version,
+                    self.graphik.getGameDisplay().get_size()[0] / 2,
+                    self.graphik.getGameDisplay().get_size()[1] - 10,
+                    16,
+                    (255, 255, 255),
+                )
 
     def handleKeyDownEvent(self, key):
         self.switchToWorldScreen()
@@ -70,7 +107,7 @@ class MainMenuScreen:
                     break
                 elif event.type == pygame.KEYDOWN:
                     self.handleKeyDownEvent(event.key)
-            
+
             self.graphik.getGameDisplay().fill((0, 0, 0))
             self.drawText()
             self.drawMenuButtons()

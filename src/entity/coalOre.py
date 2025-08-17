@@ -1,4 +1,3 @@
-import random
 from entity.drawableEntity import DrawableEntity
 
 
@@ -6,8 +5,8 @@ from entity.drawableEntity import DrawableEntity
 # @since August 18th, 2022
 class CoalOre(DrawableEntity):
     def __init__(self):
-        DrawableEntity.__init__(self, "Coal Ore", "assets/coalOre.png")
+        DrawableEntity.__init__(self, "Coal Ore", "assets/images/coalOre.png")
         self.solid = True
-    
+
     def isSolid(self):
         return self.solid
